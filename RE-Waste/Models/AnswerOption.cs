@@ -12,12 +12,12 @@ namespace RE_Waste.Models
         [StringLength(100)]
         public string Text { get; set; } = string.Empty;
 
-        //the value that will be stored in the database when this option is selected, e.g. "Y", "N", "M" etc.
+        //the value that will be stored in the database when this option is selected
         [Required]
         [StringLength(50)]
         public string Value { get; set; } = string.Empty;
 
-        //be used to order the questions in the wizard form, to make ordering easier 
+        //be used to order the options in the wizard form, to make ordering easier 
         public int DisplayOrder { get; set; }
 
         //we can't delete questions (older data would break), but we can make them inactive so they won't be shown in the wizard form
