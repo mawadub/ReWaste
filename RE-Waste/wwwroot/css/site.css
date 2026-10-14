@@ -1,5 +1,5 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
@@ -18,5 +18,33 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    color: #e5d7fe;
+    background-color: #0064a2;
+}
+
+.custom-navbar {
+    background-color: #741d40;
+    color: #e5d7fe;
+}
+
+.button {
+    background-color: #003b35;
+    color: #e5d7fe;
+    padding: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 10px;
+}
+
+.custom-navbar .nav-link {
+    color: #e5d7fe !important;
+}
+
+.custom-navbar .nav-link:hover {
+    text-decoration:underline;
+}
+
+footer {
+    color: #e5d7fe !important;
 }
