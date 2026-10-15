@@ -28,6 +28,14 @@ body {
     color: #e5d7fe;
 }
 
+.custom-navbar .nav-link {
+    color: #e5d7fe !important;
+}
+
+.custom-navbar .nav-link:hover {
+    text-decoration:underline;
+}
+
 .button {
     background-color: #003b35;
     color: #e5d7fe;
@@ -37,14 +45,32 @@ body {
     border-radius: 10px;
 }
 
-.custom-navbar .nav-link {
-    color: #e5d7fe !important;
+/*This underlines the headings of pages.*/
+h1 {
+    border-bottom-style: solid;
+    border-color: #02896b;
+    border-width:5px;
 }
 
-.custom-navbar .nav-link:hover {
-    text-decoration:underline;
+
+/* Contact Page Styling */
+
+#contact {
+    display:flex;
 }
 
-footer {
-    color: #e5d7fe !important;
+#contactForm {
+    width: 60%;
+    background-color: #02896b;
+    padding: 30px;
+    border-radius: 10px;
+    margin-right:30px;
+}
+
+#contactDiv {
+    width: 60%;
+    background-color: #741d40;
+    border-radius: 10px;
+    padding:30px;
+    margin-left:30px;
 }
