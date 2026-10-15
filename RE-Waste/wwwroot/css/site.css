@@ -74,3 +74,26 @@ h1 {
     padding:30px;
     margin-left:30px;
 }
+#contactForm input,
+#contactForm textarea {
+    width: 100%; /* fill the green panel instead of using cols="30" */
+    max-width: 100%; /* never grow wider than the panel */
+    box-sizing: border-box; /* count the field's own border inside that 100% */
+}
+#contactDiv img {
+    max-width: 100%; /* never wider than the maroon box */
+    height: auto; /* keep the picture's proportions when it shrinks */
+}
+
+@media (max-width: 767px) {
+    #contact {
+        flex-direction: column; /* children go top-to-bottom instead of side by side */
+    }
+
+    #contactForm,
+    #contactDiv {
+        width: 100%; /* each box takes the full width */
+        margin: 0 0 20px 0; /* drop the side margins; 20 px gap underneath */
+        padding: 20px; /* a bit less padding on a small screen */
+    }
+}
