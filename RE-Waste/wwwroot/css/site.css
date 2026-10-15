@@ -1,5 +1,7 @@
 html {
     font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,20 +10,20 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--rw-lavender);
+    background-color: var(--rw-blue);
+    line-height: 1.6;
 }
-
+    
 html {
   position: relative;
   min-height: 100%;
 }
 
-body {
-    margin-bottom: 60px;
-    color: #e5d7fe;
-    background-color: #0064a2;
-}
 
 .custom-navbar {
     background-color: #741d40;
@@ -37,19 +39,68 @@ body {
 }
 
 .button {
-    background-color: #003b35;
-    color: #e5d7fe;
-    padding: 5px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 10px;
+    display: inline-block;
+    background-color: var(--rw-dark-green);
+    color: var(--rw-lavender);
+    border: 2px solid var(--rw-dark-green);
+    padding: .5rem 1.5rem;
+    border-radius: var(--rw-radius);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .15s, color .15s;
+}
+button:hover {
+    background-color: var(--rw-lavender);
+    color: var(--rw-dark-green);
 }
 
 /*This underlines the headings of pages.*/
 h1 {
+    display: inline-block;
     border-bottom-style: solid;
-    border-color: #02896b;
+    border-color: var(--rw-green);
     border-width:5px;
+}
+
+/* ---------- Home page ---------- */
+.hero {
+    text-align: center;
+    padding: 2rem 0 2.5rem;
+}
+
+.hero .lead {
+    max-width: 40rem; /* keep lines a readable length */
+    margin: 0 auto 1.5rem;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.option-card {
+    background-color: var(--rw-maroon);
+    border-radius: var(--rw-radius);
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+}
+
+
+.option-card h2 {
+    color: #7fe3c6; /* light green heading, 6.9:1 on maroon */
+}
+
+.option-card p {
+    margin-bottom: 0;
+}
+
+.intro-text {
+    max-width: 40rem;
+    margin: 0 auto;
+    text-align: center;
 }
 
 
@@ -96,4 +147,20 @@ h1 {
         margin: 0 0 20px 0; /* drop the side margins; 20 px gap underneath */
         padding: 20px; /* a bit less padding on a small screen */
     }
+}
+
+/*all the brand colours in one place*/
+:root {
+    --rw-blue: #0064a2; /* page background */
+    --rw-maroon: #741d40; /* navbar, footer, accent panels */
+    --rw-green: #02896b; /* accents, heading underline */
+    --rw-dark-green: #003b35; /* buttons, form panel */
+    --rw-lavender: #e5d7fe; /* text on dark backgrounds */
+    --rw-radius: 12px;
+}
+
+/* ---------- Footer ---------- */
+.footer {
+    background-color: var(--rw-maroon);
+    color: var(--rw-lavender);
 }
