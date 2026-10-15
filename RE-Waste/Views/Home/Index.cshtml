@@ -2,9 +2,53 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Manager: @User.IsInRole("Manager")</p>
+<section class="hero">
+   <h1 class="display-4">Welcome to Re-Waste</h1>
+   <p class="lead">
+        Find out what to do with your old phone in a few minutes. Our FREE check shows you the resale, repair, donation and recycling options near you.
+   </p>
+   <a class="button button-large" asp-controller="Wizard" asp-action="Start">Begin</a>
+</section>
 
-</div>
+<section class="options">
+    <div class="option-card">
+        <h2>Repair it</h2>
+        <p>Fix a cracked screen or tired battery and keep using it.</p>
+    </div>
+
+    <div class="option-card">
+        <h2>Resell it</h2>
+        <p>See what your device could still be worth.</p>
+    </div>
+
+    <div class="option-card">
+        <h2>Donate it</h2>
+        <p>Give it to someone else who needs it.</p>
+    </div>
+
+    <div class="option-card">
+        <h2>Recycle it</h2>
+        <p>Find a safe drop-off point nearby.</p>
+    </div>
+</section>
+
+<p class="lead">
+    Here at Re-Waste our goal is to get you to give your old tech a second life. Repair it, donate it, resell it or
+    recycle it. Your old tech can be dealt with instead of sitting in your drawers. We will help you find out
+    what you can do with your old tech, helping take some of the stress and confusion out of the process.
+</p>
+
+
+@* <div class="text-center">
+    <h1 class="display-4">Welcome to Re-Waste</h1>
+    <p>
+        To find out how you can dispose of your device you can press the button below to begin our FREE
+        experience. Learn the potential reselling opportunities, local donation options and much more ...
+    </p>
+    <a class="button" asp-controller="Wizard" asp-action="Start">Begin</a>
+    <p>
+        Here at Re-Waste our goal is to get you to give your old tech a second life. Repair it, donate it, resell it or
+        recycle it. Your old tech can be dealt with instead of sitting in your drawers. We will help you find out
+        what you can do with your old tech, helping take some of the stress and confusion out of the process.
+    </p>
+</div> *@

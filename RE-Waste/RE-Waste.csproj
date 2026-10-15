@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\Images\mascot.png" />
+    <None Include="wwwroot\Images\rewaste_logo.png" />
+    <None Include="wwwroot\Images\rewaste_logo_r.png" />
+    <None Include="wwwroot\Images\rewaste_logo_transparent.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.31" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.31" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.31" />
