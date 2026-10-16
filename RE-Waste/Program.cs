@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RE_Waste.Data;
 using RE_Waste.Models;
+using RE_Waste.Services;
 
 namespace RE_Waste
 {
@@ -23,6 +24,13 @@ namespace RE_Waste
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
+
+            // R3: postcode lookup through postcodes.io. Registered as a typed HTTP client so ASP.NET creates and reuses the HttpClient properly
+            builder.Services.AddHttpClient<IPostcodeService, PostcodeService>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.postcodes.io/");
+                client.Timeout = TimeSpan.FromSeconds(10);
+            });
 
             var app = builder.Build();
 
