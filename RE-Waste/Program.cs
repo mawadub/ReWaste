@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RE_Waste.Data;
 using RE_Waste.Models;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace RE_Waste
 {
@@ -9,9 +10,10 @@ namespace RE_Waste
     {
         public static async Task Main(string[] args)
         {
+            await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+
             // Why are we using dynamic typing for the builder
             // WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -37,6 +39,8 @@ namespace RE_Waste
             // This is done here instead of in a controller so that it runs on app start-up, and not only when a manager visits the site.
             using (var scope = app.Services.CreateScope())
             {
+                //creates or updates the database from the migrations and does nothing if it’s already up to date
+                await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
                 await IdentitySeeder.SeedAsync(scope.ServiceProvider);
                 await DataSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<ApplicationDbContext>());
             }

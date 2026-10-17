@@ -88,31 +88,35 @@ namespace RE_Waste.Data
                     CreateRule("Phone not working", RouteType.Repair, "A repair service may be able to restore the phone.", 80, condition: Condition.NotWorking),
                     CreateRule("Phone partly working", RouteType.Repair, "A repair service may be able to fix the phone.", 70, condition: Condition.PartlyWorking),
                     CreateRule("Phone is eight or more years old", RouteType.Recycle, "An older phone may be more suitable for responsible recycling.", 60, minAge: 8),
-                    CreateRule("Phone is four to seven years old", RouteType.Repair, "Consider repair to extend the phone's useful life.", 50, minAge: 4, maxAge: 7),
+                    CreateRule("Phone is four to seven years old", RouteType.ResaleOrTradeIn, "Consider repair to extend the phone's useful life.", 50, minAge: 4, maxAge: 7, condition: Condition.Working),
                     CreateRule("Recent working phone", RouteType.Donate, "A working phone in good condition may be suitable for donation.", 40, condition: Condition.Working, maxAge: 3),
                     CreateRule("Working phone with personal data", RouteType.ResaleOrTradeIn, "Erase personal data before arranging a resale or trade-in.", 30, condition: Condition.Working, hasPersonalData: true),
                     CreateRule("Working phone without personal data", RouteType.ResaleOrTradeIn, "A working phone may be suitable for resale or trade-in.", 20, condition: Condition.Working, hasPersonalData: false),
                     CreateRule("General recycling fallback", RouteType.Recycle, "If another option is unsuitable, use a responsible recycling service.", 1));
             }
-            // 3. Seed drop-off points
+            // 3. Drop-off points. Real Scottish places (the pilot area is Scotland, per the requirement "UK (Scotland only) postcodes").
+            // Names, addresses and postcodes come from each organisation's or council's own website (checked 17 Oct 2026).
+            // Latitude/longitude are stored so distances can be worked out without calling the postcode service on every search.
+            // If you add a point, look its postcode up at https://postcodes.io/postcodes/<POSTCODE> and copy the latitude/longitude.
             if (!await context.DropOffPoints.AnyAsync())
             {
                 context.DropOffPoints.AddRange(
-                    CreateDropOffPoint("Demo Charity Drop-off - London", "1 Sample Road, London", "SW1A 1AA", 51.5014, -0.1419, DropOffPointType.Charity),
-                    CreateDropOffPoint("Demo Recycling Centre - Birmingham", "2 Sample Road, Birmingham", "B1 1AA", 52.4862, -1.8904, DropOffPointType.RecyclingCentre),
-                    CreateDropOffPoint("Demo Retailer - Manchester", "3 Sample Road, Manchester", "M1 1AA", 53.4808, -2.2426, DropOffPointType.Retailer),
-                    CreateDropOffPoint("Demo Repair Service - Leeds", "4 Sample Road, Leeds", "LS1 1AA", 53.8008, -1.5491, DropOffPointType.Repair),
-                    CreateDropOffPoint("Demo Charity Drop-off - Glasgow", "5 Sample Road, Glasgow", "G1 1AA", 55.8642, -4.2518, DropOffPointType.Charity),
-                    CreateDropOffPoint("Demo Recycling Centre - Liverpool", "6 Sample Road, Liverpool", "L1 1AA", 53.4084, -2.9916, DropOffPointType.RecyclingCentre),
-                    CreateDropOffPoint("Demo Retailer - Bristol", "7 Sample Road, Bristol", "BS1 1AA", 51.4545, -2.5879, DropOffPointType.Retailer),
-                    CreateDropOffPoint("Demo Repair Service - Sheffield", "8 Sample Road, Sheffield", "S1 1AA", 53.3811, -1.4701, DropOffPointType.Repair),
-                    CreateDropOffPoint("Demo Charity Drop-off - Edinburgh", "9 Sample Road, Edinburgh", "EH1 1AA", 55.9533, -3.1883, DropOffPointType.Charity),
-                    CreateDropOffPoint("Demo Recycling Centre - Cardiff", "10 Sample Road, Cardiff", "CF10 1AA", 51.4816, -3.1791, DropOffPointType.RecyclingCentre),
-                    CreateDropOffPoint("Demo Retailer - Nottingham", "11 Sample Road, Nottingham", "NG1 1AA", 52.9548, -1.1581, DropOffPointType.Retailer),
-                    CreateDropOffPoint("Demo Repair Service - Newcastle", "12 Sample Road, Newcastle", "NE1 1AA", 54.9783, -1.6178, DropOffPointType.Repair),
-                    CreateDropOffPoint("Demo Charity Drop-off - Oxford", "13 Sample Road, Oxford", "OX1 1AA", 51.7520, -1.2577, DropOffPointType.Charity),
-                    CreateDropOffPoint("Demo Recycling Centre - Cambridge", "14 Sample Road, Cambridge", "CB1 1AA", 52.2053, 0.1218, DropOffPointType.RecyclingCentre),
-                    CreateDropOffPoint("Demo Retailer - Belfast", "15 Sample Road, Belfast", "BT1 1AA", 54.5973, -5.9301, DropOffPointType.Retailer));
+                    // Council recycling centres (small electricals accepted)
+                    CreateDropOffPoint("Seafield Recycling Centre", "76 Seafield Road, Edinburgh", "EH6 7LW", 55.9748, -3.1500, DropOffPointType.RecyclingCentre),
+                    CreateDropOffPoint("Craigmillar Recycling Centre", "Old Dalkeith Road, Edinburgh", "EH16 4TB", 55.9332, -3.1445, DropOffPointType.RecyclingCentre),
+                    CreateDropOffPoint("Sighthill Recycling Centre", "Bankhead Avenue, Edinburgh", "EH11 4EA", 55.9239, -3.2967, DropOffPointType.RecyclingCentre),
+                    CreateDropOffPoint("Bridge of Don Recycling Centre", "Scotstown Road, Bridge of Don, Aberdeen", "AB22 8NJ", 57.1830, -2.0990, DropOffPointType.RecyclingCentre),
+                    CreateDropOffPoint("Hazlehead Recycling Centre", "Hazlehead Avenue, Aberdeen", "AB15 8BJ", 57.1370, -2.1830, DropOffPointType.RecyclingCentre),
+                    CreateDropOffPoint("Bucksburn Recycling Centre", "Bankhead Avenue, Bucksburn, Aberdeen", "AB21 9ET", 57.1822, -2.1760, DropOffPointType.RecyclingCentre),
+                    CreateDropOffPoint("Tullos Recycling Centre", "Greenbank Crescent, Tullos, Aberdeen", "AB12 3BG", 57.1111, -2.0877, DropOffPointType.RecyclingCentre),
+                    // Repair
+                    CreateDropOffPoint("iSmash Glasgow Buchanan Street", "Unit B, 249 Buchanan Street, Glasgow", "G1 2NG", 55.8627, -4.2515, DropOffPointType.Repair, "Mon-Sat 09:00-18:00, Sun 10:00-17:00", "https://www.ismash.com/pages/ismash-glasgow-buchanan-street"),
+                    CreateDropOffPoint("iSmash Edinburgh St James Quarter", "St James Quarter, Edinburgh", "EH1 3SR", 55.9558, -3.1884, DropOffPointType.Repair, "Mon-Sat 09:00-18:00, Sun 10:00-18:00", "https://www.ismash.com/pages/ismash-edinburgh"),
+                    // Charity
+                    CreateDropOffPoint("British Heart Foundation Nicolson Street", "102 Nicolson Street, Edinburgh", "EH8 9EJ", 55.9455, -3.1830, DropOffPointType.Charity),
+                    // Retailers (phone shops)
+                    CreateDropOffPoint("Sky Silverburn", "Silverburn Shopping Centre, Barrhead Road, Glasgow", "G53 6EQ", 55.8265, -4.3410, DropOffPointType.Retailer, "Mon-Fri 10:00-20:00, Sat-Sun 10:00-18:00"),
+                    CreateDropOffPoint("O2 Shop Silverburn", "Unit 19, Silverburn, 763 Barrhead Road, Glasgow", "G53 6AG", 55.8268, -4.3405, DropOffPointType.Retailer, "Mon-Sun 10:00-18:00 (Sat from 09:30)"));
             }
 
             // Save changes to the database
@@ -156,14 +160,16 @@ namespace RE_Waste.Data
                 HasBatteryDamage = hasBatteryDamage
             };
         }
-
+        //updated constructor which takes opening hours and website
         private static DropOffPoint CreateDropOffPoint(
             string name,
             string address,
             string postcode,
             double latitude,
             double longitude,
-            DropOffPointType pointType)
+            DropOffPointType pointType,
+            string? openingHours = null,
+            string? website = null)
         {
             return new DropOffPoint
             {
@@ -173,6 +179,8 @@ namespace RE_Waste.Data
                 Latitude = latitude,
                 Longitude = longitude,
                 PointType = pointType,
+                OpeningHours = openingHours,
+                Website = website,
                 IsActive = true
             };
         }
