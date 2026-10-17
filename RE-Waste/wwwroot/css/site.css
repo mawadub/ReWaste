@@ -164,3 +164,17 @@ h1 {
     background-color: var(--rw-maroon);
     color: var(--rw-lavender);
 }
+
+/* Account pages: the side menu and floating labels */
+.nav-pills .nav-link {
+    color: var(--rw-lavender);
+}
+
+    .nav-pills .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+/* The active item keeps Bootstrap's blue background and white text. */
+.form-floating > label {
+    color: #495057; /* dark grey, readable on the white inputs */
+}
