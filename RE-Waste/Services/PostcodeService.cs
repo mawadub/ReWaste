@@ -25,7 +25,7 @@ namespace RE_Waste.Services
         {
             // a. Tidy the input, and don't call the internet for an empty value
             var cleaned = (postcode ?? string.Empty).Trim().ToUpperInvariant();
-            if (cleaned.Length == 0)
+            if (cleaned.Length == 0 || cleaned.Length > 8) // longest UK postcode is 8 characters with the space, so anything longer can't be valid
             {
                 return null;
             }
@@ -62,7 +62,7 @@ namespace RE_Waste.Services
             {
                 return null;
             }
-            catch (JsonException)
+            catch (Exception ex) when (ex is JsonException or NotSupportedException)
             {
                 return null;
             }
