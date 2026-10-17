@@ -28,6 +28,19 @@ namespace RE_Waste
 
             builder.Services.AddControllersWithViews();
 
+            // ====================================================================
+            // TURN ON SESSION
+            // We register a memory cache and session services.
+            // This tells ASP.NET Core: "Keep a temporary memory block for each user."
+            // ====================================================================
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+                {
+                    options.IdleTimeout = TimeSpan.FromMinutes(60); // for how long session lasts before forgetting
+                    options.Cookie.HttpOnly = true; // security. prevet javascript from reading the cookie session
+                    options.Cookie.IsEssential = true; // required for gdpr compliance in some regions
+                });
+
 
             // Why are we using dynamic typing for the app
             // WebApplication app = builder.Build();
@@ -38,7 +51,7 @@ namespace RE_Waste
             // This is done here instead of in a controller so that it runs on app start-up, and not only when a manager visits the site.
             using (var scope = app.Services.CreateScope())
             {
-                //creates or updates the database from the migrations and does nothing if it’s already up to date
+                //creates or updates the database from the migrations and does nothing if itâ€™s already up to date
                 await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
                 await IdentitySeeder.SeedAsync(scope.ServiceProvider);
                 await DataSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<ApplicationDbContext>());
@@ -60,6 +73,8 @@ namespace RE_Waste
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 
