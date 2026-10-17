@@ -1,0 +1,44 @@
+﻿@{
+
+    ViewData["Title"] = "Wizard";
+    var stepNumber = (int)ViewBag.StepNumber;
+    var isLast = (bool)ViewBag.IsLast;
+}
+
+<!-- Display the current question -->
+<h2>question @stepNumber of @ViewBag.TotalSteps</h2>
+<p><strong>@ViewBag.CurrentField</strong></p>
+
+<!-- ====================================================================
+     FORM: NEXT BUTTON
+     Sends a POST request to WizardController.Next
+     ==================================================================== -->
+<form asp-controller="Wizard" asp-action="Next" method="post">
+    @Html.AntiForgeryToken() <!-- Security token required for POST -->
+
+    <!-- Text box pre-filled with the previous answer (if they clicked Back) -->
+    <input type="text" name="answer" value="@ViewBag.CurrentAnswer" autofocus />
+
+    <!-- Button changes text if it's the last question -->
+    <button type="submit">@(isLast ? "Finish" : "Next")</button>
+</form>
+
+<!-- ====================================================================
+     LINK: BACK BUTTON
+     Only show if we aren't on the first question.
+     Uses a GET request because it doesn't change answers.
+     ==================================================================== -->
+@if (stepNumber > 1)
+{
+    <a asp-controller="Wizard" asp-action="Back">Back</a>
+}
+
+<!-- ====================================================================
+     FORM: RESTART BUTTON
+     Sends a POST request to wipe the session.
+     ==================================================================== -->
+<form asp-controller="Wizard" asp-action="Restart" method="post" style="display:inline">
+    @Html.AntiForgeryToken()
+    <button type="submit">Restart</button>
+</form>
+

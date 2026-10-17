@@ -24,6 +24,19 @@ namespace RE_Waste
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
 
+            // ====================================================================
+            // TURN ON SESSION
+            // We register a memory cache and session services.
+            // This tells ASP.NET Core: "Keep a temporary memory block for each user."
+            // ====================================================================
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+                {
+                    options.IdleTimeout = TimeSpan.FromMinutes(60); // for how long session lasts before forgetting
+                    options.Cookie.HttpOnly = true; // security. prevet javascript from reading the cookie session
+                    options.Cookie.IsEssential = true; // required for gdpr compliance in some regions
+                });
+
             var app = builder.Build();
 
             // Create the Manager role and the starter manager account (F4)
@@ -49,6 +62,8 @@ namespace RE_Waste
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 
