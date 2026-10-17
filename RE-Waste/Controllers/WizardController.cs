@@ -57,6 +57,11 @@ namespace RE_Waste.Controllers
             // Pass data to the View so it knows what to display
             ViewBag.StepNumber = state.Step +1;
             ViewBag.TotalSteps = Steps.Length;
+
+            // Temporary Value for testing purposes - Passes the current question to the View so it can display the right prompt
+            ViewBag.CurrentField = currentField;
+
+
             // Check if they already answered this question (e.g. if they clicked Back)
             ViewBag.CurrentAnswer = state.Answers.TryGetValue(currentField, out var a) ? a : "";
             ViewBag.IsLast = state.Step == Steps.Length - 1;
