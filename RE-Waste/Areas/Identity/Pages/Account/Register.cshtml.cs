@@ -1,7 +1,6 @@
-﻿using RE_Waste.Models;
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
+﻿// Scaffolded from the ASP.NET Core Identity UI (MIT licence, .NET Foundation), then changed for Re-Waste:
+//   1. ApplicationUser instead of IdentityUser, so the user has a Name.
+//   2. Name added to the form and saved in OnPostAsync.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using RE_Waste.Data;
+using RE_Waste.Models;
 
 namespace RE_Waste.Areas.Identity.Pages.Account;
 
@@ -56,13 +56,9 @@ public class RegisterModel : PageModel
    
     public IList<AuthenticationScheme>? ExternalLogins { get; set; }
 
-   
+    // The fields on the form. Only the fields in this class can be set by the visitor.
     public class InputModel
-    { /// <summary>
-      ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-      ///     directly from your code. This API may change or be removed in future releases.
-      /// </summary>
-      
+    {       
         [Required]
         [StringLength(100)]
         [Display(Name = "Name")]
@@ -99,6 +95,7 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
+            // Re-Waste: the Name is not part of Identity's own fields, so it has to be copied across before CreateAsync saves the user.
             var user = CreateUser(); 
             user.Name = Input.Name;
 

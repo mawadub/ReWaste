@@ -116,6 +116,7 @@ public class LoginModel : PageModel
             var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
+                // G1: managers are sent to the manager area here. Everyone else goes back to where they came from.
                 _logger.LogInformation("User logged in.");
                 return LocalRedirect(returnUrl);
             }
