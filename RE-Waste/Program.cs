@@ -10,7 +10,6 @@ namespace RE_Waste
     {
         public static async Task Main(string[] args)
         {
-            await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
 
             // Why are we using dynamic typing for the builder
             // WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
