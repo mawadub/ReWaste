@@ -1,0 +1,28 @@
+﻿@model RE_Waste.Models.WizardState
+
+@{
+    ViewData["Title"] = "Wizard Complete";
+}
+
+<h2>Your answers (temporary page — W6 will replace this)</h2>
+
+@if (Model.Answers.Count == 0)
+{
+    <p>No answers recorded.</p>
+}
+else
+{
+    <!-- Loop through the dictionary and show every answer they gave -->
+    <ul>
+        @foreach (var kv in Model.Answers)
+        {
+            <li><strong>@kv.Key:</strong> @kv.Value</li>
+        }
+    </ul>
+}
+
+<!-- Let them start over -->
+<form asp-controller="Wizard" asp-action="Restart" method="post" style="display:inline">
+    @Html.AntiForgeryToken()
+    <button type="submit">Start over</button>
+</form>
