@@ -17,6 +17,18 @@ namespace RE_Waste.Models
              _context = dbcontext; // here we fill the read only local copy of db with the db
         }
 
+        //the below method exists to test this RecommendAsync
+        public void test()
+        {
+            Device device = new Device() { Brand = "Google", Model = "Google", AgeInYears = 1, Condition = Enums.Condition.Working, HasBatteryDamage = false, HasPersonalData = true };
+
+            Task<IReadOnlyList<RouteRecommendation>> recs = RecommendAsync(device);
+
+            Console.WriteLine("Here is the output");
+            Console.WriteLine(recs);
+
+        }
+
         public Task<IReadOnlyList<RouteRecommendation>> RecommendAsync(Device device)
         {
             //list of recomendations

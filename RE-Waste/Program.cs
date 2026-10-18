@@ -30,6 +30,11 @@ namespace RE_Waste
 
             var app = builder.Build();
 
+            //test data load
+            if (app.Environment.IsDevelopment())
+            {
+                await RecommendationRuleSeeder.SeedAsync(app.Services);
+            }
 
             // Create the Manager role and the starter manager account (F4)
             // This is done here instead of in a controller so that it runs on app start-up, and not only when a manager visits the site.
