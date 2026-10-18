@@ -36,7 +36,7 @@ namespace RE_Waste.Models
 
             }
 
-            List<RecommendationRule> ActiveRules = _context.RecommendationRules.ToList(); //loads all of the Active Rules
+            List<RecommendationRule> ActiveRules = _context.RecommendationRules.Where(r => r.IsActive == true).ToList(); //loads all of the Active Rules
 
             List<RecommendationRule> ValidRules = new List<RecommendationRule>(); //empty list to be filled with any valid rules
             
