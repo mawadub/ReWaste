@@ -17,10 +17,6 @@ namespace RE_Waste.Models
              _context = dbcontext; // here we fill the read only local copy of db with the db
         }
 
-
-        //a. Battery first. If device.HasBatteryDamage is true, return a list with only Recycle and a safety reason.
-        //The requirement says a damaged battery means a "recycling-only route", so don't add alternatives.
-
         public Task<IReadOnlyList<RouteRecommendation>> RecommendAsync(Device device)
         {
             //list of recomendations
