@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RE_Waste.Data;
 using RE_Waste.Models;
+using RE_Waste.Services;
 
 namespace RE_Waste
 {
@@ -24,7 +25,11 @@ namespace RE_Waste
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
 
+            //Recommendation Service
+            builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+
             var app = builder.Build();
+
 
             // Create the Manager role and the starter manager account (F4)
             // This is done here instead of in a controller so that it runs on app start-up, and not only when a manager visits the site.
@@ -45,6 +50,9 @@ namespace RE_Waste
                 app.UseHsts();
             }
 
+            
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -58,6 +66,8 @@ namespace RE_Waste
             app.MapRazorPages();
 
             await app.RunAsync();
+
+
         }
     }
 }
