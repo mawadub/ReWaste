@@ -118,6 +118,14 @@ public class LoginModel : PageModel
             {
                 // G1: managers are sent to the manager area here. Everyone else goes back to where they came from.
                 _logger.LogInformation("User logged in.");
+
+                if (returnUrl == Url.Content("~/") &&
+                    await _signInManager.UserManager.IsInRoleAsync(
+                        (await _signInManager.UserManager.FindByEmailAsync(Input.Email))!,
+                        AppRoles.Manager))
+                {
+                    return RedirectToAction("Index", "Manager", new { area = "Manager" });
+                }
                 return LocalRedirect(returnUrl);
             }
             if (result.RequiresTwoFactor)
