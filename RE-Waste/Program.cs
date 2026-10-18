@@ -35,6 +35,8 @@ namespace RE_Waste
                 client.BaseAddress = new Uri("https://api.postcodes.io/");
                 client.Timeout = TimeSpan.FromSeconds(10);
             });
+            //Recommendation Service
+            builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
             // ====================================================================
             // TURN ON SESSION
@@ -53,6 +55,12 @@ namespace RE_Waste
             // Why are we using dynamic typing for the app
             // WebApplication app = builder.Build();
             var app = builder.Build();
+
+            //test data load
+            if (app.Environment.IsDevelopment())
+            {
+                await RecommendationRuleSeeder.SeedAsync(app.Services);
+            }
 
             // Create the Manager role and the starter manager account (F4)
             // Create the initial data in the database if it doesn't exist yet (F5)
@@ -77,6 +85,9 @@ namespace RE_Waste
                 app.UseHsts();
             }
 
+            
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -92,6 +103,8 @@ namespace RE_Waste
             app.MapRazorPages();
 
             await app.RunAsync();
+
+
         }
     }
 }
