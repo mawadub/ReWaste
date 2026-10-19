@@ -29,6 +29,12 @@ namespace RE_Waste
 
             builder.Services.AddControllersWithViews();
 
+            // R3: postcode lookup through postcodes.io. Registered as a typed HTTP client so ASP.NET creates and reuses the HttpClient properly
+            builder.Services.AddHttpClient<IPostcodeService, PostcodeService>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.postcodes.io/");
+                client.Timeout = TimeSpan.FromSeconds(10);
+            });
             //Recommendation Service
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
