@@ -8,7 +8,7 @@ a.navbar-brand {
 }
 
 a {
-    color: #0077cc;
+    color: #e5d7fe; /* light lavender: readable on the maroon footer (the old #0077cc was 2.3:1) */
 }
 
 .btn-primary {

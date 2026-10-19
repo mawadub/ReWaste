@@ -12,8 +12,7 @@ namespace RE_Waste
         public static async Task Main(string[] args)
         {
 
-            // Why are we using dynamic typing for the builder
-            // WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+            
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -52,15 +51,8 @@ namespace RE_Waste
                 });
 
 
-            // Why are we using dynamic typing for the app
-            // WebApplication app = builder.Build();
             var app = builder.Build();
 
-            //test data load
-            if (app.Environment.IsDevelopment())
-            {
-                await RecommendationRuleSeeder.SeedAsync(app.Services);
-            }
 
             // Create the Manager role and the starter manager account (F4)
             // Create the initial data in the database if it doesn't exist yet (F5)
