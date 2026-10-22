@@ -159,6 +159,15 @@ h1 {
     --rw-radius: 12px;
 }
 
+.brand-nav-link {
+    color: var(--rw-dark-green);
+}
+
+    /* Optional: Add a hover effect using another brand color */
+    .brand-nav-link:hover {
+        color: var(--rw-green);
+    }
+
 /* ---------- Footer ---------- */
 .footer {
     background-color: var(--rw-maroon);
