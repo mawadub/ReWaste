@@ -36,6 +36,8 @@ namespace RE_Waste
             });
             //Recommendation Service
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+            // R4: Drop-off finder
+            builder.Services.AddScoped<IDropOffService, DropOffService>();
 
             // ====================================================================
             // TURN ON SESSION
@@ -56,7 +58,6 @@ namespace RE_Waste
 
             // Create the Manager role and the starter manager account (F4)
             // Create the initial data in the database if it doesn't exist yet (F5)
-            // This is done here instead of in a controller so that it runs on app start-up, and not only when a manager visits the site.
             using (var scope = app.Services.CreateScope())
             {
                 //creates or updates the database from the migrations and does nothing if it’s already up to date
