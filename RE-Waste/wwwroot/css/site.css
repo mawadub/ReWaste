@@ -178,3 +178,31 @@ h1 {
 .form-floating > label {
     color: #495057; /* dark grey, readable on the white inputs */
 }
+
+/*Buttons for Drop-Off Points Manager View*/
+/*Can probably be reused elsewhere later*/
+
+.btn-rw-edit {
+    background-color: var(--rw-dark-green) !important;
+    color: var(--rw-lavender);
+}
+
+.btn-rw-activate {
+    background-color: var(--rw-green) !important;
+    color: var(--rw-lavender);
+}
+
+.btn-rw-deactivate {
+    background-color: var(--rw-maroon) !important;
+    color: var(--rw-lavender);
+}
+/* Status badges */
+.rw-badge-active {
+    background-color: var(--rw-green) !important;
+    color: var(--rw-lavender) !important;
+}
+
+.rw-badge-inactive {
+    background-color: var(--rw-maroon) !important;
+    color: var(--rw-lavender) !important;
+}

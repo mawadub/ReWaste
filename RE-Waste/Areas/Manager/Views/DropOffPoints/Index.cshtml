@@ -5,11 +5,15 @@
     ViewData["Title"] = "Drop-Off Points";
 }
 
-<h1>Drop-Off Points</h1>
+<h1 class="rw-page-title">Drop-Off Points</h1>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover align-middle">
-        <thead>
+<p>
+    Manage your drop-off points, update their details, and control their availability.
+</p>
+
+<div class="table-responsive rw-table-panel">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="rw-table-header">
             <tr>
                 <th>Name</th>
                 <th>Type</th>
@@ -26,7 +30,7 @@
                 @foreach (var point in Model.OrderBy(p => p.Name))
                 {
                     <tr>
-                        <td>@point.Name</td>
+                        <td class="fw-semibold">@point.Name</td>
 
                         <td>@point.PointType</td>
 
@@ -35,13 +39,13 @@
                         <td>
                             @if (point.IsActive)
                             {
-                                <span class="badge bg-success">
+                                <span class="badge rw-badge-active">
                                     Active
                                 </span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary">
+                                <span class="badge rw-badge-inactive">
                                     Inactive
                                 </span>
                             }
@@ -52,7 +56,7 @@
                                asp-controller="DropOffPoints"
                                asp-action="Edit"
                                asp-route-id="@point.Id"
-                               class="btn btn-sm btn-primary">
+                               class="btn btn-sm btn-rw-edit">
                                 Edit
                             </a>
                         </td>
@@ -68,7 +72,7 @@
                                 @Html.AntiForgeryToken()
 
                                 <button type="submit"
-                                        class="btn btn-sm @(point.IsActive ? "btn-danger" : "btn-success")">
+                                        class="btn btn-sm @(point.IsActive ? "btn-rw-deactivate" : "btn-rw-activate")">
                                     @(point.IsActive ? "Deactivate" : "Activate")
                                 </button>
                             </form>
@@ -79,7 +83,7 @@
             else
             {
                 <tr>
-                    <td colspan="6" class="text-center">
+                    <td colspan="6" class="text-center py-4">
                         No drop-off points found.
                     </td>
                 </tr>

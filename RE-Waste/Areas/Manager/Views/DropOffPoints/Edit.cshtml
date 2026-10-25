@@ -5,87 +5,103 @@
     ViewData["Title"] = "Edit Drop-Off Point";
 }
 
-<h1>Edit Drop-Off Point</h1>
-
-<hr />
+<h1 class="rw-page-title">Edit Drop-Off Point</h1>
 
 <div class="row">
     <div class="col-md-6">
 
-        <form asp-area="Manager"
-              asp-controller="DropOffPoints"
-              asp-action="Edit"
-              asp-route-id="@ViewContext.RouteData.Values["id"]"
-              method="post">
+        <div class="rw-form-panel">
 
-            @Html.AntiForgeryToken()
+            <form asp-area="Manager"
+                  asp-controller="DropOffPoints"
+                  asp-action="Edit"
+                  asp-route-id="@ViewContext.RouteData.Values["id"]"
+                  method="post">
 
-            <div asp-validation-summary="ModelOnly"
-                 class="text-danger mb-3"></div>
+                @Html.AntiForgeryToken()
 
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name"
-                      class="text-danger"></span>
-            </div>
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
 
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address"
-                      class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Name"
+                           class="form-label"></label>
+                    <input asp-for="Name"
+                           class="form-control" />
+                    <span asp-validation-for="Name"
+                          class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Postcode" class="form-label"></label>
-                <input asp-for="Postcode" class="form-control" />
-                <span asp-validation-for="Postcode"
-                      class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Address"
+                           class="form-label"></label>
+                    <input asp-for="Address"
+                           class="form-control" />
+                    <span asp-validation-for="Address"
+                          class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="PointType" class="form-label"></label>
-                <input asp-for="PointType" class="form-control" />
-                <span asp-validation-for="PointType"
-                      class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Postcode"
+                           class="form-label"></label>
+                    <input asp-for="Postcode"
+                           class="form-control" />
+                    <span asp-validation-for="Postcode"
+                          class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="OpeningHours"
-                       class="form-label"></label>
-                <input asp-for="OpeningHours"
-                       class="form-control" />
-                <span asp-validation-for="OpeningHours"
-                      class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="PointType"
+                           class="form-label"></label>
+                    <input asp-for="PointType"
+                           class="form-control" />
+                    <span asp-validation-for="PointType"
+                          class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Website" class="form-label"></label>
-                <input asp-for="Website" class="form-control" />
-                <span asp-validation-for="Website"
-                      class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="OpeningHours"
+                           class="form-label"></label>
+                    <input asp-for="OpeningHours"
+                           class="form-control" />
+                    <span asp-validation-for="OpeningHours"
+                          class="text-danger"></span>
+                </div>
 
-            <div class="form-check mb-3">
-                <input asp-for="IsActive"
-                       class="form-check-input" />
-                <label asp-for="IsActive"
-                       class="form-check-label"></label>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Website"
+                           class="form-label"></label>
+                    <input asp-for="Website"
+                           class="form-control" />
+                    <span asp-validation-for="Website"
+                          class="text-danger"></span>
+                </div>
 
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-save"></i> Save Changes
-            </button>
+                <div class="form-check mb-4">
+                    <input asp-for="IsActive"
+                           class="form-check-input" />
+                    <label asp-for="IsActive"
+                           class="form-check-label"></label>
+                </div>
 
-            <a asp-area="Manager"
-               asp-controller="DropOffPoints"
-               asp-action="Index"
-               class="btn btn-secondary">
-                Cancel
-            </a>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit"
+                            class="btn btn-rw-save">
+                        <i class="bi bi-save"></i>
+                        Save Changes
+                    </button>
 
-        </form>
+                    <a asp-area="Manager"
+                       asp-controller="DropOffPoints"
+                       asp-action="Index"
+                       class="btn btn-rw-cancel">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
 
     </div>
 </div>
