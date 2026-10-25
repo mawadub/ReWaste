@@ -26,24 +26,24 @@ namespace RE_Waste.Areas.Manager.Controllers
         // GET: Manager/DropOffPoints
         public async Task<IActionResult> Index()
         {
-            var dropOffPoints = await _context.DropOffPoints
+            var points = await _context.DropOffPoints
                 .OrderBy(p => p.Name)
                 .ToListAsync();
 
-            return View(dropOffPoints);
+            return View(points);
         }
 
         // GET: Manager/DropOffPoints/Create
         [HttpGet]
         public IActionResult Create()
         {
-            return View(new DropOffPoint());
+            return View(new DropOffPointModel());
         }
 
         // POST: Manager/DropOffPoints/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(DropOffPoint model)
+        public async Task<IActionResult> Create(DropOffPointModel model)
         {
             model.Postcode = (model.Postcode ?? string.Empty)
                 .Trim()
@@ -73,7 +73,8 @@ namespace RE_Waste.Areas.Manager.Controllers
                 OpeningHours = model.OpeningHours,
                 Website = model.Website,
                 Latitude = postcodeResult.Latitude,
-                Longitude = postcodeResult.Longitude
+                Longitude = postcodeResult.Longitude,
+                IsActive = true
             };
 
             _context.DropOffPoints.Add(point);
@@ -91,17 +92,27 @@ namespace RE_Waste.Areas.Manager.Controllers
             if (point == null)
                 return NotFound();
 
-            return View(point);
+            var model = new DropOffPointModel
+            {
+                Name = point.Name,
+                Address = point.Address,
+                Postcode = point.Postcode,
+                PointType = point.PointType,
+                OpeningHours = point.OpeningHours,
+                Website = point.Website,
+                IsActive = point.IsActive
+            };
+
+            return View(model);
         }
 
         // POST: Manager/DropOffPoints/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, DropOffPoint model)
+        public async Task<IActionResult> Edit(
+            int id,
+            DropOffPointModel model)
         {
-            if (id != model.Id)
-                return BadRequest();
-
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -114,11 +125,12 @@ namespace RE_Waste.Areas.Manager.Controllers
                 .Trim()
                 .ToUpperInvariant();
 
-            // Only look up the postcode if it has changed.
-            if (!string.Equals(
-                    model.Postcode,
-                    (point.Postcode ?? string.Empty).Trim(),
-                    StringComparison.OrdinalIgnoreCase))
+            var postcodeChanged = !string.Equals(
+                model.Postcode,
+                (point.Postcode ?? string.Empty).Trim(),
+                StringComparison.OrdinalIgnoreCase);
+
+            if (postcodeChanged)
             {
                 var postcodeResult = await _postcodeService
                     .LookupAsync(model.Postcode);
@@ -143,6 +155,23 @@ namespace RE_Waste.Areas.Manager.Controllers
             point.OpeningHours = model.OpeningHours;
             point.Website = model.Website;
             point.IsActive = model.IsActive;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Manager/DropOffPoints/ToggleActive/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleActive(int id)
+        {
+            var point = await _context.DropOffPoints.FindAsync(id);
+
+            if (point == null)
+                return NotFound();
+
+            point.IsActive = !point.IsActive;
 
             await _context.SaveChangesAsync();
 
