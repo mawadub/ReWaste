@@ -51,9 +51,11 @@ namespace RE_Waste.Controllers
         private async Task<List<Question>> LoadQuestions()
         {
             return await _context.Questions
-                .Include(q => q.Options)
                 .Where(q => q.IsActive)
                 .OrderBy(q => q.DisplayOrder)
+                .Include(q => q.Options
+                    .Where(o => o.IsActive)
+                    .OrderBy(o => o.DisplayOrder))
                 .ToListAsync();
         }
 
