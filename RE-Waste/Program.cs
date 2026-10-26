@@ -36,6 +36,8 @@ namespace RE_Waste
             });
             //Recommendation Service
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+            // R4: Drop-off finder
+            builder.Services.AddScoped<IDropOffService, DropOffService>();
 
             // ====================================================================
             // TURN ON SESSION
