@@ -1,44 +1,103 @@
-﻿@{
+﻿@model RE_Waste.Models.Question
 
+@using RE_Waste.Models.Enums
+
+@{
     ViewData["Title"] = "Wizard";
+
     var stepNumber = (int)ViewBag.StepNumber;
+    var totalSteps = (int)ViewBag.TotalSteps;
     var isLast = (bool)ViewBag.IsLast;
+    var currentAnswer = ViewBag.CurrentAnswer?.ToString() ?? "";
 }
 
-<!-- Display the current question -->
-<h2>question @stepNumber of @ViewBag.TotalSteps</h2>
-<p><strong>@ViewBag.CurrentField</strong></p>
+<div class="container py-4">
+    <div class="card bg-white shadow-sm mx-auto"
+         style="max-width: 650px;">
+        <div class="card-body p-4">
+            <p class="text-muted">
+                Question @stepNumber of @totalSteps
+            </p>
 
-<!-- ====================================================================
-     FORM: NEXT BUTTON
-     Sends a POST request to WizardController.Next
-     ==================================================================== -->
-<form asp-controller="Wizard" asp-action="Next" method="post">
-    @Html.AntiForgeryToken() <!-- Security token required for POST -->
+            <h2 class="mb-4">@Model.Text</h2>
 
-    <!-- Text box pre-filled with the previous answer (if they clicked Back) -->
-    <input type="text" name="answer" value="@ViewBag.CurrentAnswer" autofocus />
+            <form asp-controller="Wizard"
+                  asp-action="Next"
+                  method="post">
 
-    <!-- Button changes text if it's the last question -->
-    <button type="submit">@(isLast ? "Finish" : "Next")</button>
-</form>
+                @Html.AntiForgeryToken()
 
-<!-- ====================================================================
-     LINK: BACK BUTTON
-     Only show if we aren't on the first question.
-     Uses a GET request because it doesn't change answers.
-     ==================================================================== -->
-@if (stepNumber > 1)
-{
-    <a asp-controller="Wizard" asp-action="Back">Back</a>
-}
+                @if (Model.AnswerType == AnswerType.Choice)
+                {
+                    @foreach (var option in Model.Options)
+                    {
+                        var selected =
+                        currentAnswer == option.Value.ToString();
 
-<!-- ====================================================================
-     FORM: RESTART BUTTON
-     Sends a POST request to wipe the session.
-     ==================================================================== -->
-<form asp-controller="Wizard" asp-action="Restart" method="post" style="display:inline">
-    @Html.AntiForgeryToken()
-    <button type="submit">Restart</button>
-</form>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="answer"
+                                   id="option_@option.Value"
+                                   value="@option.Value"
+                                   checked="@selected"
+                                   required />
 
+                            <label class="form-check-label"
+                                   for="option_@option.Value">
+                                @option.Text
+                            </label>
+                        </div>
+                    }
+                }
+                else if (Model.AnswerType == AnswerType.Number)
+                {
+                    <input class="form-control"
+                           type="number"
+                           name="answer"
+                           min="0"
+                           value="@currentAnswer"
+                           required />
+                }
+                else if (Model.AnswerType == AnswerType.Text)
+                {
+                    <input class="form-control"
+                           type="text"
+                           name="answer"
+                           value="@currentAnswer"
+                           required />
+                }
+
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                        @if (stepNumber > 1)
+                        {
+                            <a asp-controller="Wizard"
+                               asp-action="Back"
+                               class="btn btn-outline-secondary">
+                                Back
+                            </a>
+                        }
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        @(isLast ? "Finish" : "Next")
+                    </button>
+                </div>
+            </form>
+
+            <form asp-controller="Wizard"
+                  asp-action="Restart"
+                  method="post"
+                  class="mt-3">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-link px-0">
+                    Restart
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
