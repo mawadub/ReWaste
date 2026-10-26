@@ -3,6 +3,9 @@ using RE_Waste.Extensions;
 using RE_Waste.Models;
 using RE_Waste.Models.Enums;
 using System.Numerics;
+using Microsoft.EntityFrameworkCore;
+using RE_Waste.Data;
+
 
 namespace RE_Waste.Controllers
 {
@@ -38,36 +41,56 @@ namespace RE_Waste.Controllers
         // ACTION: STEP (Show the question)
         // Loads state, checks for errors, and sends data to the View.
         // ====================================================================
+        private readonly ApplicationDbContext _context;
+
+        public WizardController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        private async Task<List<Question>> LoadQuestions()
+        {
+            return await _context.Questions
+                .Include(q => q.Options)
+                .Where(q => q.IsActive)
+                .OrderBy(q => q.DisplayOrder)
+                .ToListAsync();
+        }
+
         [HttpGet]
-        public IActionResult Step()
+        public async Task<IActionResult> Step()
         {
             var state = HttpContext.Session.GetWizardState();
 
-            // If no state exists (session expired or user typed the URL manually)
             if (state == null)
                 return RedirectToAction(nameof(Start));
 
-            // If they somehow passed the last step, send them to the Complete page
-            if (state.Step < 0) state.Step = 0;
-            if (state.Step >= Steps.Length)
+            var questions = await LoadQuestions();
+
+            if (questions.Count == 0)
+                return View("NoQuestions");
+
+            if (state.Step < 0)
+                state.Step = 0;
+
+            if (state.Step >= questions.Count)
                 return RedirectToAction(nameof(Complete));
 
-            var currentField = Steps[state.Step];
+            var question = questions[state.Step];
 
-            // Pass data to the View so it knows what to display
-            ViewBag.StepNumber = state.Step +1;
-            ViewBag.TotalSteps = Steps.Length;
+            ViewBag.StepNumber = state.Step + 1;
+            ViewBag.TotalSteps = questions.Count;
+            ViewBag.IsLast = state.Step == questions.Count - 1;
 
-            // Temporary Value for testing purposes - Passes the current question to the View so it can display the right prompt
-            ViewBag.CurrentField = currentField;
+            ViewBag.CurrentAnswer =
+                state.Answers.TryGetValue(question.DeviceField, out var answer)
+                    ? answer
+                    : "";
 
-
-            // Check if they already answered this question (e.g. if they clicked Back)
-            ViewBag.CurrentAnswer = state.Answers.TryGetValue(currentField, out var a) ? a : "";
-            ViewBag.IsLast = state.Step == Steps.Length - 1;
-
-            return View(); // renders views/wizard/step.cshtml
+            return View(question);
         }
+
+
 
         // ====================================================================
         // ACTION: NEXT (Save answer and move forward)
@@ -75,31 +98,37 @@ namespace RE_Waste.Controllers
         // ====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Next(string answer)
+        public async Task<IActionResult> Next(string answer)
         {
             var state = HttpContext.Session.GetWizardState();
+
             if (state == null)
                 return RedirectToAction(nameof(Start));
 
-            //guard against stale step value beyond step list
-            if (state.Step < 0) state.Step = 0;
-            if (state.Step >= Steps.Length)
+            var questions = await LoadQuestions();
+
+            if (questions.Count == 0)
+                return View("NoQuestions");
+
+            if (state.Step < 0)
+                state.Step = 0;
+
+            if (state.Step >= questions.Count)
                 return RedirectToAction(nameof(Complete));
 
-            // 1. Save the answer (or empty string if they clicked Next without typing)
-            var currentField = Steps[state.Step];
-            state.Answers[currentField] = answer ?? string.Empty;
-            // 2. Move to the next step
+            var question = questions[state.Step];
+
+            state.Answers[question.DeviceField] = answer ?? string.Empty;
+
             state.Step++;
 
-            // 3. Save the updated state back to the session
             HttpContext.Session.SetWizardState(state);
 
-            // 4. POST-REDIRECT-GET: Redirect so refreshing doesn't re-submit the form
-            return state.Step >= Steps.Length
-                ? RedirectToAction(nameof(Complete)) // go to end page
-                : RedirectToAction(nameof(Step)); // go to next question
+            return state.Step >= questions.Count
+                ? RedirectToAction(nameof(Complete))
+                : RedirectToAction(nameof(Step));
         }
+
 
         // ====================================================================
         // ACTION: BACK (Move backward)
