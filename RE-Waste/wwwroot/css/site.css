@@ -55,6 +55,33 @@ button:hover {
     color: var(--rw-dark-green);
 }
 
+/* The same hover for links styled as buttons (e.g. "Begin" on the home page). */
+.button:hover {
+    background-color: var(--rw-lavender);
+    color: var(--rw-dark-green);
+}
+
+/* Secondary button: white with dark green text and border (9.2 : 1 lavender / 13.8 : 1 white).
+   Used next to .button for the less important action, e.g. Back. */
+.button-secondary {
+    display: inline-block;
+    background-color: #fff;
+    color: var(--rw-dark-green);
+    border: 2px solid var(--rw-dark-green);
+    padding: .5rem 1.5rem;
+    border-radius: var(--rw-radius);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .15s, color .15s;
+}
+
+    /* Hover fills it dark green; beats the general button:hover above. */
+    .button-secondary:hover {
+        background-color: var(--rw-dark-green);
+        color: var(--rw-lavender);
+    }
+
 /*This underlines the headings of pages.*/
 h1 {
     display: inline-block;
@@ -205,4 +232,326 @@ h1 {
 .rw-badge-inactive {
     background-color: var(--rw-maroon) !important;
     color: var(--rw-lavender) !important;
+}
+
+/* ==========================================================================
+   WIZARD
+   A white "question card" with a green top edge on the blue page, with big
+   easy targets. Used by every page under Views/Wizard. Only two new colours:
+   the pale grey track (#e9ecef) and the pale green "chosen" tint (#d9efe9).
+   ========================================================================== */
+
+/* One centred column. Nearly full width on phones (the layout's container
+   leaves the blue margin), 40rem wide from 576 px up. */
+.wizard {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding-top: 1rem;
+}
+
+/* ---------- Card ---------- */
+
+/* The only light surface on the page. Same radius and shadow as the home
+   cards; the 6 px green top edge echoes the green underline on headings.
+   No overflow: hidden, so the model search list can open below the card. */
+.wizard-card {
+    background-color: #fff;
+    color: #212529;
+    border-top: 6px solid var(--rw-green);
+    border-radius: var(--rw-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+    padding: 20px;
+}
+
+@media (min-width: 576px) {
+    .wizard-card {
+        padding: 32px;
+    }
+}
+
+/* Small picture above the heading on the finish and "no questions" pages only,
+   so the question pages stay calm. Decorative, so the img has alt="". */
+.wizard-mascot {
+    display: block;
+    width: 120px;
+    height: auto;
+    margin: 0 auto 1rem;
+}
+
+/* ---------- Step label, progress and question ---------- */
+
+/* "Question 3 of 6" */
+.wizard-step {
+    font-weight: 700;
+    color: var(--rw-dark-green);
+    margin-bottom: .5rem;
+}
+
+/* A native <progress>, so screen readers announce it for free.
+   Green fill (3.7 : 1 on the pale track, enough for a graphic). */
+.wizard-progress {
+    display: block;
+    width: 100%;
+    height: .6rem;
+    margin-bottom: 1.25rem;
+    border: 0;
+    border-radius: .3rem;
+    background-color: #e9ecef; /* track in Firefox */
+    color: var(--rw-green); /* fill in older Edge */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+    .wizard-progress::-webkit-progress-bar {
+        background-color: #e9ecef;
+        border-radius: .3rem;
+    }
+
+    .wizard-progress::-webkit-progress-value {
+        background-color: var(--rw-green);
+        border-radius: .3rem;
+    }
+
+    .wizard-progress::-moz-progress-bar {
+        background-color: var(--rw-green);
+        border-radius: .3rem;
+    }
+
+/* The question is the page's h1: 1.5rem (21 px on phones, 24 px on desktop),
+   dark green (12.5 : 1). No underline: the card's green edge does that job. */
+.wizard-card h1 {
+    display: block;
+    border: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--rw-dark-green);
+    margin-bottom: .5rem;
+}
+
+/* Hint under the question: dark grey (6.5 : 1), 1.25rem gap before the field. */
+.wizard-hint {
+    color: #595f65;
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ---------- Text boxes and drop-downs ---------- */
+
+/* 48 px tall, 2 px grey border (3.3 : 1, enough for a form border), text of
+   16 px or more so iPhones don't zoom in. The Tom Select wrapper also has
+   .form-select, so the model search box matches; its drop-down list doesn't. */
+.wizard-card .form-control,
+.wizard-card .form-select:not(.ts-dropdown) {
+    min-height: 48px;
+    border: 2px solid #8a8f94;
+    border-radius: 8px;
+    font-size: 1.15rem;
+    color: #212529;
+}
+
+    /* Focused: dark green border; the outline below shows focus, not a glow. */
+    .wizard-card .form-control:focus,
+    .wizard-card .form-select:focus,
+    .wizard-card .ts-wrapper.focus {
+        border-color: var(--rw-dark-green);
+        box-shadow: none;
+    }
+
+/* Tom Select: the inner control fills the wrapper and uses the same text size. */
+.wizard-card .ts-control {
+    min-height: 44px;
+    font-size: 1.15rem;
+}
+
+/* Labels for the extra boxes (typed brand or model). */
+.wizard-card .form-label {
+    font-weight: 600;
+}
+
+/* ---------- Choice tiles ---------- */
+
+/* Radio answers as full-width tappable tiles, 0.75rem apart. */
+.wizard-tiles {
+    display: grid;
+    gap: .75rem;
+}
+
+.wizard-tile {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-height: 48px;
+    margin: 0;
+    padding: .6rem 1rem;
+    background-color: #fff;
+    border: 2px solid #8a8f94;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .wizard-tile:hover {
+        border-color: var(--rw-dark-green);
+    }
+
+    /* The radio itself: a native dot in dark green, a little bigger than usual. */
+    .wizard-tile input {
+        flex-shrink: 0;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin: 0;
+        accent-color: var(--rw-dark-green);
+    }
+
+    /* Chosen: pale green tile, dark green border and text (10.4 : 1). */
+    .wizard-tile:has(input:checked) {
+        background-color: #d9efe9;
+        border-color: var(--rw-dark-green);
+        color: var(--rw-dark-green);
+    }
+
+    /* Keyboard focus on the radio rings the whole tile. */
+    .wizard-tile:has(input:focus-visible) {
+        outline: 3px solid var(--rw-dark-green);
+        outline-offset: 2px;
+    }
+
+        .wizard-tile input:focus-visible {
+            outline: none;
+        }
+
+/* ---------- Age estimate (Agree / Enter yours) ---------- */
+
+.wizard-estimate {
+    background-color: #d9efe9;
+    color: var(--rw-dark-green);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ---------- Errors ---------- */
+
+/* Dark red (6.5 : 1), bold, directly under the field, with a red field border. */
+.wizard-card .invalid-feedback {
+    color: #b02a37;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: .5rem;
+}
+
+.wizard-card .form-control.is-invalid,
+.wizard-card .form-select.is-invalid,
+.wizard-tile:has(input.is-invalid) {
+    border-color: #b02a37;
+}
+
+    .wizard-card .form-control.is-invalid:focus,
+    .wizard-card .form-select.is-invalid:focus {
+        box-shadow: none;
+    }
+
+/* ---------- Buttons ---------- */
+
+/* Phones: full width and stacked. Primary first in the column. */
+.wizard-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+/* Back / Next row, 1.5rem above. Back comes first in the page (and for the
+   keyboard), but column-reverse puts Next on top on phones. */
+.wizard-actions {
+    flex-direction: column-reverse;
+    margin-top: 1.5rem;
+}
+
+    /* At least 48 px tall, text centred, full width on phones. */
+    .wizard-buttons .button,
+    .wizard-buttons .button-secondary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        width: 100%;
+    }
+
+    /* A form inside the row (e.g. Get my recommendation) behaves like a button. */
+    .wizard-buttons form {
+        margin: 0;
+    }
+
+/* From 576 px: one row. Back on the left, Next on the right (also when it's alone). */
+@media (min-width: 576px) {
+    .wizard-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .wizard-actions {
+        justify-content: space-between;
+    }
+
+        .wizard-buttons .button,
+        .wizard-buttons .button-secondary {
+            width: auto;
+        }
+
+    /* Two classes so it also beats ".wizard-buttons form" when Next is a form. */
+    .wizard-buttons .wizard-next {
+        margin-left: auto;
+    }
+}
+
+/* "Start again": small grey underlined text, centred under the buttons, so it
+   is never mistaken for a main action. Grey on white is 6.5 : 1. */
+.wizard-restart-form {
+    margin: 1rem 0 0;
+    text-align: center;
+}
+
+.wizard-restart {
+    background: none;
+    border: 0;
+    padding: .5rem 1rem;
+    color: #595f65;
+    font-size: .9rem;
+    text-decoration: underline;
+}
+
+    /* Override the general button:hover (lavender fill). */
+    .wizard-restart:hover {
+        background: none;
+        color: var(--rw-dark-green);
+    }
+
+/* ---------- Focus ---------- */
+
+/* Inside the card: 3 px dark green outline, 2 px offset. */
+.wizard-card :focus-visible {
+    outline: 3px solid var(--rw-dark-green);
+    outline-offset: 2px;
+}
+
+/* The tiny text input inside the Tom Select box: the wrapper shows focus instead. */
+.wizard-card .ts-control input:focus-visible {
+    outline: none;
+}
+
+.wizard-card .ts-wrapper.focus {
+    outline: 3px solid var(--rw-dark-green);
+    outline-offset: 2px;
+}
+
+/* ---------- Review table (finish page) ---------- */
+
+.wizard-card .table {
+    color: #212529;
+}
+
+.wizard-card .table a {
+    color: var(--rw-dark-green);
+    font-weight: 600;
 }

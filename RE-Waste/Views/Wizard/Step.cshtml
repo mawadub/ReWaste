@@ -17,10 +17,10 @@
     var error = ViewBag.ErrorMessage as string;
     var errorField = ViewBag.ErrorField as string ?? "answer";
 
-    // Bootstrap and screen-reader attributes for the box with the error.
-    // A null value makes Razor leave the attribute out completely.
+    // Attributes for the box with the error: red border, and the hint plus the error
+    // read out by screen readers. A null value makes Razor leave the attribute out.
     Func<string, string> invalidFor = field => error != null && errorField == field ? "is-invalid" : "";
-    Func<string, string?> describedFor = field => error != null && errorField == field ? "answerError" : null;
+    Func<string, string> describedFor = field => error != null && errorField == field ? "answerHint answerError" : "answerHint";
     Func<string, string?> ariaInvalidFor = field => error != null && errorField == field ? "true" : null;
 
     var invalidClass = invalidFor("answer");
@@ -67,306 +67,318 @@
     }
 }
 
-<div class="container py-4">
+@* ====================================================================
+   WIZARD QUESTION PAGE
+   A white question card on the blue page (styles: "WIZARD" in site.css).
+   ==================================================================== *@
+<div class="wizard">
 
-    @* ================================================================
-       WIZARD CARD
-       Displays the current question and its answer input.
-       ================================================================ *@
-    <div class="card bg-white shadow-sm mx-auto"
-         style="max-width: 650px;">
+    <div class="wizard-card">
 
-        <div class="card-body p-4">
+        @* ================================================================
+           STEP LABEL AND PROGRESS
+           "Question 3 of 6" and a native progress bar that screen readers
+           announce. The label names the bar.
+           ================================================================ *@
+        <p class="wizard-step" id="stepLabel">
+            Question @stepNumber of @totalSteps
+        </p>
 
-            @* Display the current question number and total questions. *@
-            <p class="text-muted">
-                Question @stepNumber of @totalSteps
-            </p>
+        <progress class="wizard-progress"
+                  value="@stepNumber"
+                  max="@totalSteps"
+                  aria-labelledby="stepLabel">
+            Question @stepNumber of @totalSteps
+        </progress>
 
+        @* ================================================================
+           QUESTION AND HINT
+           The question is the page's h1 and also labels the answer field.
+           ================================================================ *@
+        <h1 id="questionText">@Model.Text</h1>
 
-            @* Display the question loaded from the database. *@
-            <h2 class="mb-2">@Model.Text</h2>
+        @if (hints.TryGetValue(Model.DeviceField, out var hint))
+        {
+            <p class="wizard-hint" id="answerHint">@hint</p>
+        }
 
-            @* Display the hint associated with this question's DeviceField. *@
-            @if (hints.TryGetValue(Model.DeviceField, out var hint))
+        @* Submit the answer to the Next action. *@
+        <form asp-controller="Wizard"
+              asp-action="Next"
+              method="post">
+
+            @* Protect the form against cross-site request forgery. *@
+            @Html.AntiForgeryToken()
+
+            @* ========================================================
+               BRAND
+               Show a drop-down when the current field is Brand.
+               ======================================================== *@
+            @if (Model.DeviceField == DeviceField.Brand)
             {
-                <p class="text-muted small mb-4">@hint</p>
+                <select class="form-select @invalidClass"
+                        name="answer"
+                        aria-labelledby="questionText"
+                        aria-describedby="@describedBy"
+                        aria-invalid="@ariaInvalid"
+                        required>
+                    <option value="">Select a brand</option>
+
+                    @foreach (var brand in PhoneBrands.All)
+                    {
+                        <option value="@brand"
+                                selected="@(currentAnswer == brand)">
+                            @brand
+                        </option>
+                    }
+                </select>
             }
 
-            @* Submit the answer to the Next action. *@
-            <form asp-controller="Wizard"
-                  asp-action="Next"
-                  method="post">
-
-                @* Protect the form against cross-site request forgery. *@
-                @Html.AntiForgeryToken()
-
-                @* ====================================================
-                   BRAND
-                   Show a drop-down when the current field is Brand.
-                   ==================================================== *@
-                @if (Model.DeviceField == DeviceField.Brand)
+            @* ========================================================
+               MODEL
+               Searchable drop-down of models for the chosen brand,
+               with a box for a model that isn't listed. When the
+               brand was "Other", the user types brand and model.
+               ======================================================== *@
+            else if (Model.DeviceField == DeviceField.Model)
+            {
+                @if (brandListed)
                 {
-                    <select class="form-select @invalidClass"
+                    <select id="modelSelect"
+                            class="form-select @invalidClass"
                             name="answer"
+                            aria-labelledby="questionText"
                             aria-describedby="@describedBy"
                             aria-invalid="@ariaInvalid"
                             required>
-                        <option value="">Select a brand</option>
+                        <option value="">Search or select a model</option>
 
-                        @foreach (var brand in PhoneBrands.All)
+                        @foreach (var m in modelOptions)
                         {
-                            <option value="@brand"
-                                    selected="@(currentAnswer == brand)">
-                                @brand
-                            </option>
+                            <option value="@m" selected="@(currentAnswer == m)">@m</option>
                         }
                     </select>
-                }
 
-                @* ====================================================
-                   MODEL
-                   Searchable drop-down of models for the chosen brand,
-                   with a box for a model that isn't listed. When the
-                   brand was "Other", the user types brand and model.
-                   ==================================================== *@
-                else if (Model.DeviceField == DeviceField.Model)
-                {
-                    @if (brandListed)
-                    {
-                        <select id="modelSelect"
-                                class="form-select @invalidClass"
-                                name="answer"
-                                aria-describedby="@describedBy"
-                                aria-invalid="@ariaInvalid"
-                                required>
-                            <option value="">Search or select a model</option>
-
-                            @foreach (var m in modelOptions)
-                            {
-                                <option value="@m" selected="@(currentAnswer == m)">@m</option>
-                            }
-                        </select>
-
-                        @* Shown only when "Other / not listed" is chosen. A hidden box is
-                           disabled, so the browser doesn't check it and doesn't send it. *@
-                        <div id="otherModelBox" class="mt-3" hidden="@(!otherModelChosen)">
-                            <label for="otherModel" class="form-label">Type your phone's model</label>
-                            <input id="otherModel"
-                                   class="form-control @(invalidFor("otherModel"))"
-                                   type="text"
-                                   name="otherModel"
-                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
-                                   placeholder="For example Galaxy S7"
-                                   value="@otherModel"
-                                   aria-describedby="@(describedFor("otherModel"))"
-                                   aria-invalid="@(ariaInvalidFor("otherModel"))"
-                                   disabled="@(!otherModelChosen)"
-                                   required />
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="mb-3">
-                            <label for="otherBrand" class="form-label">Brand</label>
-                            <input id="otherBrand"
-                                   class="form-control @(invalidFor("otherBrand"))"
-                                   type="text"
-                                   name="otherBrand"
-                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Brand)"
-                                   placeholder="For example Fairphone"
-                                   value="@otherBrand"
-                                   aria-describedby="@(describedFor("otherBrand"))"
-                                   aria-invalid="@(ariaInvalidFor("otherBrand"))"
-                                   required />
-                        </div>
-
-                        <div>
-                            <label for="otherModel" class="form-label">Model</label>
-                            <input id="otherModel"
-                                   class="form-control @(invalidFor("otherModel"))"
-                                   type="text"
-                                   name="otherModel"
-                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
-                                   placeholder="For example Fairphone 4"
-                                   value="@otherModel"
-                                   aria-describedby="@(describedFor("otherModel"))"
-                                   aria-invalid="@(ariaInvalidFor("otherModel"))"
-                                   required />
-                        </div>
-                    }
-                }
-
-                @* ====================================================
-                   AGE
-                   For a model from the list, show the estimate from its
-                   release year with Agree / Enter yours. Otherwise, or
-                   after Enter yours, a whole number between 0 and 30.
-                   ==================================================== *@
-                else if (Model.DeviceField == DeviceField.AgeInYears)
-                {
-                    @if (estimatedAge != null)
-                    {
-                        <div class="border rounded p-3 mb-3">
-                            <p class="mb-0">
-                                The <strong>@phoneName</strong> came out in @releaseYear,
-                                so your phone is about
-                                <strong>@estimatedAge @(estimatedAge == 1 ? "year" : "years") old</strong>.
-                            </p>
-
-                            @* Removed by "Enter yours", so Enter in the number box
-                               submits the typed age, not this estimate. *@
-                            @if (!showOwnAge)
-                            {
-                                <div id="ageEstimateButtons" class="d-flex flex-wrap gap-2 mt-3">
-                                    <button type="submit"
-                                            name="answer"
-                                            value="@estimatedAge"
-                                            class="btn btn-primary">
-                                        Agree
-                                    </button>
-
-                                    <button type="button"
-                                            id="enterOwnAge"
-                                            class="btn btn-outline-secondary">
-                                        Enter yours
-                                    </button>
-                                </div>
-                            }
-                        </div>
-                    }
-
-                    <div id="ownAge" hidden="@(!showOwnAge)">
-                        <input id="ageInput"
-                               class="form-control @invalidClass"
-                               type="number"
-                               name="answer"
-                               min="@AnswerValidator.MinNumber"
-                               max="@AnswerValidator.MaxNumber"
-                               step="1"
-                               value="@currentAnswer"
-                               aria-label="Age in years"
-                               aria-describedby="@describedBy"
-                               aria-invalid="@ariaInvalid"
-                               disabled="@(!showOwnAge)"
+                    @* Shown only when "Other / not listed" is chosen. A hidden box is
+                       disabled, so the browser doesn't check it and doesn't send it. *@
+                    <div id="otherModelBox" class="mt-3" hidden="@(!otherModelChosen)">
+                        <label for="otherModel" class="form-label">Type your phone's model</label>
+                        <input id="otherModel"
+                               class="form-control @(invalidFor("otherModel"))"
+                               type="text"
+                               name="otherModel"
+                               maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
+                               placeholder="For example Galaxy S7"
+                               value="@otherModel"
+                               aria-describedby="@(describedFor("otherModel"))"
+                               aria-invalid="@(ariaInvalidFor("otherModel"))"
+                               disabled="@(!otherModelChosen)"
                                required />
                     </div>
                 }
-
-                @* ====================================================
-                   OTHER CHOICE QUESTIONS
-                   Keep the existing radio-button behaviour.
-                   ==================================================== *@
-                else if (Model.AnswerType == AnswerType.Choice)
+                else
                 {
-                    @foreach (var option in Model.Options)
-                    {
-                        <div class="form-check mb-3">
-                            <input class="form-check-input @invalidClass"
-                                   type="radio"
-                                   name="answer"
-                                   id="option_@option.Id"
-                                   value="@option.Value"
-                                   checked="@(currentAnswer == option.Value)"
-                                   aria-describedby="@describedBy"
-                                   aria-invalid="@ariaInvalid"
-                                   required />
+                    <div class="mb-3">
+                        <label for="otherBrand" class="form-label">Brand</label>
+                        <input id="otherBrand"
+                               class="form-control @(invalidFor("otherBrand"))"
+                               type="text"
+                               name="otherBrand"
+                               maxlength="@AnswerValidator.MaxLength(DeviceField.Brand)"
+                               placeholder="For example Fairphone"
+                               value="@otherBrand"
+                               aria-describedby="@(describedFor("otherBrand"))"
+                               aria-invalid="@(ariaInvalidFor("otherBrand"))"
+                               required />
+                    </div>
 
-                            <label class="form-check-label"
-                                   for="option_@option.Id">
-                                @option.Text
-                            </label>
-                        </div>
-                    }
+                    <div>
+                        <label for="otherModel" class="form-label">Model</label>
+                        <input id="otherModel"
+                               class="form-control @(invalidFor("otherModel"))"
+                               type="text"
+                               name="otherModel"
+                               maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
+                               placeholder="For example Fairphone 4"
+                               value="@otherModel"
+                               aria-describedby="@(describedFor("otherModel"))"
+                               aria-invalid="@(ariaInvalidFor("otherModel"))"
+                               required />
+                    </div>
+                }
+            }
+
+            @* ========================================================
+               AGE
+               For a model from the list, show the estimate from its
+               release year with Agree / Enter yours. Otherwise, or
+               after Enter yours, a whole number between 0 and 30.
+               ======================================================== *@
+            else if (Model.DeviceField == DeviceField.AgeInYears)
+            {
+                @if (estimatedAge != null)
+                {
+                    <div class="wizard-estimate">
+                        <p class="mb-0">
+                            The <strong>@phoneName</strong> came out in @releaseYear,
+                            so your phone is about
+                            <strong>@estimatedAge @(estimatedAge == 1 ? "year" : "years") old</strong>.
+                        </p>
+
+                        @* Removed by "Enter yours", so Enter in the number box
+                           submits the typed age, not this estimate. *@
+                        @if (!showOwnAge)
+                        {
+                            <div id="ageEstimateButtons" class="wizard-buttons mt-3">
+                                <button type="submit"
+                                        name="answer"
+                                        value="@estimatedAge"
+                                        class="button">
+                                    Agree
+                                </button>
+
+                                <button type="button"
+                                        id="enterOwnAge"
+                                        class="button-secondary">
+                                    Enter yours
+                                </button>
+                            </div>
+                        }
+                    </div>
                 }
 
-                @* Keep the generic number input for other number questions. *@
-                else if (Model.AnswerType == AnswerType.Number)
-                {
-                    <input class="form-control @invalidClass"
+                <div id="ownAge" hidden="@(!showOwnAge)">
+                    <input id="ageInput"
+                           class="form-control @invalidClass"
                            type="number"
                            name="answer"
                            min="@AnswerValidator.MinNumber"
                            max="@AnswerValidator.MaxNumber"
                            step="1"
                            value="@currentAnswer"
+                           aria-labelledby="questionText"
                            aria-describedby="@describedBy"
                            aria-invalid="@ariaInvalid"
+                           disabled="@(!showOwnAge)"
                            required />
-                }
-
-                @* Keep the generic text input for other text questions. *@
-                else if (Model.AnswerType == AnswerType.Text)
-                {
-                    <input class="form-control @invalidClass"
-                           type="text"
-                           name="answer"
-                           maxlength="@AnswerValidator.MaxLength(Model.DeviceField)"
-                           value="@currentAnswer"
-                           aria-describedby="@describedBy"
-                           aria-invalid="@ariaInvalid"
-                           required />
-                }
-
-                @* ====================================================
-                   ERROR MESSAGE (W5)
-                   Shown when the server refused the answer.
-                   ==================================================== *@
-                @if (error != null)
-                {
-                    <div id="answerError" class="invalid-feedback d-block" role="alert">
-                        @error
-                    </div>
-                }
-
-                @* ====================================================
-                   NAVIGATION BUTTONS
-                   Show Back when available and change Next to Finish
-                   on the final question. Next is hidden while the age
-                   estimate offers Agree / Enter yours instead.
-                   ==================================================== *@
-                <div class="d-flex justify-content-between mt-4">
-
-                    <div>
-                        @* Hide Back on the first question. *@
-                        @if (stepNumber > 1)
-                        {
-                            <a asp-controller="Wizard"
-                               asp-action="Back"
-                               class="btn btn-outline-secondary">
-                                Back
-                            </a>
-                        }
-                    </div>
-
-                    @* Submit the answer and continue the wizard. *@
-                    <button type="submit"
-                            id="nextButton"
-                            class="btn btn-primary"
-                            hidden="@(Model.DeviceField == DeviceField.AgeInYears && !showOwnAge)">
-                        @(isLast ? "Finish" : "Next")
-                    </button>
                 </div>
-            </form>
+            }
 
             @* ========================================================
-               RESTART
-               Clear saved progress and begin the wizard again.
+               OTHER CHOICE QUESTIONS
+               Each option is a full-width tile; the whole tile is the
+               label, so tapping anywhere on it picks the answer.
                ======================================================== *@
-            <form asp-controller="Wizard"
-                  asp-action="Restart"
-                  method="post"
-                  class="mt-3">
+            else if (Model.AnswerType == AnswerType.Choice)
+            {
+                <div class="wizard-tiles"
+                     role="radiogroup"
+                     aria-labelledby="questionText"
+                     aria-describedby="@describedBy"
+                     aria-invalid="@ariaInvalid">
 
-                @Html.AntiForgeryToken()
+                    @foreach (var option in Model.Options)
+                    {
+                        <label class="wizard-tile" for="option_@option.Id">
+                            <input class="@invalidClass"
+                                   type="radio"
+                                   name="answer"
+                                   id="option_@option.Id"
+                                   value="@option.Value"
+                                   checked="@(currentAnswer == option.Value)"
+                                   required />
+                            <span>@option.Text</span>
+                        </label>
+                    }
+                </div>
+            }
 
+            @* Keep the generic number input for other number questions. *@
+            else if (Model.AnswerType == AnswerType.Number)
+            {
+                <input class="form-control @invalidClass"
+                       type="number"
+                       name="answer"
+                       min="@AnswerValidator.MinNumber"
+                       max="@AnswerValidator.MaxNumber"
+                       step="1"
+                       value="@currentAnswer"
+                       aria-labelledby="questionText"
+                       aria-describedby="@describedBy"
+                       aria-invalid="@ariaInvalid"
+                       required />
+            }
+
+            @* Keep the generic text input for other text questions. *@
+            else if (Model.AnswerType == AnswerType.Text)
+            {
+                <input class="form-control @invalidClass"
+                       type="text"
+                       name="answer"
+                       maxlength="@AnswerValidator.MaxLength(Model.DeviceField)"
+                       value="@currentAnswer"
+                       aria-labelledby="questionText"
+                       aria-describedby="@describedBy"
+                       aria-invalid="@ariaInvalid"
+                       required />
+            }
+
+            @* ========================================================
+               ERROR MESSAGE (W5)
+               Dark red and bold, directly under the field.
+               ======================================================== *@
+            @if (error != null)
+            {
+                <div id="answerError" class="invalid-feedback d-block" role="alert">
+                    @error
+                </div>
+            }
+
+            @* ========================================================
+               NAVIGATION BUTTONS
+               Phones: Next on top, Back below, both full width.
+               From 576 px: Back on the left, Next on the right.
+               Next is hidden while the age estimate offers Agree /
+               Enter yours instead.
+               ======================================================== *@
+            <div class="wizard-buttons wizard-actions">
+
+                @* No Back on the first question. *@
+                @if (stepNumber > 1)
+                {
+                    <a asp-controller="Wizard"
+                       asp-action="Back"
+                       class="button-secondary">
+                        Back
+                    </a>
+                }
+
+                @* Submit the answer and continue the wizard. *@
                 <button type="submit"
-                        class="btn btn-link px-0">
-                    Restart
+                        id="nextButton"
+                        class="button wizard-next"
+                        hidden="@(Model.DeviceField == DeviceField.AgeInYears && !showOwnAge)">
+                    @(isLast ? "Finish" : "Next")
                 </button>
-            </form>
+            </div>
+        </form>
 
-        </div>
+        @* ============================================================
+           START AGAIN
+           Small grey text, so it's never mistaken for a main action.
+           ============================================================ *@
+        <form asp-controller="Wizard"
+              asp-action="Restart"
+              method="post"
+              class="wizard-restart-form">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="wizard-restart">
+                Start again
+            </button>
+        </form>
+
     </div>
 </div>
 
