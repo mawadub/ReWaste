@@ -1,0 +1,687 @@
+Brand,Name,ReleaseYear
+Apple,iPhone 6s,2015
+Apple,iPhone 6s Plus,2015
+Apple,iPhone SE (1st generation),2016
+Apple,iPhone 7,2016
+Apple,iPhone 7 Plus,2016
+Apple,iPhone 8,2017
+Apple,iPhone 8 Plus,2017
+Apple,iPhone X,2017
+Apple,iPhone XR,2018
+Apple,iPhone XS,2018
+Apple,iPhone XS Max,2018
+Apple,iPhone 11,2019
+Apple,iPhone 11 Pro,2019
+Apple,iPhone 11 Pro Max,2019
+Apple,iPhone SE (2nd generation),2020
+Apple,iPhone 12 mini,2020
+Apple,iPhone 12,2020
+Apple,iPhone 12 Pro,2020
+Apple,iPhone 12 Pro Max,2020
+Apple,iPhone 13 mini,2021
+Apple,iPhone 13,2021
+Apple,iPhone 13 Pro,2021
+Apple,iPhone 13 Pro Max,2021
+Apple,iPhone SE (3rd generation),2022
+Apple,iPhone 14,2022
+Apple,iPhone 14 Plus,2022
+Apple,iPhone 14 Pro,2022
+Apple,iPhone 14 Pro Max,2022
+Apple,iPhone 15,2023
+Apple,iPhone 15 Plus,2023
+Apple,iPhone 15 Pro,2023
+Apple,iPhone 15 Pro Max,2023
+Apple,iPhone 16,2024
+Apple,iPhone 16 Plus,2024
+Apple,iPhone 16 Pro,2024
+Apple,iPhone 16 Pro Max,2024
+Apple,iPhone 16e,2025
+Apple,iPhone 17,2025
+Apple,iPhone Air,2025
+Apple,iPhone 17 Pro,2025
+Apple,iPhone 17 Pro Max,2025
+Samsung,Galaxy S6,2015
+Samsung,Galaxy S6 edge,2015
+Samsung,Galaxy S6 edge+,2015
+Samsung,Galaxy Note 5,2015
+Samsung,Galaxy A3 (2015),2015
+Samsung,Galaxy A5 (2015),2015
+Samsung,Galaxy A7 (2015),2015
+Samsung,Galaxy S7,2016
+Samsung,Galaxy S7 edge,2016
+Samsung,Galaxy Note 7,2016
+Samsung,Galaxy A3 (2016),2016
+Samsung,Galaxy A5 (2016),2016
+Samsung,Galaxy A7 (2016),2016
+Samsung,Galaxy J5 (2016),2016
+Samsung,Galaxy S8,2017
+Samsung,Galaxy S8+,2017
+Samsung,Galaxy Note 8,2017
+Samsung,Galaxy A3 (2017),2017
+Samsung,Galaxy A5 (2017),2017
+Samsung,Galaxy A7 (2017),2017
+Samsung,Galaxy J3 (2017),2017
+Samsung,Galaxy J5 (2017),2017
+Samsung,Galaxy S9,2018
+Samsung,Galaxy S9+,2018
+Samsung,Galaxy Note 9,2018
+Samsung,Galaxy A6,2018
+Samsung,Galaxy A6+,2018
+Samsung,Galaxy A7 (2018),2018
+Samsung,Galaxy A8 (2018),2018
+Samsung,Galaxy J4,2018
+Samsung,Galaxy J6,2018
+Samsung,Galaxy S10e,2019
+Samsung,Galaxy S10,2019
+Samsung,Galaxy S10+,2019
+Samsung,Galaxy S10 5G,2019
+Samsung,Galaxy Note 10,2019
+Samsung,Galaxy Note 10+,2019
+Samsung,Galaxy Fold,2019
+Samsung,Galaxy A10,2019
+Samsung,Galaxy A20e,2019
+Samsung,Galaxy A30,2019
+Samsung,Galaxy A40,2019
+Samsung,Galaxy A50,2019
+Samsung,Galaxy A70,2019
+Samsung,Galaxy S20,2020
+Samsung,Galaxy S20+,2020
+Samsung,Galaxy S20 Ultra,2020
+Samsung,Galaxy S20 FE,2020
+Samsung,Galaxy Note 20,2020
+Samsung,Galaxy Note 20 Ultra,2020
+Samsung,Galaxy Z Flip,2020
+Samsung,Galaxy Z Fold2,2020
+Samsung,Galaxy A01,2020
+Samsung,Galaxy A11,2020
+Samsung,Galaxy A21s,2020
+Samsung,Galaxy A31,2020
+Samsung,Galaxy A41,2020
+Samsung,Galaxy A51,2020
+Samsung,Galaxy A71,2020
+Samsung,Galaxy S21,2021
+Samsung,Galaxy S21+,2021
+Samsung,Galaxy S21 Ultra,2021
+Samsung,Galaxy Z Flip3,2021
+Samsung,Galaxy Z Fold3,2021
+Samsung,Galaxy A02s,2021
+Samsung,Galaxy A12,2021
+Samsung,Galaxy A22,2021
+Samsung,Galaxy A32,2021
+Samsung,Galaxy A52,2021
+Samsung,Galaxy A52s,2021
+Samsung,Galaxy A72,2021
+Samsung,Galaxy S21 FE,2022
+Samsung,Galaxy S22,2022
+Samsung,Galaxy S22+,2022
+Samsung,Galaxy S22 Ultra,2022
+Samsung,Galaxy Z Flip4,2022
+Samsung,Galaxy Z Fold4,2022
+Samsung,Galaxy A03,2022
+Samsung,Galaxy A13,2022
+Samsung,Galaxy A23,2022
+Samsung,Galaxy A33,2022
+Samsung,Galaxy A53,2022
+Samsung,Galaxy A73,2022
+Samsung,Galaxy S23,2023
+Samsung,Galaxy S23+,2023
+Samsung,Galaxy S23 Ultra,2023
+Samsung,Galaxy S23 FE,2023
+Samsung,Galaxy Z Flip5,2023
+Samsung,Galaxy Z Fold5,2023
+Samsung,Galaxy A14,2023
+Samsung,Galaxy A24,2023
+Samsung,Galaxy A34,2023
+Samsung,Galaxy A54,2023
+Samsung,Galaxy S24,2024
+Samsung,Galaxy S24+,2024
+Samsung,Galaxy S24 Ultra,2024
+Samsung,Galaxy S24 FE,2024
+Samsung,Galaxy Z Flip6,2024
+Samsung,Galaxy Z Fold6,2024
+Samsung,Galaxy A15,2024
+Samsung,Galaxy A25,2024
+Samsung,Galaxy A35,2024
+Samsung,Galaxy A55,2024
+Samsung,Galaxy S25,2025
+Samsung,Galaxy S25+,2025
+Samsung,Galaxy S25 Ultra,2025
+Samsung,Galaxy S25 Edge,2025
+Samsung,Galaxy S25 FE,2025
+Samsung,Galaxy Z Flip7,2025
+Samsung,Galaxy Z Fold7,2025
+Samsung,Galaxy A16,2025
+Samsung,Galaxy A26,2025
+Samsung,Galaxy A36,2025
+Samsung,Galaxy A56,2025
+Google,Nexus 5X,2015
+Google,Nexus 6P,2015
+Google,Pixel,2016
+Google,Pixel XL,2016
+Google,Pixel 2,2017
+Google,Pixel 2 XL,2017
+Google,Pixel 3,2018
+Google,Pixel 3 XL,2018
+Google,Pixel 3a,2019
+Google,Pixel 3a XL,2019
+Google,Pixel 4,2019
+Google,Pixel 4 XL,2019
+Google,Pixel 4a,2020
+Google,Pixel 4a (5G),2020
+Google,Pixel 5,2020
+Google,Pixel 5a,2021
+Google,Pixel 6,2021
+Google,Pixel 6 Pro,2021
+Google,Pixel 6a,2022
+Google,Pixel 7,2022
+Google,Pixel 7 Pro,2022
+Google,Pixel 7a,2023
+Google,Pixel Fold,2023
+Google,Pixel 8,2023
+Google,Pixel 8 Pro,2023
+Google,Pixel 8a,2024
+Google,Pixel 9,2024
+Google,Pixel 9 Pro,2024
+Google,Pixel 9 Pro XL,2024
+Google,Pixel 9 Pro Fold,2024
+Google,Pixel 9a,2025
+Google,Pixel 10,2025
+Google,Pixel 10 Pro,2025
+Google,Pixel 10 Pro XL,2025
+Google,Pixel 10 Pro Fold,2025
+Huawei,P8,2015
+Huawei,Mate 8,2015
+Huawei,P9,2016
+Huawei,P9 Lite,2016
+Huawei,P9 Plus,2016
+Huawei,Mate 9,2016
+Huawei,P10,2017
+Huawei,P10 Lite,2017
+Huawei,P10 Plus,2017
+Huawei,Mate 10,2017
+Huawei,Mate 10 Lite,2017
+Huawei,Mate 10 Pro,2017
+Huawei,P Smart,2017
+Huawei,Y6 (2017),2017
+Huawei,P20,2018
+Huawei,P20 Lite,2018
+Huawei,P20 Pro,2018
+Huawei,Mate 20,2018
+Huawei,Mate 20 Lite,2018
+Huawei,Mate 20 Pro,2018
+Huawei,P Smart (2019),2018
+Huawei,nova 3,2018
+Huawei,P30,2019
+Huawei,P30 Lite,2019
+Huawei,P30 Pro,2019
+Huawei,Mate 30,2019
+Huawei,Mate 30 Pro,2019
+Huawei,Mate X,2019
+Huawei,nova 5T,2019
+Huawei,Y6 (2019),2019
+Huawei,Y7 (2019),2019
+Huawei,P40,2020
+Huawei,P40 Lite,2020
+Huawei,P40 Pro,2020
+Huawei,Mate 40 Pro,2020
+Huawei,Mate Xs,2020
+Huawei,nova 7,2020
+Huawei,Y6p,2020
+Huawei,Y7p,2020
+Huawei,P50,2021
+Huawei,P50 Pro,2021
+Huawei,P50 Pocket,2021
+Huawei,Mate X2,2021
+Huawei,nova 9,2021
+Huawei,Mate 50,2022
+Huawei,Mate 50 Pro,2022
+Huawei,nova 10,2022
+Huawei,P60 Pro,2023
+Huawei,Mate 60,2023
+Huawei,Mate 60 Pro,2023
+Huawei,Mate X5,2023
+Huawei,nova 11,2023
+Huawei,Pura 70,2024
+Huawei,Pura 70 Pro,2024
+Huawei,Pura 70 Ultra,2024
+Huawei,Mate 70,2024
+Huawei,Mate 70 Pro,2024
+Huawei,Mate XT,2024
+Huawei,nova 12,2024
+Xiaomi,Mi 5,2016
+Xiaomi,Mi Max,2016
+Xiaomi,Redmi Note 3,2016
+Xiaomi,Redmi Note 4,2016
+Xiaomi,Mi 6,2017
+Xiaomi,Mi A1,2017
+Xiaomi,Mi Mix 2,2017
+Xiaomi,Redmi 5A,2017
+Xiaomi,Redmi Note 5A,2017
+Xiaomi,Mi 8,2018
+Xiaomi,Mi A2,2018
+Xiaomi,Mi Mix 3,2018
+Xiaomi,Pocophone F1,2018
+Xiaomi,Redmi 6,2018
+Xiaomi,Redmi 6A,2018
+Xiaomi,Redmi Note 5,2018
+Xiaomi,Redmi Note 6 Pro,2018
+Xiaomi,Mi 9,2019
+Xiaomi,Mi 9T,2019
+Xiaomi,Mi 9T Pro,2019
+Xiaomi,Mi A3,2019
+Xiaomi,Redmi 7,2019
+Xiaomi,Redmi 7A,2019
+Xiaomi,Redmi Note 7,2019
+Xiaomi,Redmi Note 8,2019
+Xiaomi,Redmi Note 8 Pro,2019
+Xiaomi,Redmi Note 8T,2019
+Xiaomi,Mi 10,2020
+Xiaomi,Mi 10 Pro,2020
+Xiaomi,Mi 10T,2020
+Xiaomi,Mi 10T Pro,2020
+Xiaomi,Mi 10T Lite,2020
+Xiaomi,Mi Note 10,2020
+Xiaomi,Redmi 9,2020
+Xiaomi,Redmi 9A,2020
+Xiaomi,Redmi 9C,2020
+Xiaomi,Redmi Note 9,2020
+Xiaomi,Redmi Note 9 Pro,2020
+Xiaomi,Redmi Note 9S,2020
+Xiaomi,POCO F2 Pro,2020
+Xiaomi,POCO X3 NFC,2020
+Xiaomi,Mi 11,2021
+Xiaomi,Mi 11 Ultra,2021
+Xiaomi,Mi 11 Lite,2021
+Xiaomi,Mi 11i,2021
+Xiaomi,Mi 11T,2021
+Xiaomi,Mi 11T Pro,2021
+Xiaomi,Redmi 9T,2021
+Xiaomi,Redmi 10,2021
+Xiaomi,Redmi Note 10,2021
+Xiaomi,Redmi Note 10 Pro,2021
+Xiaomi,Redmi Note 10S,2021
+Xiaomi,POCO F3,2021
+Xiaomi,POCO X3 Pro,2021
+Xiaomi,POCO M3,2021
+Xiaomi,Xiaomi 12,2022
+Xiaomi,Xiaomi 12 Pro,2022
+Xiaomi,Xiaomi 12 Lite,2022
+Xiaomi,Xiaomi 12T,2022
+Xiaomi,Xiaomi 12T Pro,2022
+Xiaomi,Redmi 10C,2022
+Xiaomi,Redmi Note 11,2022
+Xiaomi,Redmi Note 11 Pro,2022
+Xiaomi,Redmi Note 11S,2022
+Xiaomi,Redmi Note 11 Pro+,2022
+Xiaomi,POCO F4,2022
+Xiaomi,POCO X4 Pro 5G,2022
+Xiaomi,POCO M4 Pro,2022
+Xiaomi,Xiaomi 13,2023
+Xiaomi,Xiaomi 13 Pro,2023
+Xiaomi,Xiaomi 13 Lite,2023
+Xiaomi,Xiaomi 13T,2023
+Xiaomi,Xiaomi 13T Pro,2023
+Xiaomi,Redmi 12,2023
+Xiaomi,Redmi 12C,2023
+Xiaomi,Redmi Note 12,2023
+Xiaomi,Redmi Note 12 Pro,2023
+Xiaomi,Redmi Note 12 Pro+,2023
+Xiaomi,POCO F5,2023
+Xiaomi,POCO X5 Pro,2023
+Xiaomi,POCO M5,2023
+Xiaomi,Xiaomi 14,2024
+Xiaomi,Xiaomi 14 Ultra,2024
+Xiaomi,Xiaomi 14T,2024
+Xiaomi,Xiaomi 14T Pro,2024
+Xiaomi,Redmi 13,2024
+Xiaomi,Redmi 13C,2024
+Xiaomi,Redmi Note 13,2024
+Xiaomi,Redmi Note 13 Pro,2024
+Xiaomi,Redmi Note 13 Pro+,2024
+Xiaomi,POCO F6,2024
+Xiaomi,POCO F6 Pro,2024
+Xiaomi,POCO X6 Pro,2024
+Xiaomi,POCO M6 Pro,2024
+Xiaomi,Xiaomi 15,2025
+Xiaomi,Xiaomi 15 Ultra,2025
+Xiaomi,Xiaomi 15T,2025
+Xiaomi,Xiaomi 15T Pro,2025
+Xiaomi,Redmi 14C,2025
+Xiaomi,Redmi Note 14,2025
+Xiaomi,Redmi Note 14 Pro,2025
+Xiaomi,Redmi Note 14 Pro+,2025
+Xiaomi,Redmi A3,2025
+Xiaomi,POCO F7,2025
+Xiaomi,POCO X7 Pro,2025
+Xiaomi,POCO M7 Pro,2025
+OnePlus,OnePlus 2,2015
+OnePlus,OnePlus X,2015
+OnePlus,OnePlus 3,2016
+OnePlus,OnePlus 3T,2016
+OnePlus,OnePlus 5,2017
+OnePlus,OnePlus 5T,2017
+OnePlus,OnePlus 6,2018
+OnePlus,OnePlus 6T,2018
+OnePlus,OnePlus 7,2019
+OnePlus,OnePlus 7 Pro,2019
+OnePlus,OnePlus 7T,2019
+OnePlus,OnePlus 7T Pro,2019
+OnePlus,OnePlus 8,2020
+OnePlus,OnePlus 8 Pro,2020
+OnePlus,OnePlus 8T,2020
+OnePlus,OnePlus Nord,2020
+OnePlus,OnePlus Nord N10 5G,2020
+OnePlus,OnePlus Nord N100,2020
+OnePlus,OnePlus 9,2021
+OnePlus,OnePlus 9 Pro,2021
+OnePlus,OnePlus 9R,2021
+OnePlus,OnePlus Nord 2,2021
+OnePlus,OnePlus Nord CE,2021
+OnePlus,OnePlus 10 Pro,2022
+OnePlus,OnePlus 10T,2022
+OnePlus,OnePlus Nord 2T,2022
+OnePlus,OnePlus Nord CE 2,2022
+OnePlus,OnePlus Nord N20,2022
+OnePlus,OnePlus 11,2023
+OnePlus,OnePlus Open,2023
+OnePlus,OnePlus Nord 3,2023
+OnePlus,OnePlus Nord CE 3,2023
+OnePlus,OnePlus Nord N30,2023
+OnePlus,OnePlus 12,2024
+OnePlus,OnePlus 12R,2024
+OnePlus,OnePlus Nord 4,2024
+OnePlus,OnePlus Nord CE4,2024
+OnePlus,OnePlus 13,2025
+OnePlus,OnePlus 13R,2025
+OnePlus,OnePlus Nord 5,2025
+OnePlus,OnePlus Nord CE5,2025
+OnePlus,OnePlus 15,2025
+Oppo,R7,2015
+Oppo,R7 Plus,2015
+Oppo,F1 Plus,2016
+Oppo,R9,2016
+Oppo,R9s,2016
+Oppo,F3,2017
+Oppo,R11,2017
+Oppo,R11s,2017
+Oppo,A57,2017
+Oppo,Find X,2018
+Oppo,R15 Pro,2018
+Oppo,R17 Pro,2018
+Oppo,A3s,2018
+Oppo,A5,2018
+Oppo,Reno,2019
+Oppo,Reno 2,2019
+Oppo,Reno 10x Zoom,2019
+Oppo,A9 (2020),2019
+Oppo,A5 (2020),2019
+Oppo,Find X2,2020
+Oppo,Find X2 Pro,2020
+Oppo,Find X2 Lite,2020
+Oppo,Reno3,2020
+Oppo,Reno4 Pro,2020
+Oppo,Reno4 Z,2020
+Oppo,A15,2020
+Oppo,A53,2020
+Oppo,A72,2020
+Oppo,Find X3 Pro,2021
+Oppo,Find X3 Neo,2021
+Oppo,Find X3 Lite,2021
+Oppo,Reno5,2021
+Oppo,Reno6,2021
+Oppo,Reno6 Pro,2021
+Oppo,A16,2021
+Oppo,A54,2021
+Oppo,A74,2021
+Oppo,A94,2021
+Oppo,Find X5 Pro,2022
+Oppo,Find X5,2022
+Oppo,Find X5 Lite,2022
+Oppo,Find N2 Flip,2022
+Oppo,Reno7,2022
+Oppo,Reno8,2022
+Oppo,Reno8 T,2022
+Oppo,A57 (2022),2022
+Oppo,A77,2022
+Oppo,A17,2022
+Oppo,Find X6 Pro,2023
+Oppo,Find N3,2023
+Oppo,Find N3 Flip,2023
+Oppo,Reno10,2023
+Oppo,Reno10 Pro,2023
+Oppo,A58,2023
+Oppo,A78,2023
+Oppo,A98,2023
+Oppo,Find X7 Ultra,2024
+Oppo,Find X8,2024
+Oppo,Find X8 Pro,2024
+Oppo,Reno11,2024
+Oppo,Reno12,2024
+Oppo,A38,2024
+Oppo,A60,2024
+Oppo,A79,2024
+Oppo,Find X8 Ultra,2025
+Oppo,Find N5,2025
+Oppo,Reno13,2025
+Oppo,Reno13 Pro,2025
+Oppo,A5 Pro,2025
+Oppo,A3 Pro,2025
+Motorola,Moto G (3rd gen),2015
+Motorola,Moto E (2nd gen),2015
+Motorola,Moto X Style,2015
+Motorola,Moto X Play,2015
+Motorola,Moto G4,2016
+Motorola,Moto G4 Plus,2016
+Motorola,Moto G4 Play,2016
+Motorola,Moto Z,2016
+Motorola,Moto Z Play,2016
+Motorola,Moto G5,2017
+Motorola,Moto G5 Plus,2017
+Motorola,Moto G5S,2017
+Motorola,Moto E4,2017
+Motorola,Moto Z2 Play,2017
+Motorola,Moto G6,2018
+Motorola,Moto G6 Plus,2018
+Motorola,Moto G6 Play,2018
+Motorola,Moto E5,2018
+Motorola,Moto X4,2018
+Motorola,Moto Z3 Play,2018
+Motorola,Moto G7,2019
+Motorola,Moto G7 Plus,2019
+Motorola,Moto G7 Power,2019
+Motorola,Moto G7 Play,2019
+Motorola,Moto G8 Plus,2019
+Motorola,Moto G8 Power,2019
+Motorola,Moto E6,2019
+Motorola,Motorola One Vision,2019
+Motorola,Motorola Razr (2019),2019
+Motorola,Moto G9 Play,2020
+Motorola,Moto G9 Plus,2020
+Motorola,Moto G9 Power,2020
+Motorola,Moto G 5G,2020
+Motorola,Moto G Pro,2020
+Motorola,Moto E7,2020
+Motorola,Motorola Edge,2020
+Motorola,Motorola One Fusion,2020
+Motorola,Motorola Razr 5G,2020
+Motorola,Moto G10,2021
+Motorola,Moto G30,2021
+Motorola,Moto G50,2021
+Motorola,Moto G60,2021
+Motorola,Moto G100,2021
+Motorola,Moto E7 Plus,2021
+Motorola,Motorola Edge 20,2021
+Motorola,Motorola Edge 20 Pro,2021
+Motorola,Motorola Edge 20 Lite,2021
+Motorola,Moto G22,2022
+Motorola,Moto G41,2022
+Motorola,Moto G51,2022
+Motorola,Moto G71,2022
+Motorola,Moto G200,2022
+Motorola,Moto G82,2022
+Motorola,Motorola Edge 30,2022
+Motorola,Motorola Edge 30 Pro,2022
+Motorola,Motorola Edge 30 Ultra,2022
+Motorola,Motorola Edge 30 Neo,2022
+Motorola,Moto G13,2023
+Motorola,Moto G23,2023
+Motorola,Moto G53,2023
+Motorola,Moto G54,2023
+Motorola,Moto G73,2023
+Motorola,Moto G84,2023
+Motorola,Motorola Edge 40,2023
+Motorola,Motorola Edge 40 Pro,2023
+Motorola,Motorola Edge 40 Neo,2023
+Motorola,Motorola Razr 40,2023
+Motorola,Motorola Razr 40 Ultra,2023
+Motorola,Moto G04,2024
+Motorola,Moto G14,2024
+Motorola,Moto G24,2024
+Motorola,Moto G34,2024
+Motorola,Moto G54 (2024),2024
+Motorola,Moto G64,2024
+Motorola,Moto G85,2024
+Motorola,Motorola Edge 50 Pro,2024
+Motorola,Motorola Edge 50 Fusion,2024
+Motorola,Motorola Edge 50 Ultra,2024
+Motorola,Motorola Razr 50,2024
+Motorola,Motorola Razr 50 Ultra,2024
+Motorola,Moto G05,2025
+Motorola,Moto G15,2025
+Motorola,Moto G35,2025
+Motorola,Moto G55,2025
+Motorola,Moto G56,2025
+Motorola,Moto G75,2025
+Motorola,Moto G86,2025
+Motorola,Motorola Edge 60,2025
+Motorola,Motorola Edge 60 Pro,2025
+Motorola,Motorola Edge 60 Fusion,2025
+Motorola,Motorola Razr 60,2025
+Motorola,Motorola Razr 60 Ultra,2025
+Nokia,Lumia 550,2015
+Nokia,Lumia 640,2015
+Nokia,Lumia 735,2015
+Nokia,Lumia 830,2015
+Nokia,Lumia 930,2015
+Nokia,Lumia 950,2015
+Nokia,Lumia 950 XL,2015
+Nokia,Nokia 130,2016
+Nokia,Nokia 216,2016
+Nokia,Nokia 230,2016
+Nokia,Nokia 3310 (2017),2017
+Nokia,Nokia 105 (2017),2017
+Nokia,Nokia 3,2017
+Nokia,Nokia 5,2017
+Nokia,Nokia 6,2017
+Nokia,Nokia 8,2017
+Nokia,Nokia 1,2018
+Nokia,Nokia 2,2018
+Nokia,Nokia 3.1,2018
+Nokia,Nokia 5.1,2018
+Nokia,Nokia 6.1,2018
+Nokia,Nokia 7 Plus,2018
+Nokia,Nokia 7.1,2018
+Nokia,Nokia 8 Sirocco,2018
+Nokia,Nokia 8.1,2018
+Nokia,Nokia 8110 4G,2018
+Nokia,Nokia 1 Plus,2019
+Nokia,Nokia 2.2,2019
+Nokia,Nokia 3.2,2019
+Nokia,Nokia 4.2,2019
+Nokia,Nokia 6.2,2019
+Nokia,Nokia 7.2,2019
+Nokia,Nokia 9 PureView,2019
+Nokia,Nokia 210,2019
+Nokia,Nokia 1.3,2020
+Nokia,Nokia 2.3,2020
+Nokia,Nokia 2.4,2020
+Nokia,Nokia 3.4,2020
+Nokia,Nokia 5.3,2020
+Nokia,Nokia 5.4,2020
+Nokia,Nokia 8.3 5G,2020
+Nokia,Nokia 2720 Flip,2020
+Nokia,Nokia 215 4G,2020
+Nokia,Nokia 225 4G,2020
+Nokia,Nokia C1,2021
+Nokia,Nokia C2,2021
+Nokia,Nokia C10,2021
+Nokia,Nokia C20,2021
+Nokia,Nokia C30,2021
+Nokia,Nokia G10,2021
+Nokia,Nokia G11,2021
+Nokia,Nokia G20,2021
+Nokia,Nokia G21,2021
+Nokia,Nokia G50,2021
+Nokia,Nokia X10,2021
+Nokia,Nokia X20,2021
+Nokia,Nokia XR20,2021
+Nokia,Nokia 110 4G,2021
+Nokia,Nokia 2660 Flip,2021
+Nokia,Nokia C21,2022
+Nokia,Nokia C21 Plus,2022
+Nokia,Nokia C31,2022
+Nokia,Nokia G22,2022
+Nokia,Nokia G60 5G,2022
+Nokia,Nokia X30 5G,2022
+Nokia,Nokia C12,2023
+Nokia,Nokia C22,2023
+Nokia,Nokia C32,2023
+Nokia,Nokia G42 5G,2023
+Nokia,Nokia G310 5G,2023
+Nokia,Nokia 130 Music (2023),2023
+Nokia,Nokia 150 (2023),2023
+Nokia,HMD Pulse,2024
+Nokia,HMD Pulse Pro,2024
+Nokia,HMD Fusion,2024
+Nokia,HMD Skyline,2024
+Nokia,HMD Vibe,2024
+Nokia,HMD 105,2024
+Nokia,HMD 110,2024
+Sony,Xperia Z5,2015
+Sony,Xperia Z5 Compact,2015
+Sony,Xperia Z5 Premium,2015
+Sony,Xperia M5,2015
+Sony,Xperia C5 Ultra,2015
+Sony,Xperia X,2016
+Sony,Xperia X Compact,2016
+Sony,Xperia X Performance,2016
+Sony,Xperia XA,2016
+Sony,Xperia XA Ultra,2016
+Sony,Xperia XZ,2016
+Sony,Xperia XZ Premium,2017
+Sony,Xperia XZs,2017
+Sony,Xperia XZ1,2017
+Sony,Xperia XZ1 Compact,2017
+Sony,Xperia XA1,2017
+Sony,Xperia XA1 Ultra,2017
+Sony,Xperia L1,2017
+Sony,Xperia XZ2,2018
+Sony,Xperia XZ2 Compact,2018
+Sony,Xperia XZ2 Premium,2018
+Sony,Xperia XZ3,2018
+Sony,Xperia XA2,2018
+Sony,Xperia XA2 Ultra,2018
+Sony,Xperia L2,2018
+Sony,Xperia L3,2018
+Sony,Xperia 1,2019
+Sony,Xperia 5,2019
+Sony,Xperia 10,2019
+Sony,Xperia 10 Plus,2019
+Sony,Xperia 8,2019
+Sony,Xperia 1 II,2020
+Sony,Xperia 5 II,2020
+Sony,Xperia 10 II,2020
+Sony,Xperia 1 III,2021
+Sony,Xperia 5 III,2021
+Sony,Xperia 10 III,2021
+Sony,Xperia Pro-I,2021
+Sony,Xperia 1 IV,2022
+Sony,Xperia 5 IV,2022
+Sony,Xperia 10 IV,2022
+Sony,Xperia 1 V,2023
+Sony,Xperia 5 V,2023
+Sony,Xperia 10 V,2023
+Sony,Xperia 1 VI,2024
+Sony,Xperia 10 VI,2024
+Sony,Xperia 1 VII,2025
+Sony,Xperia 10 VII,2025

@@ -13,10 +13,21 @@ namespace RE_Waste.Data
         public DbSet<DropOffPoint> DropOffPoints => Set<DropOffPoint>();
         public DbSet<RecommendationRule> RecommendationRules => Set<RecommendationRule>();
         public DbSet<SavedResponse> SavedResponses => Set<SavedResponse>();
+        public DbSet<PhoneModel> PhoneModels => Set<PhoneModel>();
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // The same model can't be listed twice for one brand.
+            builder.Entity<PhoneModel>()
+                .HasIndex(p => new { p.Brand, p.Name })
+                .IsUnique();
         }
     }
 }

@@ -311,6 +311,38 @@ namespace RE_Waste.Data.Migrations
                     b.ToTable("DropOffPoints");
                 });
 
+            modelBuilder.Entity("RE_Waste.Models.PhoneModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("ReleaseYear")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Brand", "Name")
+                        .IsUnique();
+
+                    b.ToTable("PhoneModels");
+                });
+
             modelBuilder.Entity("RE_Waste.Models.Question", b =>
                 {
                     b.Property<int>("Id")

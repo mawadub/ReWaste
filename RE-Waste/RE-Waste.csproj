@@ -25,4 +25,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
   </ItemGroup>
 
+    <ItemGroup>
+    <None Update="Data\Seed\phone-models.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
