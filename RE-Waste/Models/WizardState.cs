@@ -15,5 +15,9 @@ namespace RE_Waste.Models
 
         // stores the answers in a dictionary to easily overwrite answers if the user goes back
         public Dictionary<DeviceField, string> Answers { get; set; } = new();
+
+
+        // the user's postcode, filled in by W4 (kept out of Answers because it isn't a Device field)
+        public string? Postcode { get; set; }
     }
 }

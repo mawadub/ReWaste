@@ -1,0 +1,114 @@
+﻿@using RE_Waste.Models
+@using RE_Waste.Models.Enums
+@model IEnumerable<Question>
+
+@{
+    ViewData["Title"] = "Manage Questions";
+    var questions = Model.OrderBy(q => q.DisplayOrder).ToList();
+}
+
+<h1>Manage Questions</h1>
+
+<p>Manage the questions displayed in the wizard.</p>
+
+<p>
+    <a asp-area="Manager"
+       asp-controller="Questions"
+       asp-action="Create"
+       class="btn btn-primary">
+        Create Question
+    </a>
+</p>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Order</th>
+            <th>Text</th>
+            <th>Answer type</th>
+            <th>Fills</th>
+            <th>Status</th>
+            <th>Move up</th>
+            <th>Move down</th>
+            <th>Edit</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < questions.Count; i++)
+        {
+            var question = questions[i];
+
+            <tr class="@(!question.IsActive ? "text-muted" : "")">
+                <td>@question.DisplayOrder</td>
+                <td>@question.Text</td>
+                <td>@question.AnswerType</td>
+                <td>@question.DeviceField</td>
+                <td>
+                    @if (question.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactive</span>
+                    }
+                </td>
+                <td>
+                    @if (i > 0)
+                    {
+                        <form asp-area="Manager"
+                              asp-controller="Questions"
+                              asp-action="MoveUp"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@question.Id" />
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-secondary">
+                                Move up
+                            </button>
+                        </form>
+                    }
+                </td>
+                <td>
+                    @if (i < questions.Count - 1)
+                    {
+                        <form asp-area="Manager"
+                              asp-controller="Questions"
+                              asp-action="MoveDown"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@question.Id" />
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-secondary">
+                                Move down
+                            </button>
+                        </form>
+                    }
+                </td>
+                <td>
+                    <a asp-area="Manager"
+                       asp-controller="Questions"
+                       asp-action="Edit"
+                       asp-route-id="@question.Id"
+                       class="btn btn-sm btn-outline-primary">
+                        Edit
+                    </a>
+                </td>
+                <td>
+                    <form asp-area="Manager"
+                          asp-controller="Questions"
+                          asp-action="ToggleActive"
+                          method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@question.Id" />
+                        <button type="submit"
+                                class="btn btn-sm @(question.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                            @(question.IsActive ? "Deactivate" : "Activate")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

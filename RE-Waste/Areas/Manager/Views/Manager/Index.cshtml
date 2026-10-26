@@ -10,15 +10,39 @@
     <div class="col-md-4">
         <h3>Drop-off Points</h3>
         <p>Coming soon</p>
+        <a asp-area="Manager"
+           asp-controller="DropOffPoints"
+           asp-action="Index"
+           class="btn btn-primary">
+            Drop-Off Points
+        </a>
     </div>
 
-    <div class="col-md-4">
-        <h3>Rules</h3>
-        <p>Coming soon</p>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Rules</h5>
+            <p class="card-text">
+                Manage recommendation rules for devices.
+            </p>
+            <a asp-area="Manager"
+               asp-controller="Rules"
+               asp-action="Index"
+               class="btn btn-primary">
+                Manage Rules
+            </a>
+        </div>
     </div>
+
 
     <div class="col-md-4">
         <h3>Questions</h3>
-        <p>Coming soon</p>
+        <p>Manage wizard questions and answer options.</p>
+        <a asp-area="Manager"
+           asp-controller="Questions"
+           asp-action="Index"
+           class="btn btn-primary">
+            Manage Questions
+        </a>
     </div>
 </div>

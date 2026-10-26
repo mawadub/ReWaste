@@ -1,0 +1,89 @@
+﻿@model IEnumerable<RE_Waste.Models.RecommendationRule>
+@using RE_Waste.Models
+@using RE_Waste.Models.Enums
+
+@{
+    ViewData["Title"] = "Recommendation Rules";
+}
+
+<h2>Recommendation Rules</h2>
+
+<p>
+    <a asp-area="Manager" asp-controller="Rules"
+       asp-action="Create" class="btn btn-primary">
+        Add New Rule
+    </a>
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Priority</th>
+                <th>Name</th>
+                <th>Route</th>
+                <th>Applies When</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rule in Model)
+            {
+                <tr>
+                    <td>@rule.Priority</td>
+                    <td>@rule.Name</td>
+                    <td>@rule.Route</td>
+                    <td>
+                        @(rule.Condition?.ToString() ?? "Any condition"),
+                        age @(rule.MinAgeInYears?.ToString() ?? "Any")
+                        to @(rule.MaxAgeInYears?.ToString() ?? "Any")
+                        <div>
+                            Personal data:
+                            @(rule.HasPersonalData == null ? "Any" :
+                                                    rule.HasPersonalData.Value ? "Yes" : "No")
+                                                                                          </div>
+                                                                                          <div>
+                                                                                              Battery damage:
+                            @(rule.HasBatteryDamage == null ? "Any" :
+                                                    rule.HasBatteryDamage.Value ? "Yes" : "No")
+                    </div>
+                </td>
+                <td>
+                    @if (rule.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-area="Manager"
+                           asp-controller="Rules"
+                           asp-action="Edit"
+                           asp-route-id="@rule.Id"
+                           class="btn btn-sm btn-primary">
+                            Edit
+                        </a>
+
+                        <form asp-area="Manager"
+                              asp-controller="Rules"
+                              asp-action="ToggleActive"
+                              asp-route-id="@rule.Id"
+                              method="post"
+                              class="d-inline">
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-warning">
+                                @(rule.IsActive ? "Deactivate" : "Activate")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

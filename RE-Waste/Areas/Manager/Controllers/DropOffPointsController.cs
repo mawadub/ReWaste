@@ -1,0 +1,181 @@
+﻿
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RE_Waste.Data;
+using RE_Waste.Models;
+using RE_Waste.Services;
+
+namespace RE_Waste.Areas.Manager.Controllers
+{
+    [Area("Manager")]
+    [Authorize(Roles = AppRoles.Manager)]
+    public class DropOffPointsController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly IPostcodeService _postcodeService;
+
+        public DropOffPointsController(
+            ApplicationDbContext context,
+            IPostcodeService postcodeService)
+        {
+            _context = context;
+            _postcodeService = postcodeService;
+        }
+
+        // GET: Manager/DropOffPoints
+        public async Task<IActionResult> Index()
+        {
+            var points = await _context.DropOffPoints
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            return View(points);
+        }
+
+        // GET: Manager/DropOffPoints/Create
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new DropOffPointModel());
+        }
+
+        // POST: Manager/DropOffPoints/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(DropOffPointModel model)
+        {
+            model.Postcode = (model.Postcode ?? string.Empty)
+                .Trim()
+                .ToUpperInvariant();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var postcodeResult = await _postcodeService
+                .LookupAsync(model.Postcode);
+
+            if (postcodeResult == null)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Postcode),
+                    "We couldn't find that postcode.");
+
+                return View(model);
+            }
+
+            var point = new DropOffPoint
+            {
+                Name = model.Name,
+                Address = model.Address,
+                Postcode = model.Postcode,
+                PointType = model.PointType,
+                OpeningHours = model.OpeningHours,
+                Website = model.Website,
+                Latitude = postcodeResult.Latitude,
+                Longitude = postcodeResult.Longitude,
+                IsActive = true
+            };
+
+            _context.DropOffPoints.Add(point);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Manager/DropOffPoints/Edit/5
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var point = await _context.DropOffPoints.FindAsync(id);
+
+            if (point == null)
+                return NotFound();
+
+            var model = new DropOffPointModel
+            {
+                Name = point.Name,
+                Address = point.Address,
+                Postcode = point.Postcode,
+                PointType = point.PointType,
+                OpeningHours = point.OpeningHours,
+                Website = point.Website,
+                IsActive = point.IsActive
+            };
+
+            return View(model);
+        }
+
+        // POST: Manager/DropOffPoints/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            DropOffPointModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var point = await _context.DropOffPoints.FindAsync(id);
+
+            if (point == null)
+                return NotFound();
+
+            model.Postcode = (model.Postcode ?? string.Empty)
+                .Trim()
+                .ToUpperInvariant();
+
+            var postcodeChanged = !string.Equals(
+                model.Postcode,
+                (point.Postcode ?? string.Empty).Trim(),
+                StringComparison.OrdinalIgnoreCase);
+
+            if (postcodeChanged)
+            {
+                var postcodeResult = await _postcodeService
+                    .LookupAsync(model.Postcode);
+
+                if (postcodeResult == null)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.Postcode),
+                        "We couldn't find that postcode.");
+
+                    return View(model);
+                }
+
+                point.Latitude = postcodeResult.Latitude;
+                point.Longitude = postcodeResult.Longitude;
+            }
+
+            point.Name = model.Name;
+            point.Address = model.Address;
+            point.Postcode = model.Postcode;
+            point.PointType = model.PointType;
+            point.OpeningHours = model.OpeningHours;
+            point.Website = model.Website;
+            point.IsActive = model.IsActive;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Manager/DropOffPoints/ToggleActive/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleActive(int id)
+        {
+            var point = await _context.DropOffPoints.FindAsync(id);
+
+            if (point == null)
+                return NotFound();
+
+            point.IsActive = !point.IsActive;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}

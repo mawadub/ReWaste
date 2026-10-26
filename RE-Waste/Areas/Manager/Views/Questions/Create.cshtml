@@ -1,0 +1,63 @@
+﻿@using RE_Waste.Models
+@using RE_Waste.Models.Enums
+@model Question
+
+@{
+    ViewData["Title"] = "Create Question";
+}
+
+<h1>Create Question</h1>
+
+<hr />
+
+<form asp-area="Manager"
+      asp-controller="Questions"
+      asp-action="Create"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="Text" class="form-label">Question text</label>
+        <input asp-for="Text"
+               class="form-control"
+               maxlength="200"
+               required />
+        <span asp-validation-for="Text" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AnswerType" class="form-label">Answer type</label>
+        <select asp-for="AnswerType"
+                asp-items="Html.GetEnumSelectList<AnswerType>()"
+                class="form-select">
+        </select>
+        <span asp-validation-for="AnswerType" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DeviceField" class="form-label">Device field</label>
+        <select asp-for="DeviceField"
+                asp-items="Html.GetEnumSelectList<DeviceField>()"
+                class="form-select">
+        </select>
+        <span asp-validation-for="DeviceField" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Create Question
+    </button>
+
+    <a asp-area="Manager"
+       asp-controller="Questions"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

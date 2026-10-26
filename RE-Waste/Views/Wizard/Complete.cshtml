@@ -21,6 +21,10 @@ else
     </ul>
 }
 
+<!--Lets the user go back-->
+<a asp-controller="Wizard" asp-action="Back">Back</a>
+
+
 <!-- Let them start over -->
 <form asp-controller="Wizard" asp-action="Restart" method="post" style="display:inline">
     @Html.AntiForgeryToken()
