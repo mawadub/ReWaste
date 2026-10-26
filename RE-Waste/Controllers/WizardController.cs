@@ -83,6 +83,172 @@ namespace RE_Waste.Controllers
             return names;
         }
 
+        // ====================================================================
+        // HELPER: RELEASE YEAR
+        // The year a listed model came out, or null when the brand or model
+        // was typed in ("Other") or the list doesn't know it.
+        // ====================================================================
+        private async Task<int?> ReleaseYearOf(string? brand, string? model)
+        {
+            if (!PhoneBrands.IsListed(brand) || string.IsNullOrEmpty(model))
+                return null;
+
+            return await _context.PhoneModels
+                .Where(p => p.IsActive && p.Brand == brand && p.Name == model)
+                .Select(p => p.ReleaseYear)
+                .FirstOrDefaultAsync();
+        }
+
+        // ====================================================================
+        // HELPER: STEP VIEW DATA
+        // Fills the values Step.cshtml needs. Used by Step, and by Next when
+        // an answer is refused and the same question is shown again.
+        // ====================================================================
+        private async Task SetStepViewData(WizardState state, List<Question> questions, Question question, string currentAnswer)
+        {
+            ViewBag.StepNumber = state.Step + 1; // Display steps starting at 1.
+            ViewBag.TotalSteps = questions.Count; // Pass the total number of questions.
+            ViewBag.IsLast = state.Step == questions.Count - 1; // Check for the final question.
+            ViewBag.CurrentAnswer = currentAnswer; // The answer to show in the input.
+
+            state.Answers.TryGetValue(DeviceField.Brand, out var brand);
+            state.Answers.TryGetValue(DeviceField.Model, out var model);
+
+            // Brand: a brand typed in on the Model step shows as "Other" in the drop-down.
+            if (question.DeviceField == DeviceField.Brand
+                && currentAnswer != "" && !PhoneBrands.All.Contains(currentAnswer))
+            {
+                ViewBag.CurrentAnswer = PhoneBrands.Other;
+            }
+
+            // Model: a searchable list for a listed brand, or brand and model boxes for "Other".
+            if (question.DeviceField == DeviceField.Model)
+            {
+                var options = await ModelOptionsFor(brand);
+                var listed = PhoneBrands.IsListed(brand);
+
+                ViewBag.BrandListed = listed;
+                ViewBag.ModelOptions = options;
+                ViewBag.OtherBrand = listed || brand == PhoneBrands.Other ? "" : brand ?? "";
+                ViewBag.OtherModel = "";
+
+                // A model that isn't in the list was typed in: select "Other" and show it in the box.
+                if (currentAnswer != "" && !options.Contains(currentAnswer))
+                {
+                    ViewBag.CurrentAnswer = PhoneModel.Other;
+                    ViewBag.OtherModel = currentAnswer;
+                }
+            }
+
+            // Age: estimate it from the model's release year, when the model is from the list.
+            if (question.DeviceField == DeviceField.AgeInYears)
+            {
+                var year = await ReleaseYearOf(brand, model);
+
+                if (year != null)
+                {
+                    ViewBag.ReleaseYear = year;
+                    ViewBag.PhoneName = $"{brand} {model}";
+                    ViewBag.EstimatedAge = Math.Clamp(
+                        DateTime.Today.Year - year.Value,
+                        AnswerValidator.MinNumber,
+                        AnswerValidator.MaxNumber);
+                }
+            }
+        }
+
+        // ====================================================================
+        // HELPER: CHECK MODEL STEP
+        // The Model step can also carry a typed-in brand and model ("Other").
+        // Returns the error and the name of the box it belongs to.
+        // ====================================================================
+        private async Task<(string? Error, string Field)> CheckModel(
+            WizardState state, string? answer, string? otherBrand, string? otherModel)
+        {
+            state.Answers.TryGetValue(DeviceField.Brand, out var brand);
+
+            // Brand was "Other": both the brand and the model are typed in.
+            if (!PhoneBrands.IsListed(brand))
+            {
+                var brandError = AnswerValidator.ValidateText(
+                    otherBrand, AnswerValidator.MaxLength(DeviceField.Brand), AnswerValidator.TypeBrandMessage);
+
+                if (brandError != null)
+                    return (brandError, "otherBrand");
+
+                return (AnswerValidator.ValidateText(
+                    otherModel, AnswerValidator.MaxLength(DeviceField.Model), AnswerValidator.TypeModelMessage), "otherModel");
+            }
+
+            // Listed brand: the answer must be one of its models, or "Other / not listed".
+            var value = (answer ?? string.Empty).Trim();
+
+            if (value.Length == 0)
+                return (AnswerValidator.RequiredMessage, "answer");
+
+            if (!(await ModelOptionsFor(brand)).Contains(value))
+                return (AnswerValidator.ChoiceMessage, "answer");
+
+            // "Other / not listed": the model is typed into the extra box.
+            if (value == PhoneModel.Other)
+                return (AnswerValidator.ValidateText(
+                    otherModel, AnswerValidator.MaxLength(DeviceField.Model), AnswerValidator.TypeModelMessage), "otherModel");
+
+            return (null, "answer");
+        }
+
+        // ====================================================================
+        // HELPER: SAVE BRAND
+        // A different brand clears the model and age, because they belonged
+        // to the old brand. Picking "Other" again keeps a typed-in brand.
+        // ====================================================================
+        private static void SaveBrand(WizardState state, string brand)
+        {
+            state.Answers.TryGetValue(DeviceField.Brand, out var previous);
+
+            var typedBefore = !string.IsNullOrEmpty(previous) && !PhoneBrands.All.Contains(previous);
+
+            if (brand == PhoneBrands.Other && typedBefore)
+                return;
+
+            if (brand != previous)
+            {
+                state.Answers.Remove(DeviceField.Model);
+                state.Answers.Remove(DeviceField.AgeInYears);
+            }
+
+            state.Answers[DeviceField.Brand] = brand;
+        }
+
+        // ====================================================================
+        // HELPER: SAVE MODEL
+        // Typed-in values replace "Other" and "Other / not listed", so later
+        // steps get the real brand and model. A new model clears the age.
+        // ====================================================================
+        private static void SaveModel(WizardState state, string? answer, string? otherBrand, string? otherModel)
+        {
+            state.Answers.TryGetValue(DeviceField.Brand, out var brand);
+            state.Answers.TryGetValue(DeviceField.Model, out var previous);
+
+            string model;
+
+            if (PhoneBrands.IsListed(brand))
+            {
+                var chosen = answer!.Trim();
+                model = chosen == PhoneModel.Other ? otherModel!.Trim() : chosen;
+            }
+            else
+            {
+                state.Answers[DeviceField.Brand] = otherBrand!.Trim();
+                model = otherModel!.Trim();
+            }
+
+            if (model != previous)
+                state.Answers.Remove(DeviceField.AgeInYears);
+
+            state.Answers[DeviceField.Model] = model;
+        }
+
 
         // ====================================================================
         // ACTION: STEP
@@ -109,22 +275,12 @@ namespace RE_Waste.Controllers
 
             var question = questions[state.Step]; // Get the current question.
 
-            ViewBag.StepNumber = state.Step + 1; // Display steps starting at 1.
-            ViewBag.TotalSteps = questions.Count; // Pass the total number of questions.
-            ViewBag.IsLast = state.Step == questions.Count - 1; // Check for the final question.
-
             // Restore the saved answer, if one exists.
-            ViewBag.CurrentAnswer =
-                state.Answers.TryGetValue(question.DeviceField, out var answer)
-                    ? answer
-                    : "";
+            var savedAnswer = state.Answers.TryGetValue(question.DeviceField, out var answer)
+                ? answer
+                : "";
 
-            // On the Model step, offer the models for the brand chosen earlier.
-            if (question.DeviceField == DeviceField.Model)
-            {
-                state.Answers.TryGetValue(DeviceField.Brand, out var brand);
-                ViewBag.ModelOptions = await ModelOptionsFor(brand);
-            }
+            await SetStepViewData(state, questions, question, savedAnswer);
 
             return View(question); // Send the question to Step.cshtml.
         }
@@ -137,7 +293,7 @@ namespace RE_Waste.Controllers
         // ====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Next(string answer)
+        public async Task<IActionResult> Next(string? answer, string? otherBrand, string? otherModel)
         {
             var state = HttpContext.Session.GetWizardState(); // Get saved progress.
 
@@ -157,19 +313,49 @@ namespace RE_Waste.Controllers
 
             var question = questions[state.Step]; // Get the question being answered.
 
-            // Only accept a model that is listed for the chosen brand (or "Other").
+            // W5: check the answer before saving it. On an error, show the same step again
+            // (not a redirect) so the message and the typed answer both stay on the page.
+            string? error;
+            var errorField = "answer";
+
             if (question.DeviceField == DeviceField.Model)
             {
-                state.Answers.TryGetValue(DeviceField.Brand, out var brand);
-                var allowed = await ModelOptionsFor(brand);
-                if (answer == null || !allowed.Contains(answer))
-                    return RedirectToAction(nameof(Step));
+                (error, errorField) = await CheckModel(state, answer, otherBrand, otherModel);
+            }
+            else
+            {
+                error = AnswerValidator.Validate(question, answer);
+
+                // The brand must be one of the drop-down options.
+                if (error == null && question.DeviceField == DeviceField.Brand
+                    && !PhoneBrands.All.Contains(answer!.Trim()))
+                {
+                    error = AnswerValidator.ChoiceMessage;
+                }
             }
 
-            // Save the answer using DeviceField as the dictionary key.
+            if (error != null)
+            {
+                await SetStepViewData(state, questions, question, answer ?? string.Empty);
 
-            // Save the answer using DeviceField as the dictionary key.
-            state.Answers[question.DeviceField] = answer ?? string.Empty;
+                // Show the typed brand and model again.
+                if (otherBrand != null)
+                    ViewBag.OtherBrand = otherBrand;
+                if (otherModel != null)
+                    ViewBag.OtherModel = otherModel;
+
+                ViewBag.ErrorMessage = error;
+                ViewBag.ErrorField = errorField; // Which box to mark in red.
+                return View(nameof(Step), question);
+            }
+
+            // Save the trimmed answer using DeviceField as the dictionary key.
+            if (question.DeviceField == DeviceField.Brand)
+                SaveBrand(state, answer!.Trim());
+            else if (question.DeviceField == DeviceField.Model)
+                SaveModel(state, answer, otherBrand, otherModel);
+            else
+                state.Answers[question.DeviceField] = answer!.Trim();
 
             state.Step++; // Move to the next question.
 
