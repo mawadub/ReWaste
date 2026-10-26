@@ -5,7 +5,6 @@ using RE_Waste.Extensions;
 using RE_Waste.Models;
 using RE_Waste.Models.Enums;
 using RE_Waste.Services;
-using System.Numerics;
 using System.Text.RegularExpressions;
 
 namespace RE_Waste.Controllers
@@ -129,7 +128,7 @@ namespace RE_Waste.Controllers
                 state.Step = 0; // Prevent a negative step number.
 
             if (state.Step >= questions.Count)
-                return RedirectToAction(nameof(Complete)); // Avoid going past the final step.
+                return RedirectToAction(nameof(Postcode)); // Avoid going past the final step.
 
             var question = questions[state.Step]; // Get the question being answered.
 
