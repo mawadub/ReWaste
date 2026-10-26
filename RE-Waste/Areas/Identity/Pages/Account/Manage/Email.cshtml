@@ -1,0 +1,30 @@
+﻿@page
+@model EmailModel
+@{
+    ViewData["Title"] = "Email";
+    ViewData["ActivePage"] = ManageNavPages.Email;
+}
+
+<h2 class="h4 mb-4 text-dark">@ViewData["Title"]</h2>
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<form id="email-form" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label fw-semibold">Current email</label>
+        <input asp-for="Email" class="form-control" disabled />
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Input.NewEmail" class="form-label fw-semibold">New email</label>
+        <input asp-for="Input.NewEmail" class="form-control" type="email" autocomplete="email" aria-required="true" />
+        <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+    </div>
+
+    <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="button">Change email</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
