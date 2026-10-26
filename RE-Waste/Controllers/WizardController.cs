@@ -135,18 +135,29 @@ namespace RE_Waste.Controllers
         // Does NOT delete answers. Only moves the Step counter down.
         // ====================================================================
         [HttpGet]
-        public IActionResult Back()
+        public async Task<IActionResult> Back()
         {
             var state = HttpContext.Session.GetWizardState();
+
             if (state == null)
                 return RedirectToAction(nameof(Start));
 
+            var questions = await LoadQuestions();
+
+            if (questions.Count == 0)
+                return View("NoQuestions");
+
             if (state.Step > 0)
-                state.Step--; // never below 0 - answers untouched
+                state.Step--;
+
+            if (state.Step >= questions.Count)
+                state.Step = questions.Count - 1;
 
             HttpContext.Session.SetWizardState(state);
+
             return RedirectToAction(nameof(Step));
         }
+
 
         // ====================================================================
         // ACTION: RESTART
