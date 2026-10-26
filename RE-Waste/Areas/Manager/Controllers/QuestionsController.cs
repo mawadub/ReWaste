@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,7 @@ namespace RE_Waste.Areas.Manager.Controllers
         }
 
         // GET: Manager/Questions
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var questions = await _context.Questions
@@ -44,6 +46,12 @@ namespace RE_Waste.Areas.Manager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Question question)
         {
+            // Choice questions must first be created inactive so options
+            // can be added before the question is activated.
+            question.IsActive = question.AnswerType != AnswerType.Choice;
+
+            await ValidateQuestionRules(question);
+
             if (!ModelState.IsValid)
                 return View(question);
 
@@ -52,7 +60,6 @@ namespace RE_Waste.Areas.Manager.Controllers
                 .MaxAsync() ?? 0;
 
             question.DisplayOrder = maxOrder + 1;
-            question.IsActive = true;
 
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
@@ -86,6 +93,14 @@ namespace RE_Waste.Areas.Manager.Controllers
             if (id != question.Id)
                 return BadRequest();
 
+            var existing = await _context.Questions
+                .FirstOrDefaultAsync(q => q.Id == id);
+
+            if (existing == null)
+                return NotFound();
+
+            await ValidateQuestionRules(question, id);
+
             if (!ModelState.IsValid)
             {
                 question.Options = await _context.AnswerOptions
@@ -95,12 +110,6 @@ namespace RE_Waste.Areas.Manager.Controllers
 
                 return View(question);
             }
-
-            var existing = await _context.Questions
-                .FirstOrDefaultAsync(q => q.Id == id);
-
-            if (existing == null)
-                return NotFound();
 
             existing.Text = question.Text;
             existing.AnswerType = question.AnswerType;
@@ -179,6 +188,38 @@ namespace RE_Waste.Areas.Manager.Controllers
             if (question == null)
                 return NotFound();
 
+            if (!question.IsActive)
+            {
+                var duplicate = await _context.Questions.AnyAsync(q =>
+                    q.Id != id &&
+                    q.IsActive &&
+                    q.DeviceField == question.DeviceField);
+
+                if (duplicate)
+                {
+                    TempData["QuestionError"] =
+                        $"Another active question already uses {question.DeviceField}.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (question.AnswerType == AnswerType.Choice)
+                {
+                    var hasActiveOption = await _context.AnswerOptions
+                        .AnyAsync(o =>
+                            o.QuestionId == id &&
+                            o.IsActive);
+
+                    if (!hasActiveOption)
+                    {
+                        TempData["QuestionError"] =
+                            "Add at least one active option before activating this Choice question.";
+
+                        return RedirectToAction(nameof(Edit), new { id });
+                    }
+                }
+            }
+
             question.IsActive = !question.IsActive;
 
             await _context.SaveChangesAsync();
@@ -230,22 +271,23 @@ namespace RE_Waste.Areas.Manager.Controllers
             if (question.AnswerType != AnswerType.Choice)
                 return BadRequest();
 
-            // These values are assigned by the server.
             ModelState.Remove(nameof(option.QuestionId));
             ModelState.Remove(nameof(option.IsActive));
             ModelState.Remove(nameof(option.Question));
+
+            ValidateOptionValue(question.DeviceField, option.Value);
 
             if (!ModelState.IsValid)
             {
                 ViewBag.QuestionText = question.Text;
                 option.QuestionId = questionId;
+
                 return View(option);
             }
 
             option.QuestionId = questionId;
             option.IsActive = true;
 
-            // Respect the DisplayOrder submitted by the manager.
             _context.AnswerOptions.Add(option);
             await _context.SaveChangesAsync();
 
@@ -292,10 +334,13 @@ namespace RE_Waste.Areas.Manager.Controllers
             if (existing.Question.AnswerType != AnswerType.Choice)
                 return BadRequest();
 
-            // Question relationship and active status aren't editable here.
             ModelState.Remove(nameof(option.QuestionId));
             ModelState.Remove(nameof(option.Question));
             ModelState.Remove(nameof(option.IsActive));
+
+            ValidateOptionValue(
+                existing.Question.DeviceField,
+                option.Value);
 
             if (!ModelState.IsValid)
             {
@@ -328,15 +373,143 @@ namespace RE_Waste.Areas.Manager.Controllers
             if (option == null)
                 return NotFound();
 
-            if (option.Question.AnswerType != AnswerType.Choice)
+            var question = option.Question;
+
+            if (question.AnswerType != AnswerType.Choice)
                 return BadRequest();
+
+            if (option.IsActive &&
+                question.IsActive)
+            {
+                var anotherActiveOption = await _context.AnswerOptions
+                    .AnyAsync(o =>
+                        o.QuestionId == question.Id &&
+                        o.Id != option.Id &&
+                        o.IsActive);
+
+                if (!anotherActiveOption)
+                {
+                    TempData["QuestionError"] =
+                        "An active Choice question must have at least one active option.";
+
+                    return RedirectToAction(nameof(Edit),
+                        new { id = question.Id });
+                }
+            }
 
             option.IsActive = !option.IsActive;
 
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Edit),
-                new { id = option.QuestionId });
+                new { id = question.Id });
+        }
+
+        // Validates required answer types and active DeviceField uniqueness.
+        private async Task ValidateQuestionRules(
+            Question question,
+            int? excludeQuestionId = null)
+        {
+            if (question.IsActive)
+            {
+                var duplicate = await _context.Questions.AnyAsync(q =>
+                    q.IsActive &&
+                    q.DeviceField == question.DeviceField &&
+                    (!excludeQuestionId.HasValue ||
+                     q.Id != excludeQuestionId.Value));
+
+                if (duplicate)
+                {
+                    ModelState.AddModelError(
+                        nameof(question.DeviceField),
+                        "Another active question already uses this device field.");
+                }
+            }
+
+            AnswerType? requiredType = question.DeviceField switch
+            {
+                DeviceField.AgeInYears => AnswerType.Number,
+
+                DeviceField.Condition => AnswerType.Choice,
+                DeviceField.HasPersonalData => AnswerType.Choice,
+                DeviceField.HasBatteryDamage => AnswerType.Choice,
+
+                DeviceField.Brand => AnswerType.Text,
+                DeviceField.Model => AnswerType.Text,
+
+                _ => null
+            };
+
+            if (requiredType.HasValue &&
+                question.AnswerType != requiredType.Value)
+            {
+                ModelState.AddModelError(
+                    nameof(question.AnswerType),
+                    $"{question.DeviceField} must use the {requiredType.Value} answer type.");
+            }
+
+            if (question.IsActive &&
+                question.AnswerType == AnswerType.Choice)
+            {
+                var hasActiveOption = question.Id > 0 &&
+                    await _context.AnswerOptions.AnyAsync(o =>
+                        o.QuestionId == question.Id &&
+                        o.IsActive);
+
+                if (!hasActiveOption)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "An active Choice question must have at least one active option.");
+                }
+            }
+        }
+
+        // Validates option values based on the question's DeviceField.
+        private void ValidateOptionValue(
+            DeviceField field,
+            string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ModelState.AddModelError(
+                    nameof(AnswerOption.Value),
+                    "An option value is required.");
+
+                return;
+            }
+
+            bool valid = field switch
+            {
+                DeviceField.Condition =>
+                    value is "Working"
+                        or "PartlyWorking"
+                        or "NotWorking"
+                        or "Damaged",
+
+                DeviceField.HasPersonalData or DeviceField.HasBatteryDamage =>
+                    value is "True" or "False",
+
+                _ => true
+            };
+
+            if (!valid)
+            {
+                var message = field switch
+                {
+                    DeviceField.Condition =>
+                        "Condition values must be Working, PartlyWorking, NotWorking, or Damaged.",
+
+                    DeviceField.HasPersonalData or DeviceField.HasBatteryDamage =>
+                        "Values for this field must be True or False.",
+
+                    _ => "Invalid option value."
+                };
+
+                ModelState.AddModelError(
+                    nameof(AnswerOption.Value),
+                    message);
+            }
         }
     }
 }
