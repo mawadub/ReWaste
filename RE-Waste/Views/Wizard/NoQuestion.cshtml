@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "No Questions Available";
+}
+
+<div class="container py-4">
+    <div class="card bg-white shadow-sm mx-auto"
+         style="max-width: 650px;">
+        <div class="card-body p-4 text-center">
+            <h2>No questions available</h2>
+
+            <p>
+                There are no active questions right now.
+                Please try again later.
+            </p>
+
+            <a asp-controller="Wizard"
+               asp-action="Restart"
+               class="btn btn-primary">
+                Restart
+            </a>
+        </div>
+    </div>
+</div>

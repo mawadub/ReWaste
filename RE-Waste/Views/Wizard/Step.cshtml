@@ -1,44 +1,148 @@
-﻿@{
+﻿@model RE_Waste.Models.Question
 
+@using RE_Waste.Models.Enums
+
+@{
+    // Set the page title.
     ViewData["Title"] = "Wizard";
+
+    // Get the current step information from the controller.
     var stepNumber = (int)ViewBag.StepNumber;
+    var totalSteps = (int)ViewBag.TotalSteps;
     var isLast = (bool)ViewBag.IsLast;
+
+    // Restore the saved answer, if one exists.
+    var currentAnswer = ViewBag.CurrentAnswer?.ToString() ?? "";
 }
 
-<!-- Display the current question -->
-<h2>question @stepNumber of @ViewBag.TotalSteps</h2>
-<p><strong>@ViewBag.CurrentField</strong></p>
+<div class="container py-4">
 
-<!-- ====================================================================
-     FORM: NEXT BUTTON
-     Sends a POST request to WizardController.Next
-     ==================================================================== -->
-<form asp-controller="Wizard" asp-action="Next" method="post">
-    @Html.AntiForgeryToken() <!-- Security token required for POST -->
+    @* ================================================================
+       WIZARD CARD
+       Displays the current question and its answer input.
+       ================================================================ *@
+    <div class="card bg-white shadow-sm mx-auto"
+         style="max-width: 650px;">
 
-    <!-- Text box pre-filled with the previous answer (if they clicked Back) -->
-    <input type="text" name="answer" value="@ViewBag.CurrentAnswer" autofocus />
+        <div class="card-body p-4">
 
-    <!-- Button changes text if it's the last question -->
-    <button type="submit">@(isLast ? "Finish" : "Next")</button>
-</form>
+            @* Display the current question number and total questions. *@
+            <p class="text-muted">
+                Question @stepNumber of @totalSteps
+            </p>
 
-<!-- ====================================================================
-     LINK: BACK BUTTON
-     Only show if we aren't on the first question.
-     Uses a GET request because it doesn't change answers.
-     ==================================================================== -->
-@if (stepNumber > 1)
-{
-    <a asp-controller="Wizard" asp-action="Back">Back</a>
-}
+            @* Display the question text loaded from the database. *@
+            <h2 class="mb-4">@Model.Text</h2>
 
-<!-- ====================================================================
-     FORM: RESTART BUTTON
-     Sends a POST request to wipe the session.
-     ==================================================================== -->
-<form asp-controller="Wizard" asp-action="Restart" method="post" style="display:inline">
-    @Html.AntiForgeryToken()
-    <button type="submit">Restart</button>
-</form>
+            @* Submit the answer to the Next action. *@
+            <form asp-controller="Wizard"
+                  asp-action="Next"
+                  method="post">
 
+                @* Protect the form against cross-site request forgery. *@
+                @Html.AntiForgeryToken()
+
+                @* ====================================================
+                   CHOICE QUESTION
+                   Display active answer options as radio buttons.
+                   ==================================================== *@
+                @if (Model.AnswerType == AnswerType.Choice)
+                {
+                    @foreach (var option in Model.Options)
+                    {
+                        // Check whether this option matches the saved answer.
+                        var selected = currentAnswer == option.Value.ToString();
+
+                        <div class="form-check mb-3">
+
+                            @* Radio button for the answer option. *@
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="answer"
+                                   id="option_@option.Value"
+                                   value="@option.Value"
+                                   checked="@(currentAnswer == option.Value)"
+                                   required />
+
+                            @* Display the option text beside the radio button. *@
+                            <label class="form-check-label"
+                                   for="option_@option.Value">
+                                @option.Text
+                            </label>
+                        </div>
+                    }
+                }
+
+                @* ====================================================
+                   NUMBER QUESTION
+                   Allow the user to enter a non-negative number.
+                   ==================================================== *@
+                else if (Model.AnswerType == AnswerType.Number)
+                {
+                    <input class="form-control"
+                           type="number"
+                           name="answer"
+                           min="0"
+                           value="@currentAnswer"
+                           required />
+                }
+
+                @* ====================================================
+                   TEXT QUESTION
+                   Allow the user to enter a text answer.
+                   ==================================================== *@
+                else if (Model.AnswerType == AnswerType.Text)
+                {
+                    <input class="form-control"
+                           type="text"
+                           name="answer"
+                           value="@currentAnswer"
+                           required />
+                }
+
+                @* ====================================================
+                   NAVIGATION BUTTONS
+                   Show Back when available and change Next to Finish
+                   on the final question.
+                   ==================================================== *@
+                <div class="d-flex justify-content-between mt-4">
+
+                    <div>
+                        @* Hide Back on the first question. *@
+                        @if (stepNumber > 1)
+                        {
+                            <a asp-controller="Wizard"
+                               asp-action="Back"
+                               class="btn btn-outline-secondary">
+                                Back
+                            </a>
+                        }
+                    </div>
+
+                    @* Submit the answer and continue the wizard. *@
+                    <button type="submit" class="btn btn-primary">
+                        @(isLast ? "Finish" : "Next")
+                    </button>
+                </div>
+            </form>
+
+            @* ========================================================
+               RESTART
+               Clear saved progress and begin the wizard again.
+               ======================================================== *@
+            <form asp-controller="Wizard"
+                  asp-action="Restart"
+                  method="post"
+                  class="mt-3">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-link px-0">
+                    Restart
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
