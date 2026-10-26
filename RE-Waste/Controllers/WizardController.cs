@@ -67,6 +67,20 @@ namespace RE_Waste.Controllers
         }
 
         // ====================================================================
+        // HELPER: STEP VIEW DATA
+        // Fills the values Step.cshtml needs. Used by Step, and by Next when
+        // an answer is refused and the same question is shown again.
+        // ====================================================================
+        private void SetStepViewData(WizardState state, List<Question> questions, string currentAnswer)
+        {
+            ViewBag.StepNumber = state.Step + 1; // Display steps starting at 1.
+            ViewBag.TotalSteps = questions.Count; // Pass the total number of questions.
+            ViewBag.IsLast = state.Step == questions.Count - 1; // Check for the final question.
+            ViewBag.CurrentAnswer = currentAnswer; // The answer to show in the input.
+        }
+
+
+        // ====================================================================
         // ACTION: STEP
         // Loads and displays the current question.
         // ====================================================================
@@ -91,15 +105,13 @@ namespace RE_Waste.Controllers
 
             var question = questions[state.Step]; // Get the current question.
 
-            ViewBag.StepNumber = state.Step + 1; // Display steps starting at 1.
-            ViewBag.TotalSteps = questions.Count; // Pass the total number of questions.
-            ViewBag.IsLast = state.Step == questions.Count - 1; // Check for the final question.
-
             // Restore the saved answer, if one exists.
-            ViewBag.CurrentAnswer =
-                state.Answers.TryGetValue(question.DeviceField, out var answer)
-                    ? answer
-                    : "";
+            var savedAnswer = state.Answers.TryGetValue(question.DeviceField, out var answer)
+                ? answer
+                : "";
+
+            SetStepViewData(state, questions, savedAnswer);
+
 
             return View(question); // Send the question to Step.cshtml.
         }
@@ -132,8 +144,20 @@ namespace RE_Waste.Controllers
 
             var question = questions[state.Step]; // Get the question being answered.
 
-            // Save the answer using DeviceField as the dictionary key.
-            state.Answers[question.DeviceField] = answer ?? string.Empty;
+            // W5: check the answer before saving it. On an error, show the same step again
+            // (not a redirect) so the message and the typed answer both stay on the page.
+            var error = AnswerValidator.Validate(question, answer);
+
+            if (error != null)
+            {
+                SetStepViewData(state, questions, answer ?? string.Empty);
+                ViewBag.ErrorMessage = error;
+                return View(nameof(Step), question);
+            }
+
+            // Save the trimmed answer using DeviceField as the dictionary key.
+            state.Answers[question.DeviceField] = answer!.Trim();
+
 
             state.Step++; // Move to the next question.
 
