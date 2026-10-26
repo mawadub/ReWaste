@@ -1,18 +1,26 @@
 ﻿@model RE_Waste.Models.Question
 
 @using RE_Waste.Models.Enums
+@using RE_Waste.Models
 
 @{
-    // Set the page title.
     ViewData["Title"] = "Wizard";
 
-    // Get the current step information from the controller.
     var stepNumber = (int)ViewBag.StepNumber;
     var totalSteps = (int)ViewBag.TotalSteps;
     var isLast = (bool)ViewBag.IsLast;
-
-    // Restore the saved answer, if one exists.
     var currentAnswer = ViewBag.CurrentAnswer?.ToString() ?? "";
+
+    // Store hints by DeviceField so question wording can change safely.
+    var hints = new Dictionary<DeviceField, string>
+    {
+        { DeviceField.Brand, "Choose the brand of your phone." },
+        { DeviceField.Model, "Enter the model name, for example iPhone 11." },
+        { DeviceField.AgeInYears, "Enter the phone's age in whole years." },
+        { DeviceField.Condition, "Choose the option that best describes your phone." },
+        { DeviceField.HasPersonalData, "Tell us whether personal data is still on the phone." },
+        { DeviceField.HasBatteryDamage, "Tell us whether the battery is damaged." }
+    };
 }
 
 <div class="container py-4">
@@ -31,8 +39,15 @@
                 Question @stepNumber of @totalSteps
             </p>
 
-            @* Display the question text loaded from the database. *@
-            <h2 class="mb-4">@Model.Text</h2>
+
+            @* Display the question loaded from the database. *@
+            <h2 class="mb-2">@Model.Text</h2>
+
+            @* Display the hint associated with this question's DeviceField. *@
+            @if (hints.TryGetValue(Model.DeviceField, out var hint))
+            {
+                <p class="text-muted small mb-4">@hint</p>
+            }
 
             @* Submit the answer to the Next action. *@
             <form asp-controller="Wizard"
@@ -43,40 +58,83 @@
                 @Html.AntiForgeryToken()
 
                 @* ====================================================
-                   CHOICE QUESTION
-                   Display active answer options as radio buttons.
-                   ==================================================== *@
-                @if (Model.AnswerType == AnswerType.Choice)
+   BRAND
+   Show a drop-down when the current field is Brand.
+   ==================================================== *@
+                @if (Model.DeviceField == DeviceField.Brand)
+                {
+                    <select class="form-select"
+                            name="answer"
+                            required>
+                        <option value="">Select a brand</option>
+
+                        @foreach (var brand in PhoneBrands.All)
+                        {
+                            <option value="@brand"
+                                    selected="@(currentAnswer == brand)">
+                                @brand
+                            </option>
+                        }
+                    </select>
+                }
+
+                @* ====================================================
+   MODEL
+   Limit the model name to 100 characters.
+   ==================================================== *@
+                else if (Model.DeviceField == DeviceField.Model)
+                {
+                    <input class="form-control"
+                           type="text"
+                           name="answer"
+                           maxlength="100"
+                           placeholder="iPhone 11"
+                           value="@currentAnswer"
+                           required />
+                }
+
+                @* ====================================================
+   AGE
+   Allow a whole number between 0 and 30.
+   ==================================================== *@
+                else if (Model.DeviceField == DeviceField.AgeInYears)
+                {
+                    <input class="form-control"
+                           type="number"
+                           name="answer"
+                           min="0"
+                           max="30"
+                           step="1"
+                           value="@currentAnswer"
+                           required />
+                }
+
+                @* ====================================================
+   OTHER CHOICE QUESTIONS
+   Keep the existing radio-button behaviour.
+   ==================================================== *@
+                else if (Model.AnswerType == AnswerType.Choice)
                 {
                     @foreach (var option in Model.Options)
                     {
-                        // Check whether this option matches the saved answer.
-                        var selected = currentAnswer == option.Value.ToString();
-
                         <div class="form-check mb-3">
-
-                            @* Radio button for the answer option. *@
                             <input class="form-check-input"
                                    type="radio"
                                    name="answer"
-                                   id="option_@option.Value"
+                                   id="option_@option.Id"
                                    value="@option.Value"
                                    checked="@(currentAnswer == option.Value)"
                                    required />
 
-                            @* Display the option text beside the radio button. *@
                             <label class="form-check-label"
-                                   for="option_@option.Value">
+                                   for="option_@option.Id">
                                 @option.Text
                             </label>
                         </div>
                     }
                 }
 
-                @* ====================================================
-                   NUMBER QUESTION
-                   Allow the user to enter a non-negative number.
-                   ==================================================== *@
+                @* Keep the generic number input for other number questions. *@
                 else if (Model.AnswerType == AnswerType.Number)
                 {
                     <input class="form-control"
@@ -87,10 +145,7 @@
                            required />
                 }
 
-                @* ====================================================
-                   TEXT QUESTION
-                   Allow the user to enter a text answer.
-                   ==================================================== *@
+                @* Keep the generic text input for other text questions. *@
                 else if (Model.AnswerType == AnswerType.Text)
                 {
                     <input class="form-control"
