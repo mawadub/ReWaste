@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RE_Waste.Data;
 using RE_Waste.Extensions;
 using RE_Waste.Models;
 using RE_Waste.Models.Enums;
+using RE_Waste.Services;
 using System.Numerics;
-using Microsoft.EntityFrameworkCore;
-using RE_Waste.Data;
-
+using System.Text.RegularExpressions;
 
 namespace RE_Waste.Controllers
 {
@@ -40,12 +41,16 @@ namespace RE_Waste.Controllers
         // ====================================================================
         // DATABASE CONTEXT
         // ====================================================================
-        // Stores the database context for loading questions.
+        // Stores the services used by the wizard.
         private readonly ApplicationDbContext _context;
+        private readonly IPostcodeService _postcodes;
 
-        public WizardController(ApplicationDbContext context)
+        public WizardController(
+            ApplicationDbContext context,
+            IPostcodeService postcodes)
         {
-            _context = context; // Save the injected database context.
+            _context = context;       // Save the database context.
+            _postcodes = postcodes;   // Save the postcode lookup service.
         }
 
         // ====================================================================
@@ -83,7 +88,7 @@ namespace RE_Waste.Controllers
                 state.Step = 0; // Prevent a negative step number.
 
             if (state.Step >= questions.Count)
-                return RedirectToAction(nameof(Complete)); // Finish if past the last step.
+                return RedirectToAction(nameof(Postcode)); // Finish if past the last step.
 
             var question = questions[state.Step]; // Get the current question.
 
@@ -117,7 +122,7 @@ namespace RE_Waste.Controllers
 
             var questions = await LoadQuestions(); // Get the current active questions.
 
-            if (questions.Count == 0) 
+            if (questions.Count == 0)
                 return View("NoQuestions"); // Handle an empty question list.
 
             if (state.Step < 0)
@@ -137,7 +142,7 @@ namespace RE_Waste.Controllers
 
             // Go to Complete after the final question.
             return state.Step >= questions.Count
-                ? RedirectToAction(nameof(Complete))
+                ? RedirectToAction(nameof(Postcode))
                 : RedirectToAction(nameof(Step));
         }
 
@@ -148,7 +153,7 @@ namespace RE_Waste.Controllers
         // ====================================================================
         [HttpGet]
         public async Task<IActionResult> Back()
-        { 
+        {
             var state = HttpContext.Session.GetWizardState(); // Get saved progress.
 
             if (state == null)
@@ -197,6 +202,88 @@ namespace RE_Waste.Controllers
             return View(state); // passes the whole state to the view
         }
 
+        // ================================================================
+        // ACTIONS: POSTCODE
+        // Display the postcode form and validate the submitted postcode.
+        // ================================================================
+        // GET: Show the form with any previously saved postcode.
+        [HttpGet]
+        public IActionResult Postcode()
+        {
+            var state = HttpContext.Session.GetWizardState();
 
+            // Start again if the session has expired.
+            if (state == null)
+                return RedirectToAction(nameof(Start));
+
+            // Fill the form with the saved postcode, if one exists.
+            return View("Postcode", state.Postcode);
+        }
+
+        // POST: Validate and save the user's postcode.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Postcode(string postcode)
+        {
+            var state = HttpContext.Session.GetWizardState();
+
+            // Start again if the session has expired.
+            if (state == null)
+                return RedirectToAction(nameof(Start));
+
+            // keep origional input so it can be shown again on errors
+            var originalPostcode = postcode ?? string.Empty;
+
+            // remove spaces and convert to uppercase
+            postcode = originalPostcode.Trim().ToUpperInvariant();
+
+            // Reject an empty postcode.
+            if (string.IsNullOrWhiteSpace(postcode))
+            {
+                ViewBag.ErrorMessage = "Please enter your postcode.";
+                return View("Postcode", originalPostcode);
+            }
+
+            // Check the postcode's format before looking it up.
+            var pattern = @"^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$";
+
+            if (!Regex.IsMatch(postcode, pattern))
+            {
+                ViewBag.ErrorMessage = "Please enter a valid postcode.";
+                return View("Postcode", originalPostcode);
+            }
+
+
+            // Check whether the postcode can be found by the service.
+            try
+            {
+                var result = await _postcodes.LookupAsync(postcode);
+
+                // Show an error if the postcode cannot be found.
+                if (result == null)
+                {
+                    ViewBag.ErrorMessage =
+                        "We couldn't find that postcode. Please check it and try again.";
+
+                    return View("Postcode", originalPostcode);
+                }
+            }
+            catch
+            {
+                // Keep the user's input if the lookup fails.
+                ViewBag.ErrorMessage =
+                    "We couldn't find that postcode. Please check it and try again.";
+
+                return View("Postcode", originalPostcode);
+            }
+
+            // Store only the postcode text, not location coordinates.
+            state.Postcode = postcode;
+            HttpContext.Session.SetWizardState(state);
+
+            // Continue to the results/review page.
+            return RedirectToAction(nameof(Complete));
+
+        }
     }
 }
