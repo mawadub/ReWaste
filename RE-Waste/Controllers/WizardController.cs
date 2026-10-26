@@ -5,6 +5,7 @@ using RE_Waste.Extensions;
 using RE_Waste.Models;
 using RE_Waste.Models.Enums;
 using RE_Waste.Services;
+using RE_Waste.ViewModels;
 using System.Text.RegularExpressions;
 
 namespace RE_Waste.Controllers
@@ -361,7 +362,13 @@ namespace RE_Waste.Controllers
 
             HttpContext.Session.SetWizardState(state); // Save progress to the session.
 
-            // Go to Complete after the final question.
+            // W6 bonus: after a Change link, go straight back to the review instead of
+            // walking through the remaining steps. If the change left another answer empty
+            // (a new brand clears the model and age), the review sends the user there first.
+            if (state.ReturnToReview)
+                return RedirectToAction(nameof(Complete));
+
+            // Go to the postcode step after the final question.
             return state.Step >= questions.Count
                 ? RedirectToAction(nameof(Postcode))
                 : RedirectToAction(nameof(Step));
@@ -410,17 +417,105 @@ namespace RE_Waste.Controllers
         }
 
         // ====================================================================
-        // ACTION: COMPLETE (Temporary final page)
-        // W6 will replace this. For now, it just shows all answers.
+        // ACTION: COMPLETE (Review page, W6)
+        // Shows every answer in plain words, each with a Change link.
+        // The name stays "Complete" because Next and Postcode redirect here.
         // ====================================================================
         [HttpGet]
-        public IActionResult Complete()
+        public async Task<IActionResult> Complete()
         {
-            var state = HttpContext.Session.GetWizardState();
-            if (state == null)
-                return RedirectToAction(nameof(Start));
+            var state = HttpContext.Session.GetWizardState(); // Get saved progress.
 
-            return View(state); // passes the whole state to the view
+            if (state == null)
+                return RedirectToAction(nameof(Start)); // Restart if the session expired.
+
+            var questions = await LoadQuestions(); // Same questions, in the same order, as the steps.
+
+            if (questions.Count == 0)
+                return View("NoQuestions"); // Handle an empty question list.
+
+            // Guard: a direct URL must never show a half-finished review.
+            // Send the user to the first question that has no answer...
+            for (var i = 0; i < questions.Count; i++)
+            {
+                if (!state.Answers.TryGetValue(questions[i].DeviceField, out var saved)
+                    || string.IsNullOrWhiteSpace(saved))
+                {
+                    state.Step = i;
+                    HttpContext.Session.SetWizardState(state);
+                    return RedirectToAction(nameof(Step));
+                }
+            }
+
+            // ...or to the postcode step if that is still empty.
+            if (string.IsNullOrWhiteSpace(state.Postcode))
+            {
+                state.Step = questions.Count; // So Back on the postcode page returns to the last question.
+                HttpContext.Session.SetWizardState(state);
+                return RedirectToAction(nameof(Postcode));
+            }
+
+            // One row per question, in wizard order; the index is the step for the Change link.
+            var review = new WizardReviewViewModel
+            {
+                Rows = questions
+                    .Select((question, index) => new WizardReviewRow
+                    {
+                        Question = question.Text,
+                        Answer = DisplayAnswer(question, state.Answers[question.DeviceField]),
+                        Step = index
+                    })
+                    .ToList(),
+                Postcode = state.Postcode
+            };
+
+            return View(review);
+        }
+
+        // ====================================================================
+        // HELPER: ANSWER IN PLAIN WORDS (W6)
+        // Turns a stored answer into what the user would read on the review.
+        // ====================================================================
+        private static string DisplayAnswer(Question question, string value)
+        {
+            // Choice: show the option's text ("Partly working"), not its stored value ("PartlyWorking").
+            // If no active option matches, show the raw value so the answer is never hidden.
+            if (question.AnswerType == AnswerType.Choice)
+                return question.Options.FirstOrDefault(o => o.Value == value)?.Text ?? value;
+
+            // Age: add the unit, e.g. "1 year" or "7 years".
+            if (question.DeviceField == DeviceField.AgeInYears && int.TryParse(value, out var years))
+                return years == 1 ? "1 year" : $"{years} years";
+
+            // Brand, model and other answers are shown as they were entered.
+            return value;
+        }
+
+        // ====================================================================
+        // ACTION: GOTO (Change link on the review page, W6)
+        // Opens one question with its saved answer filled in. The step is kept
+        // between the first and last question, so a made-up number in the URL
+        // can't break the wizard.
+        // ====================================================================
+        [HttpGet]
+        public async Task<IActionResult> GoTo(int step)
+        {
+            var state = HttpContext.Session.GetWizardState(); // Get saved progress.
+
+            if (state == null)
+                return RedirectToAction(nameof(Start)); // Restart if the session expired.
+
+            var questions = await LoadQuestions(); // Get the current active questions.
+
+            if (questions.Count == 0)
+                return View("NoQuestions"); // Handle an empty question list.
+
+            state.Step = Math.Clamp(step, 0, questions.Count - 1); // Keep the step in range.
+            state.ReturnToReview = true; // After this answer, Next returns to the review.
+
+            HttpContext.Session.SetWizardState(state); // Save the new step.
+
+            return RedirectToAction(nameof(Step)); // Step shows the saved answer for this question.
         }
 
         // ================================================================

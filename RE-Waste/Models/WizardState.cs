@@ -19,5 +19,8 @@ namespace RE_Waste.Models
 
         // Stores the user's postcode for the results page.
         public string Postcode { get; set; } = string.Empty;
+
+        // W6: true after a Change link on the review page, so Next goes straight back to the review.
+        public bool ReturnToReview { get; set; }
     }
 }
