@@ -17,7 +17,7 @@ namespace RE_Waste.Models
         public Dictionary<DeviceField, string> Answers { get; set; } = new();
 
 
-        // the user's postcode, filled in by W4 (kept out of Answers because it isn't a Device field)
-        public string? Postcode { get; set; }
+        // Stores the user's postcode for the results page.
+        public string Postcode { get; set; } = string.Empty;
     }
 }

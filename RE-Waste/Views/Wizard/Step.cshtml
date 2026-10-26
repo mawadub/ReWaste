@@ -58,9 +58,9 @@
                 @Html.AntiForgeryToken()
 
                 @* ====================================================
-   BRAND
-   Show a drop-down when the current field is Brand.
-   ==================================================== *@
+                 BRAND
+                 Show a drop-down when the current field is Brand.
+                 ==================================================== *@
                 @if (Model.DeviceField == DeviceField.Brand)
                 {
                     <select class="form-select"
@@ -79,9 +79,9 @@
                 }
 
                 @* ====================================================
-   MODEL
-   Limit the model name to 100 characters.
-   ==================================================== *@
+                MODEL
+                Limit the model name to 100 characters.
+                ==================================================== *@
                 else if (Model.DeviceField == DeviceField.Model)
                 {
                     <input class="form-control"
@@ -94,9 +94,9 @@
                 }
 
                 @* ====================================================
-   AGE
-   Allow a whole number between 0 and 30.
-   ==================================================== *@
+                AGE
+                Allow a whole number between 0 and 30.
+                ==================================================== *@
                 else if (Model.DeviceField == DeviceField.AgeInYears)
                 {
                     <input class="form-control"
@@ -110,9 +110,9 @@
                 }
 
                 @* ====================================================
-   OTHER CHOICE QUESTIONS
-   Keep the existing radio-button behaviour.
-   ==================================================== *@
+                OTHER CHOICE QUESTIONS
+                Keep the existing radio-button behaviour.
+                ==================================================== *@
                 else if (Model.AnswerType == AnswerType.Choice)
                 {
                     @foreach (var option in Model.Options)

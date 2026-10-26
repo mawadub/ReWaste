@@ -1,0 +1,77 @@
+@model string
+
+@{
+    ViewData["Title"] = "Your postcode";
+    var error = ViewBag.ErrorMessage as string;
+}
+
+<div class="container py-4">
+
+    @* ================================================================
+       POSTCODE CARD
+       Asks for the user's postcode after the last question.
+       ================================================================ *@
+    <div class="card bg-white shadow-sm mx-auto"
+         style="max-width: 650px;">
+
+        <div class="card-body p-4">
+
+            <form asp-controller="Wizard"
+                  asp-action="Postcode"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <label for="postcode" class="form-label h2 mb-2">Your postcode</label>
+                <p id="postcodeHint" class="text-muted small mb-4">
+                    We only use it to find places near you.
+                </p>
+
+                @* Keep what the user typed and highlight the box on errors. *@
+                <input class="form-control @(error != null ? "is-invalid" : "")"
+                       type="text"
+                       id="postcode"
+                       name="postcode"
+                       value="@Model"
+                       maxlength="8"
+                       autocomplete="postal-code"
+                       placeholder="EH1 2NG"
+                       aria-describedby="postcodeHint @(error != null ? "postcodeError" : "")"
+                       required />
+
+                @if (error != null)
+                {
+                    <div id="postcodeError" class="invalid-feedback d-block" role="alert">
+                        @error
+                    </div>
+                }
+
+                @* ====================================================
+                   NAVIGATION BUTTONS
+                   Back returns to the last question.
+                   ==================================================== *@
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-controller="Wizard"
+                       asp-action="Back"
+                       class="btn btn-outline-secondary">
+                        Back
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        Continue
+                    </button>
+                </div>
+            </form>
+
+            @* Clear saved progress and begin the wizard again. *@
+            <form asp-controller="Wizard"
+                  asp-action="Restart"
+                  method="post"
+                  class="mt-3">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-link px-0">Restart</button>
+            </form>
+
+        </div>
+    </div>
+</div>
