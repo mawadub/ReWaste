@@ -3,38 +3,59 @@
 @using RE_Waste.Models.Enums
 
 @{
+    // Set the page title.
     ViewData["Title"] = "Wizard";
 
+    // Get the current step information from the controller.
     var stepNumber = (int)ViewBag.StepNumber;
     var totalSteps = (int)ViewBag.TotalSteps;
     var isLast = (bool)ViewBag.IsLast;
+
+    // Restore the saved answer, if one exists.
     var currentAnswer = ViewBag.CurrentAnswer?.ToString() ?? "";
 }
 
 <div class="container py-4">
+
+    @* ================================================================
+       WIZARD CARD
+       Displays the current question and its answer input.
+       ================================================================ *@
     <div class="card bg-white shadow-sm mx-auto"
          style="max-width: 650px;">
+
         <div class="card-body p-4">
+
+            @* Display the current question number and total questions. *@
             <p class="text-muted">
                 Question @stepNumber of @totalSteps
             </p>
 
+            @* Display the question text loaded from the database. *@
             <h2 class="mb-4">@Model.Text</h2>
 
+            @* Submit the answer to the Next action. *@
             <form asp-controller="Wizard"
                   asp-action="Next"
                   method="post">
 
+                @* Protect the form against cross-site request forgery. *@
                 @Html.AntiForgeryToken()
 
+                @* ====================================================
+                   CHOICE QUESTION
+                   Display active answer options as radio buttons.
+                   ==================================================== *@
                 @if (Model.AnswerType == AnswerType.Choice)
                 {
                     @foreach (var option in Model.Options)
                     {
-                        var selected =
-                        currentAnswer == option.Value.ToString();
+                        // Check whether this option matches the saved answer.
+                        var selected = currentAnswer == option.Value.ToString();
 
                         <div class="form-check mb-3">
+
+                            @* Radio button for the answer option. *@
                             <input class="form-check-input"
                                    type="radio"
                                    name="answer"
@@ -43,6 +64,7 @@
                                    checked="@(currentAnswer == option.Value)"
                                    required />
 
+                            @* Display the option text beside the radio button. *@
                             <label class="form-check-label"
                                    for="option_@option.Value">
                                 @option.Text
@@ -50,6 +72,11 @@
                         </div>
                     }
                 }
+
+                @* ====================================================
+                   NUMBER QUESTION
+                   Allow the user to enter a non-negative number.
+                   ==================================================== *@
                 else if (Model.AnswerType == AnswerType.Number)
                 {
                     <input class="form-control"
@@ -59,6 +86,11 @@
                            value="@currentAnswer"
                            required />
                 }
+
+                @* ====================================================
+                   TEXT QUESTION
+                   Allow the user to enter a text answer.
+                   ==================================================== *@
                 else if (Model.AnswerType == AnswerType.Text)
                 {
                     <input class="form-control"
@@ -68,8 +100,15 @@
                            required />
                 }
 
+                @* ====================================================
+                   NAVIGATION BUTTONS
+                   Show Back when available and change Next to Finish
+                   on the final question.
+                   ==================================================== *@
                 <div class="d-flex justify-content-between mt-4">
+
                     <div>
+                        @* Hide Back on the first question. *@
                         @if (stepNumber > 1)
                         {
                             <a asp-controller="Wizard"
@@ -80,12 +119,17 @@
                         }
                     </div>
 
+                    @* Submit the answer and continue the wizard. *@
                     <button type="submit" class="btn btn-primary">
                         @(isLast ? "Finish" : "Next")
                     </button>
                 </div>
             </form>
 
+            @* ========================================================
+               RESTART
+               Clear saved progress and begin the wizard again.
+               ======================================================== *@
             <form asp-controller="Wizard"
                   asp-action="Restart"
                   method="post"
@@ -98,6 +142,7 @@
                     Restart
                 </button>
             </form>
+
         </div>
     </div>
 </div>
