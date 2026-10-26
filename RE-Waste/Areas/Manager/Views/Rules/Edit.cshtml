@@ -1,0 +1,109 @@
+﻿@model RE_Waste.ViewModels.RuleFormViewModel
+@using RE_Waste.Models
+@using RE_Waste.Models.Enums
+
+@{
+    ViewData["Title"] = "Edit Rule";
+}
+
+<h2>Edit Rule</h2>
+
+<p>Higher priority wins. A damaged battery always recommends Recycle.</p>
+
+<form asp-area="Manager" asp-controller="Rules"
+      asp-action="Edit" asp-route-id="@ViewContext.RouteData.Values["id"]"
+      method="post">
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" maxlength="100" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Route" class="form-label"></label>
+        <select asp-for="Route"
+                asp-items="Html.GetEnumSelectList<RouteType>()"
+                class="form-select">
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Reason" class="form-label"></label>
+        <textarea asp-for="Reason" class="form-control"
+                  maxlength="300"></textarea>
+        <span asp-validation-for="Reason" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Priority" class="form-label"></label>
+        <input asp-for="Priority" type="number" min="0" max="1000"
+               class="form-control" />
+        <span asp-validation-for="Priority" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Condition" class="form-label"></label>
+        <select asp-for="Condition"
+                asp-items="Html.GetEnumSelectList<Condition>()"
+                class="form-select">
+            <option value="">Any</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MinAgeInYears" class="form-label">Minimum Age</label>
+        <input asp-for="MinAgeInYears" type="number" min="0" max="30"
+               class="form-control" />
+        <span asp-validation-for="MinAgeInYears" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MaxAgeInYears" class="form-label">Maximum Age</label>
+        <input asp-for="MaxAgeInYears" type="number" min="0" max="30"
+               class="form-control" />
+        <span asp-validation-for="MaxAgeInYears" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="HasPersonalData" class="form-label">
+            Has Personal Data
+        </label>
+        <select asp-for="HasPersonalData" class="form-select">
+            <option value="">Any</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="HasBatteryDamage" class="form-label">
+            Has Battery Damage
+        </label>
+        <select asp-for="HasBatteryDamage" class="form-select">
+            <option value="">Any</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">
+            Active
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+
+    <a asp-area="Manager" asp-controller="Rules"
+       asp-action="Index" class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
