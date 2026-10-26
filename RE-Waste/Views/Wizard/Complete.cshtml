@@ -75,8 +75,7 @@
            ================================================================ *@
         <div class="d-flex flex-wrap gap-2 mt-3">
 
-            @* W7: the Recommend POST action builds the Device and shows the results.
-               Remove "disabled" from the button once W7 has merged. *@
+            @* W7: the Recommend POST action builds the Device and shows the routes. *@
             <form asp-controller="Wizard"
                   asp-action="Recommend"
                   method="post"
@@ -85,8 +84,7 @@
                 @Html.AntiForgeryToken()
 
                 <button type="submit"
-                        class="btn btn-primary"
-                        disabled>
+                        class="btn btn-primary">
                     Get my recommendation
                 </button>
             </form>

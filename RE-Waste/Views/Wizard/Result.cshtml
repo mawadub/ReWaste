@@ -1,0 +1,79 @@
+@* ====================================================================
+   TEMPORARY RESULTS PAGE (W7)
+   Shows the routes the recommendation engine returned, so W7 can be
+   tested end to end. R6 (Week 7) replaces this with the real results
+   page, including nearby drop-off points.
+   ==================================================================== *@
+
+@using RE_Waste.Extensions
+@model IReadOnlyList<RE_Waste.Models.RouteRecommendation>
+
+@{
+    ViewData["Title"] = "Your recommendation";
+}
+
+<div class="container py-4">
+
+    @* Same width as the wizard steps and the review page. *@
+    <div class="mx-auto" style="max-width: 650px;">
+
+        <div class="card bg-white shadow-sm">
+
+            <div class="card-body p-3 p-sm-4">
+
+                <h2 class="mb-2">Your recommendation</h2>
+
+                <p class="text-muted small mb-4">
+                    The best option for your phone comes first.
+                </p>
+
+                @if (Model.Count == 0)
+                {
+                    @* The engine should always return at least one route; this keeps the page safe if it doesn't. *@
+                    <p class="mb-0">We couldn't work out a recommendation right now. Please try again later.</p>
+                }
+                else
+                {
+                    @* Numbered list: route name in plain words (U4's extension), then the reason. *@
+                    <ol class="mb-0 ps-3">
+                        @foreach (var recommendation in Model)
+                        {
+                            <li class="mb-3">
+                                <strong>@recommendation.Route.ToDisplayName()</strong>
+                                <p class="mb-0">@recommendation.Reason</p>
+                            </li>
+                        }
+                    </ol>
+                }
+
+            </div>
+        </div>
+
+        @* ================================================================
+           BUTTONS
+           Back to the review to change an answer, or start again.
+           ================================================================ *@
+        <div class="d-flex flex-wrap gap-2 mt-3">
+
+            <a class="btn btn-outline-secondary"
+               asp-controller="Wizard"
+               asp-action="Complete">
+                Back to my answers
+            </a>
+
+            <form asp-controller="Wizard"
+                  asp-action="Restart"
+                  method="post"
+                  class="m-0">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-outline-secondary">
+                    Start over
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>

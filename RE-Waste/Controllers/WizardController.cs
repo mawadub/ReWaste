@@ -44,13 +44,16 @@ namespace RE_Waste.Controllers
         // Stores the services used by the wizard.
         private readonly ApplicationDbContext _context;
         private readonly IPostcodeService _postcodes;
+        private readonly IRecommendationService _recommendations;
 
         public WizardController(
             ApplicationDbContext context,
-            IPostcodeService postcodes)
+            IPostcodeService postcodes,
+            IRecommendationService recommendations)
         {
-            _context = context;       // Save the database context.
-            _postcodes = postcodes;   // Save the postcode lookup service.
+            _context = context;                   // Save the database context.
+            _postcodes = postcodes;               // Save the postcode lookup service.
+            _recommendations = recommendations;   // Save the recommendation engine (W7).
         }
 
         // ====================================================================
@@ -489,6 +492,34 @@ namespace RE_Waste.Controllers
 
             // Brand, model and other answers are shown as they were entered.
             return value;
+        }
+
+        // ====================================================================
+        // ACTION: RECOMMEND (W7)
+        // The review page's "Get my recommendation" button posts here.
+        // Builds a Device from the answers and asks the engine for routes.
+        // Nothing is saved (that is V1–V3), and the postcode stays in the
+        // session because the real results page (R6) needs it.
+        // ====================================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Recommend()
+        {
+            var state = HttpContext.Session.GetWizardState(); // Get saved progress.
+
+            if (state == null)
+                return RedirectToAction(nameof(Start)); // Restart if the session expired.
+
+            var device = DeviceBuilder.FromAnswers(state); // All the parsing happens here.
+
+            // A missing or unreadable answer: the review's guard sends the user to that step.
+            if (device == null)
+                return RedirectToAction(nameof(Complete));
+
+            // Up to three different routes, best first.
+            var recommendations = await _recommendations.RecommendAsync(device);
+
+            return View("Result", recommendations); // Temporary page until R6.
         }
 
         // ====================================================================

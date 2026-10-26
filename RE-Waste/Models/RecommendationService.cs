@@ -89,9 +89,10 @@ namespace RE_Waste.Models
                                         }) //turns them into route recomendations
                                         .ToList(); //turns them into lists
 
-            //now we have recomendations we can put them in the list then return the list.
+            //now we have recomendations we can return them.
+            //W7 fix: this used to return the empty "list", so every phone without a damaged battery got no routes.
 
-            return list; // return list        }
+            return recommendations; // up to 3 different routes, best first
         }
     }
 }
