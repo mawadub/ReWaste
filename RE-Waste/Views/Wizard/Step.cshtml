@@ -15,7 +15,7 @@
     var hints = new Dictionary<DeviceField, string>
     {
         { DeviceField.Brand, "Choose the brand of your phone." },
-        { DeviceField.Model, "Enter the model name, for example iPhone 11." },
+        { DeviceField.Model, "Start typing to search, or choose Other if yours isn't listed." },
         { DeviceField.AgeInYears, "Enter the phone's age in whole years." },
         { DeviceField.Condition, "Choose the option that best describes your phone." },
         { DeviceField.HasPersonalData, "Tell us whether personal data is still on the phone." },
@@ -80,17 +80,17 @@
 
                 @* ====================================================
                 MODEL
-                Limit the model name to 100 characters.
+                Searchable drop-down of models for the chosen brand.
                 ==================================================== *@
                 else if (Model.DeviceField == DeviceField.Model)
                 {
-                    <input class="form-control"
-                           type="text"
-                           name="answer"
-                           maxlength="100"
-                           placeholder="iPhone 11"
-                           value="@currentAnswer"
-                           required />
+                    <select id="modelSelect" class="form-select" name="answer" required>
+                        <option value="">Search or select a model</option>
+                        @foreach (var m in (List<string>)ViewBag.ModelOptions)
+                        {
+                            <option value="@m" selected="@(currentAnswer == m)">@m</option>
+                        }
+                    </select>
                 }
 
                 @* ====================================================
@@ -201,3 +201,13 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        var modelSelect = document.getElementById("modelSelect");
+        if (modelSelect) {
+            new TomSelect(modelSelect, { create: false });
+        }
+    </script>
+}

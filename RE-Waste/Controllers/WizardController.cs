@@ -67,6 +67,24 @@ namespace RE_Waste.Controllers
         }
 
         // ====================================================================
+        // HELPER: MODEL OPTIONS FOR A BRAND
+        // Newest models first, then "Other / not listed" last.
+        // ====================================================================
+        private async Task<List<string>> ModelOptionsFor(string? brand)
+        {
+            var names = await _context.PhoneModels
+                .Where(p => p.IsActive && p.Brand == brand)
+                .OrderByDescending(p => p.ReleaseYear)
+                .ThenBy(p => p.Name)
+                .Select(p => p.Name)
+                .ToListAsync();
+
+            names.Add(PhoneModel.Other);
+            return names;
+        }
+
+
+        // ====================================================================
         // ACTION: STEP
         // Loads and displays the current question.
         // ====================================================================
@@ -101,6 +119,13 @@ namespace RE_Waste.Controllers
                     ? answer
                     : "";
 
+            // On the Model step, offer the models for the brand chosen earlier.
+            if (question.DeviceField == DeviceField.Model)
+            {
+                state.Answers.TryGetValue(DeviceField.Brand, out var brand);
+                ViewBag.ModelOptions = await ModelOptionsFor(brand);
+            }
+
             return View(question); // Send the question to Step.cshtml.
         }
 
@@ -131,6 +156,17 @@ namespace RE_Waste.Controllers
                 return RedirectToAction(nameof(Postcode)); // Avoid going past the final step.
 
             var question = questions[state.Step]; // Get the question being answered.
+
+            // Only accept a model that is listed for the chosen brand (or "Other").
+            if (question.DeviceField == DeviceField.Model)
+            {
+                state.Answers.TryGetValue(DeviceField.Brand, out var brand);
+                var allowed = await ModelOptionsFor(brand);
+                if (answer == null || !allowed.Contains(answer))
+                    return RedirectToAction(nameof(Step));
+            }
+
+            // Save the answer using DeviceField as the dictionary key.
 
             // Save the answer using DeviceField as the dictionary key.
             state.Answers[question.DeviceField] = answer ?? string.Empty;
