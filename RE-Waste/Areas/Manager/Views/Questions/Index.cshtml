@@ -7,108 +7,139 @@
     var questions = Model.OrderBy(q => q.DisplayOrder).ToList();
 }
 
-<h1>Manage Questions</h1>
+@* ====================================================================
+   WIZARD QUESTIONS (G4)
+   The list sits in a white panel. Styles: "MANAGER AREA" in site.css.
+   ==================================================================== *@
+<div class="manager">
 
-<p>Manage the questions displayed in the wizard.</p>
-
-<p>
-    <a asp-area="Manager"
-       asp-controller="Questions"
-       asp-action="Create"
-       class="btn btn-primary">
-        Create Question
+    <a class="manager-back"
+       asp-area="Manager"
+       asp-controller="Manager"
+       asp-action="Index">
+        Back to dashboard
     </a>
-</p>
 
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th>Order</th>
-            <th>Text</th>
-            <th>Answer type</th>
-            <th>Fills</th>
-            <th>Status</th>
-            <th>Move up</th>
-            <th>Move down</th>
-            <th>Edit</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (int i = 0; i < questions.Count; i++)
-        {
-            var question = questions[i];
+    <h1>Wizard questions</h1>
 
-            <tr class="@(!question.IsActive ? "text-muted" : "")">
-                <td>@question.DisplayOrder</td>
-                <td>@question.Text</td>
-                <td>@question.AnswerType</td>
-                <td>@question.DeviceField</td>
-                <td>
-                    @if (question.IsActive)
+    <p class="manager-intro">Manage the questions displayed in the wizard.</p>
+
+    @* G5 safety checks: e.g. two active questions can't fill the same field. *@
+    @if (TempData["QuestionError"] is string questionError)
+    {
+        <div class="alert alert-danger" role="alert">@questionError</div>
+    }
+
+    <div class="manager-toolbar">
+        <a asp-area="Manager"
+           asp-controller="Questions"
+           asp-action="Create"
+           class="button">
+            Create question
+        </a>
+    </div>
+
+    <div class="manager-panel">
+
+        @* Scrolls sideways inside the panel on narrow screens, not the whole page. *@
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0 manager-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Question</th>
+                        <th scope="col">Answer type</th>
+                        <th scope="col">Fills</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Move</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < questions.Count; i++)
                     {
-                        <span class="badge bg-success">Active</span>
+                        var question = questions[i];
+
+                        <tr class="@(question.IsActive ? "" : "is-inactive")">
+                            <td>@question.DisplayOrder</td>
+                            <td class="fw-semibold">@question.Text</td>
+                            <td>@question.AnswerType</td>
+                            <td>@question.DeviceField</td>
+                            <td>
+                                @if (question.IsActive)
+                                {
+                                    <span class="badge rw-badge-active">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rw-badge-inactive">Inactive</span>
+                                }
+                            </td>
+
+                            @* Move up / down; the first can't go up and the last can't go down. *@
+                            <td>
+                                <div class="manager-actions">
+                                    @if (i > 0)
+                                    {
+                                        <form asp-area="Manager"
+                                              asp-controller="Questions"
+                                              asp-action="MoveUp"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@question.Id" />
+                                            <button type="submit"
+                                                    class="button-secondary button-small">
+                                                Up<span class="visually-hidden">: move "@question.Text" up</span>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (i < questions.Count - 1)
+                                    {
+                                        <form asp-area="Manager"
+                                              asp-controller="Questions"
+                                              asp-action="MoveDown"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@question.Id" />
+                                            <button type="submit"
+                                                    class="button-secondary button-small">
+                                                Down<span class="visually-hidden">: move "@question.Text" down</span>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+
+                            @* Edit, then switch the question on or off. *@
+                            <td>
+                                <div class="manager-actions">
+                                    <a asp-area="Manager"
+                                       asp-controller="Questions"
+                                       asp-action="Edit"
+                                       asp-route-id="@question.Id"
+                                       class="button-secondary button-small">
+                                        Edit<span class="visually-hidden"> "@question.Text"</span>
+                                    </a>
+
+                                    <form asp-area="Manager"
+                                          asp-controller="Questions"
+                                          asp-action="ToggleActive"
+                                          method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@question.Id" />
+                                        <button type="submit"
+                                                class="@(question.IsActive ? "button-danger" : "button") button-small">
+                                            @(question.IsActive ? "Deactivate" : "Activate")<span class="visually-hidden"> "@question.Text"</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                    else
-                    {
-                        <span class="badge bg-secondary">Inactive</span>
-                    }
-                </td>
-                <td>
-                    @if (i > 0)
-                    {
-                        <form asp-area="Manager"
-                              asp-controller="Questions"
-                              asp-action="MoveUp"
-                              method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@question.Id" />
-                            <button type="submit"
-                                    class="btn btn-sm btn-outline-secondary">
-                                Move up
-                            </button>
-                        </form>
-                    }
-                </td>
-                <td>
-                    @if (i < questions.Count - 1)
-                    {
-                        <form asp-area="Manager"
-                              asp-controller="Questions"
-                              asp-action="MoveDown"
-                              method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@question.Id" />
-                            <button type="submit"
-                                    class="btn btn-sm btn-outline-secondary">
-                                Move down
-                            </button>
-                        </form>
-                    }
-                </td>
-                <td>
-                    <a asp-area="Manager"
-                       asp-controller="Questions"
-                       asp-action="Edit"
-                       asp-route-id="@question.Id"
-                       class="btn btn-sm btn-outline-primary">
-                        Edit
-                    </a>
-                </td>
-                <td>
-                    <form asp-area="Manager"
-                          asp-controller="Questions"
-                          asp-action="ToggleActive"
-                          method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@question.Id" />
-                        <button type="submit"
-                                class="btn btn-sm @(question.IsActive ? "btn-outline-danger" : "btn-outline-success")">
-                            @(question.IsActive ? "Deactivate" : "Activate")
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

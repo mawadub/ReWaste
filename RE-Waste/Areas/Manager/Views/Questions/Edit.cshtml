@@ -6,152 +6,189 @@
     ViewData["Title"] = "Edit Question";
 }
 
-<h1>Edit Question</h1>
+@* ====================================================================
+   EDIT QUESTION (G4)
+   The question form in one panel and, for Choice questions, its answer
+   options in a second panel. Styles: "MANAGER AREA" in site.css.
+   ==================================================================== *@
+<div class="manager">
 
-<hr />
-
-<form asp-area="Manager"
-      asp-controller="Questions"
-      asp-action="Edit"
-      asp-route-id="@Model.Id"
-      method="post">
-
-    @Html.AntiForgeryToken()
-
-    <input type="hidden" asp-for="Id" />
-
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-    <div class="mb-3">
-        <label asp-for="Text" class="form-label">Question text</label>
-        <input asp-for="Text"
-               class="form-control"
-               maxlength="200"
-               required />
-        <span asp-validation-for="Text" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="AnswerType" class="form-label">Answer type</label>
-        <select asp-for="AnswerType"
-                asp-items="Html.GetEnumSelectList<AnswerType>()"
-                class="form-select">
-        </select>
-        <span asp-validation-for="AnswerType" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DeviceField" class="form-label">Device field</label>
-        <select asp-for="DeviceField"
-                asp-items="Html.GetEnumSelectList<DeviceField>()"
-                class="form-select">
-        </select>
-        <span asp-validation-for="DeviceField" class="text-danger"></span>
-    </div>
-
-    <div class="form-check mb-3">
-        <input asp-for="IsActive" class="form-check-input" />
-        <label asp-for="IsActive" class="form-check-label">
-            Active
-        </label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-        Save Changes
-    </button>
-
-    <a asp-area="Manager"
+    <a class="manager-back"
+       asp-area="Manager"
        asp-controller="Questions"
-       asp-action="Index"
-       class="btn btn-secondary">
-        Cancel
+       asp-action="Index">
+        Back to questions
     </a>
-</form>
 
-@if (Model.AnswerType == AnswerType.Choice)
-{
-    <hr />
+    <h1>Edit question</h1>
 
-    <h2>Answer Options</h2>
-
-    <p>
-        Manage the choices customers can select for this question.
-    </p>
-
-    <p>
-        <a asp-area="Manager"
-           asp-controller="Questions"
-           asp-action="CreateOption"
-           asp-route-questionId="@Model.Id"
-           class="btn btn-primary">
-            Add Answer Option
-        </a>
-    </p>
-
-    @if (Model.Options != null && Model.Options.Any())
+    @* G5 safety checks: e.g. a Choice question needs at least one active option. *@
+    @if (TempData["QuestionError"] is string questionError)
     {
-        <table class="table table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Order</th>
-                    <th>Text</th>
-                    <th>Value</th>
-                    <th>Status</th>
-                    <th>Edit</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var option in Model.Options.OrderBy(o => o.DisplayOrder))
-                {
-                    <tr class="@(!option.IsActive ? "text-muted" : "")">
-                        <td>@option.DisplayOrder</td>
-                        <td>@option.Text</td>
-                        <td>@option.Value</td>
-                        <td>
-                            @if (option.IsActive)
-                            {
-                                <span class="badge bg-success">Active</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Inactive</span>
-                            }
-                        </td>
-                        <td>
-                            <a asp-area="Manager"
-                               asp-controller="Questions"
-                               asp-action="EditOption"
-                               asp-route-id="@option.Id"
-                               class="btn btn-sm btn-outline-primary">
-                                Edit
-                            </a>
-                        </td>
-                        <td>
-                            <form asp-area="Manager"
-                                  asp-controller="Questions"
-                                  asp-action="ToggleOptionActive"
-                                  asp-route-id="@option.Id"
-                                  method="post">
-
-                                @Html.AntiForgeryToken()
-
-                                <button type="submit"
-                                        class="btn btn-sm @(option.IsActive ? "btn-outline-danger" : "btn-outline-success")">
-                                    @(option.IsActive ? "Deactivate" : "Activate")
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="alert alert-danger" role="alert">@questionError</div>
     }
-    else
+
+    @* ================================================================
+       QUESTION
+       ================================================================ *@
+    <div class="manager-panel manager-panel-narrow">
+
+        <form asp-area="Manager"
+              asp-controller="Questions"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Text" class="form-label">Question text</label>
+                <input asp-for="Text"
+                       class="form-control"
+                       maxlength="200"
+                       required />
+                <span asp-validation-for="Text" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AnswerType" class="form-label">Answer type</label>
+                <select asp-for="AnswerType"
+                        asp-items="Html.GetEnumSelectList<AnswerType>()"
+                        class="form-select">
+                </select>
+                <span asp-validation-for="AnswerType" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DeviceField" class="form-label">Device field</label>
+                <select asp-for="DeviceField"
+                        asp-items="Html.GetEnumSelectList<DeviceField>()"
+                        class="form-select">
+                </select>
+                <span asp-validation-for="DeviceField" class="text-danger"></span>
+            </div>
+
+            <div class="form-check">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label">
+                    Active
+                </label>
+            </div>
+
+            @* Save first; Cancel goes back to the list without saving. *@
+            <div class="manager-form-actions">
+                <button type="submit" class="button">
+                    Save changes
+                </button>
+
+                <a asp-area="Manager"
+                   asp-controller="Questions"
+                   asp-action="Index"
+                   class="button-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+    </div>
+
+    @* ================================================================
+       ANSWER OPTIONS (Choice questions only)
+       ================================================================ *@
+    @if (Model.AnswerType == AnswerType.Choice)
     {
-        <p>No answer options have been added yet.</p>
+        <div class="manager-panel">
+
+            <h2>Answer options</h2>
+
+            <p>Manage the choices customers can select for this question.</p>
+
+            <div class="manager-toolbar mt-0">
+                <a asp-area="Manager"
+                   asp-controller="Questions"
+                   asp-action="CreateOption"
+                   asp-route-questionId="@Model.Id"
+                   class="button">
+                    Add answer option
+                </a>
+            </div>
+
+            @if (Model.Options != null && Model.Options.Any())
+            {
+                @* Scrolls sideways inside the panel on narrow screens. *@
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0 manager-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Order</th>
+                                <th scope="col">Text</th>
+                                <th scope="col">Value</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var option in Model.Options.OrderBy(o => o.DisplayOrder))
+                            {
+                                <tr class="@(option.IsActive ? "" : "is-inactive")">
+                                    <td>@option.DisplayOrder</td>
+                                    <td class="fw-semibold">@option.Text</td>
+                                    <td>@option.Value</td>
+                                    <td>
+                                        @if (option.IsActive)
+                                        {
+                                            <span class="badge rw-badge-active">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rw-badge-inactive">Inactive</span>
+                                        }
+                                    </td>
+
+                                    @* Edit, then switch the option on or off. *@
+                                    <td>
+                                        <div class="manager-actions">
+                                            <a asp-area="Manager"
+                                               asp-controller="Questions"
+                                               asp-action="EditOption"
+                                               asp-route-id="@option.Id"
+                                               class="button-secondary button-small">
+                                                Edit<span class="visually-hidden"> "@option.Text"</span>
+                                            </a>
+
+                                            <form asp-area="Manager"
+                                                  asp-controller="Questions"
+                                                  asp-action="ToggleOptionActive"
+                                                  asp-route-id="@option.Id"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="@(option.IsActive ? "button-danger" : "button") button-small">
+                                                    @(option.IsActive ? "Deactivate" : "Activate")<span class="visually-hidden"> "@option.Text"</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="mb-0">No answer options have been added yet.</p>
+            }
+
+        </div>
     }
-}
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

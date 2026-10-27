@@ -1,4 +1,5 @@
 ﻿@model RE_Waste.ViewModels.RuleFormViewModel
+@using RE_Waste.Extensions
 @using RE_Waste.Models
 @using RE_Waste.Models.Enums
 
@@ -6,95 +7,133 @@
     ViewData["Title"] = "Add New Rule";
 }
 
-<h2>Add New Rule</h2>
+@* ====================================================================
+   ADD RULE (G3)
+   One-column form in a white panel; the age range and the two yes/no
+   conditions sit side by side from 576 px. Styles: "MANAGER AREA".
+   ==================================================================== *@
+<div class="manager">
 
-<p>Higher priority wins. A damaged battery always recommends Recycle.</p>
-
-<form asp-area="Manager" asp-controller="Rules"
-      asp-action="Create" method="post">
-
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <div class="mb-3">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" maxlength="100" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Route" class="form-label"></label>
-        <select asp-for="Route"
-                asp-items="Html.GetEnumSelectList<RouteType>()"
-                class="form-select">
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Reason" class="form-label"></label>
-        <textarea asp-for="Reason" class="form-control"
-                  maxlength="300"></textarea>
-        <span asp-validation-for="Reason" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Priority" class="form-label"></label>
-        <input asp-for="Priority" type="number" min="0" max="1000"
-               class="form-control" />
-        <span asp-validation-for="Priority" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Condition" class="form-label"></label>
-        <select asp-for="Condition"
-                asp-items="Html.GetEnumSelectList<Condition>()"
-                class="form-select">
-            <option value="">Any</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="MinAgeInYears" class="form-label">Minimum Age</label>
-        <input asp-for="MinAgeInYears" type="number" min="0" max="30"
-               class="form-control" />
-        <span asp-validation-for="MinAgeInYears" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="MaxAgeInYears" class="form-label">Maximum Age</label>
-        <input asp-for="MaxAgeInYears" type="number" min="0" max="30"
-               class="form-control" />
-        <span asp-validation-for="MaxAgeInYears" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="HasPersonalData" class="form-label">
-            Has Personal Data
-        </label>
-        <select asp-for="HasPersonalData" class="form-select">
-            <option value="">Any</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="HasBatteryDamage" class="form-label">
-            Has Battery Damage
-        </label>
-        <select asp-for="HasBatteryDamage" class="form-select">
-            <option value="">Any</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-        </select>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save Rule</button>
-
-    <a asp-area="Manager" asp-controller="Rules"
-       asp-action="Index" class="btn btn-secondary">
-        Cancel
+    <a class="manager-back"
+       asp-area="Manager"
+       asp-controller="Rules"
+       asp-action="Index">
+        Back to rules
     </a>
-</form>
+
+    <h1>Add new rule</h1>
+
+    <p class="manager-intro">
+        Higher priority wins. A damaged battery always recommends Recycle.
+    </p>
+
+    <div class="manager-panel manager-panel-narrow">
+
+        <form asp-area="Manager" asp-controller="Rules"
+              asp-action="Create" method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            @* ========================================================
+               WHAT THE RULE RECOMMENDS
+               ======================================================== *@
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" maxlength="100" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Route" class="form-label"></label>
+                @* Plain words, e.g. "Resale or trade-in". *@
+                <select asp-for="Route"
+                        asp-items="DisplayNameSelectLists.Routes()"
+                        class="form-select">
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Reason" class="form-label"></label>
+                <textarea asp-for="Reason" class="form-control" rows="3"
+                          maxlength="300"></textarea>
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Priority" class="form-label"></label>
+                <input asp-for="Priority" type="number" min="0" max="1000"
+                       class="form-control" />
+                <span asp-validation-for="Priority" class="text-danger"></span>
+            </div>
+
+            @* ========================================================
+               WHEN IT APPLIES ("Any" means the rule doesn't check it)
+               ======================================================== *@
+            <h2 class="mt-4 mb-3">When it applies</h2>
+
+            <div class="mb-3">
+                <label asp-for="Condition" class="form-label"></label>
+                @* Plain words, e.g. "Partly working". *@
+                <select asp-for="Condition"
+                        asp-items="DisplayNameSelectLists.Conditions()"
+                        class="form-select">
+                    <option value="">Any</option>
+                </select>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="MinAgeInYears" class="form-label">Minimum age</label>
+                    <input asp-for="MinAgeInYears" type="number" min="0" max="30"
+                           class="form-control" />
+                    <span asp-validation-for="MinAgeInYears" class="text-danger"></span>
+                </div>
+
+                <div class="col-sm-6">
+                    <label asp-for="MaxAgeInYears" class="form-label">Maximum age</label>
+                    <input asp-for="MaxAgeInYears" type="number" min="0" max="30"
+                           class="form-control" />
+                    <span asp-validation-for="MaxAgeInYears" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label asp-for="HasPersonalData" class="form-label">
+                        Has personal data
+                    </label>
+                    <select asp-for="HasPersonalData" class="form-select">
+                        <option value="">Any</option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6">
+                    <label asp-for="HasBatteryDamage" class="form-label">
+                        Has battery damage
+                    </label>
+                    <select asp-for="HasBatteryDamage" class="form-select">
+                        <option value="">Any</option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+            </div>
+
+            @* Save first; Cancel goes back to the list without saving. *@
+            <div class="manager-form-actions">
+                <button type="submit" class="button">Save rule</button>
+
+                <a asp-area="Manager" asp-controller="Rules"
+                   asp-action="Index" class="button-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

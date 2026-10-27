@@ -2,47 +2,53 @@
     ViewData["Title"] = "Manager Dashboard";
 }
 
-<h1>Manager Dashboard</h1>
+@* ====================================================================
+   MANAGER DASHBOARD
+   One white card per section. Styles: "MANAGER AREA" in site.css.
+   ==================================================================== *@
+<div class="manager">
 
-<p>Welcome to the RE-Waste Manager Area.</p>
+    <h1>Manager dashboard</h1>
 
-<div class="row">
-    <div class="col-md-4">
-        <h3>Drop-off Points</h3>
-        <p>Coming soon</p>
-        <a asp-area="Manager"
-           asp-controller="DropOffPoints"
-           asp-action="Index"
-           class="btn btn-primary">
-            Drop-Off Points
-        </a>
-    </div>
+    <p class="manager-intro">
+        Welcome to the RE-Waste manager area. Choose what you'd like to manage.
+    </p>
 
+    @* One column on phones, side by side when there's room. *@
+    <div class="manager-grid mt-3">
 
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">Rules</h5>
-            <p class="card-text">
-                Manage recommendation rules for devices.
-            </p>
+        <div class="manager-panel manager-card">
+            <h2>Drop-off points</h2>
+            <p>Add and update the places users can take their phones, and switch them on or off.</p>
+            <a asp-area="Manager"
+               asp-controller="DropOffPoints"
+               asp-action="Index"
+               class="button">
+                Manage drop-off points
+            </a>
+        </div>
+
+        <div class="manager-panel manager-card">
+            <h2>Recommendation rules</h2>
+            <p>Decide which route the wizard recommends for each kind of phone.</p>
             <a asp-area="Manager"
                asp-controller="Rules"
                asp-action="Index"
-               class="btn btn-primary">
-                Manage Rules
+               class="button">
+                Manage rules
             </a>
         </div>
-    </div>
 
+        <div class="manager-panel manager-card">
+            <h2>Wizard questions</h2>
+            <p>Edit, reorder and switch on or off the questions and their answer options.</p>
+            <a asp-area="Manager"
+               asp-controller="Questions"
+               asp-action="Index"
+               class="button">
+                Manage questions
+            </a>
+        </div>
 
-    <div class="col-md-4">
-        <h3>Questions</h3>
-        <p>Manage wizard questions and answer options.</p>
-        <a asp-area="Manager"
-           asp-controller="Questions"
-           asp-action="Index"
-           class="btn btn-primary">
-            Manage Questions
-        </a>
     </div>
 </div>
