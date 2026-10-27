@@ -252,6 +252,8 @@ h1 {
 .account-card {
     background-color: #f8f9fa;
     border-radius: var(--rw-radius);
+}
+
 /* The active item keeps Bootstrap's blue background and white text. */
 .form-floating > label {
     color: #495057; /* dark grey, readable on the white inputs */
