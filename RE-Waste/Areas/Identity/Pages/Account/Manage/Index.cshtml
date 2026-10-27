@@ -5,29 +5,32 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h4 class="mb-4 text-dark">@ViewData["Title"]</h4>
 <partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
+<div class="row">
+    <div class="col-12">
+        <form id="profile-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label fw-semibold">Username</label>
+                <input asp-for="Username" class="form-control" disabled />
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="Your name" />
-                <label asp-for="Input.Name">Name</label>
+
+            <div class="mb-3">
+                <label asp-for="Input.Name" class="form-label fw-semibold">Name</label>
+                <input asp-for="Input.Name" class="form-control" autocomplete="name" />
                 <span asp-validation-for="Input.Name" class="text-danger"></span>
             </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
+            <div class="mb-4">
+                <label asp-for="Input.PhoneNumber" class="form-label fw-semibold">Phone number</label>
+                <input asp-for="Input.PhoneNumber" class="form-control" type="tel" autocomplete="tel" />
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+
+            <button id="update-profile-button" type="submit" class="button">Save changes</button>
         </form>
     </div>
 </div>
