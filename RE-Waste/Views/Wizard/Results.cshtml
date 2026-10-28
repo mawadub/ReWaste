@@ -10,7 +10,7 @@
    Replaces W7's temporary page. A stack of white wizard cards:
      1. a heading card (with a note if we couldn't use the postcode),
      2. one card per route, best first: name, reason, up to 3 places,
-     3. a last card with the buttons (and V1's Save spot).
+     3. a last card with the buttons (and V1's Save button).
    Styles: "WIZARD" and "RESULTS (R6)" in site.css.
    ==================================================================== *@
 <div class="wizard">
@@ -105,11 +105,6 @@
     @* ---------- 3. Buttons ---------- *@
     <div class="wizard-card results-route">
 
-        @* ============================================================
-           V1 SPOT: the "Save this result" button goes here.
-           It will post to a Save action that reads the ResultState
-           from the session (HttpContext.Session.GetResultState()).
-           ============================================================ *@
 
         <div class="wizard-buttons wizard-actions">
             @* Back to the review page; the answers are still in the session. *@
@@ -118,6 +113,28 @@
                asp-action="Complete">
                 Back to my answers
             </a>
+
+            @* ============================================================
+               V1: SAVE THIS RESULT
+               Only shown to logged-in users. The form sends only the
+               anti-forgery token: Save reads the result from the session
+               and the user id from the login, never from the form.
+               Logged-out users see nothing here yet (V2 adds that).
+               class="wizard-next" pushes it to the right, like the main
+               button on the review page.
+               ============================================================ *@
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-controller="Wizard"
+                      asp-action="Save"
+                      method="post"
+                      class="wizard-next">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" class="button">Save this result</button>
+                </form>
+            }
         </div>
 
         @* The existing Restart action: wipes the answers, and Start wipes the result. *@

@@ -6,117 +6,129 @@
     var saved = Model.Saved;
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-lg-8">
+@* ====================================================================
+   SAVED RESULT (U5, styled to match the results page)
+   The same stack of white cards as Wizard/Results:
+     1. the phone and its details,
+     2. one card per saved route, best first, with nearby places,
+     3. the buttons.
+   Styles: "WIZARD", "RESULTS (R6)" and "MY DEVICES" in site.css.
+   ==================================================================== *@
+<div class="wizard">
 
-        <h1 class="h3 mb-3 text-break">@saved.Brand @saved.Model</h1>
+    @* Lavender back link on the blue page, as in the manager area. *@
+    <a class="manager-back" asp-action="Index">Back to My devices</a>
 
-        @* ================================================================
-           PHONE DETAILS
-           What the user told the wizard, in plain words.
-           ================================================================ *@
-        <div class="card shadow-sm p-3 mb-3 text-dark" data-bs-theme="light">
-            <h2 class="h5 mb-3">Phone details</h2>
+    @* ---------- 1. The phone ---------- *@
+    <div class="wizard-card">
 
-            <dl class="row mb-0">
-                <dt class="col-6 col-sm-4">Brand</dt>
-                <dd class="col-6 col-sm-8">@saved.Brand</dd>
+        <h1 class="text-break">@saved.Brand @saved.Model</h1>
 
-                <dt class="col-6 col-sm-4">Model</dt>
-                <dd class="col-6 col-sm-8 text-break">@saved.Model</dd>
+        <p class="wizard-hint">Saved on @saved.CreatedAt.ToString("dd MMM yyyy")</p>
 
-                <dt class="col-6 col-sm-4">Age</dt>
-                <dd class="col-6 col-sm-8">@saved.AgeInYears @(saved.AgeInYears == 1 ? "year" : "years")</dd>
+        @* What the user told the wizard, in plain words.
+           Brand and model are already in the heading. *@
+        <dl class="saved-details">
+            <dt>Age</dt>
+            <dd>@saved.AgeInYears @(saved.AgeInYears == 1 ? "year" : "years")</dd>
 
-                <dt class="col-6 col-sm-4">Condition</dt>
-                <dd class="col-6 col-sm-8">@saved.Condition.ToDisplayName()</dd>
+            <dt>Condition</dt>
+            <dd>@saved.Condition.ToDisplayName()</dd>
 
-                <dt class="col-6 col-sm-4">Personal data</dt>
-                <dd class="col-6 col-sm-8">@(saved.HasPersonalData ? "Yes" : "No")</dd>
+            <dt>Personal data</dt>
+            <dd>@(saved.HasPersonalData ? "Yes" : "No")</dd>
 
-                <dt class="col-6 col-sm-4">Battery damage</dt>
-                <dd class="col-6 col-sm-8">@(saved.HasBatteryDamage ? "Yes" : "No")</dd>
+            <dt>Battery damage</dt>
+            <dd>@(saved.HasBatteryDamage ? "Yes" : "No")</dd>
 
-                <dt class="col-6 col-sm-4">Saved on</dt>
-                <dd class="col-6 col-sm-8">@saved.CreatedAt.ToString("dd MMM yyyy")</dd>
+            <dt>Postcode area</dt>
+            <dd>@saved.PostcodeDistrict</dd>
+        </dl>
 
-                <dt class="col-6 col-sm-4">Postcode area</dt>
-                <dd class="col-6 col-sm-8 mb-0">@saved.PostcodeDistrict</dd>
-            </dl>
-        </div>
-
-        @* ================================================================
-           LOCATION NOTE
-           Saved results keep only the district, so distances are approximate.
-           ================================================================ *@
+        @* Saved results keep only the district, so distances are approximate. *@
         @if (Model.LocationFound)
         {
-            <p class="text-muted small">Distances are measured from the middle of your postcode area.</p>
+            <p class="wizard-hint mt-3 mb-0">
+                Distances are measured from the middle of @saved.PostcodeDistrict.
+            </p>
         }
         else
         {
-            <div class="alert alert-warning" role="status">
-                We could not look up places near @saved.PostcodeDistrict right now.
-            </div>
+            <p class="results-note mt-3 mb-0" role="status">
+                We couldn't look up places near @saved.PostcodeDistrict right now.
+            </p>
         }
-
-        @* ================================================================
-           ROUTES
-           One card per saved route: name, reason and nearby places.
-           ================================================================ *@
-        @for (var i = 0; i < Model.Routes.Count; i++)
-        {
-            var route = Model.Routes[i];
-
-            <div class="card shadow-sm p-3 mb-3 text-dark" data-bs-theme="light">
-                <p class="text-muted small mb-1">@(i == 0 ? "Top recommendation" : "Option " + (i + 1))</p>
-                <h2 class="h5 mb-2">@route.Route.ToDisplayName()</h2>
-                <p>@route.Reason</p>
-
-                @if (Model.LocationFound)
-                {
-                    <h3 class="h6">Nearby places</h3>
-
-                    @if (route.Places.Count == 0)
-                    {
-                        <p class="mb-0">No places found for this route yet.</p>
-                    }
-                    else
-                    {
-                        <ul class="list-unstyled mb-0">
-                            @foreach (var place in route.Places)
-                            {
-                                <li class="border-top pt-2 mt-2">
-                                    <strong>@place.Point.Name</strong>
-                                    <div class="text-muted small">@place.DistanceKm.ToString("0.0") km away</div>
-                                    <div class="text-break">@place.Point.Address, @place.Point.Postcode</div>
-
-                                    @if (!string.IsNullOrWhiteSpace(place.Point.OpeningHours))
-                                    {
-                                        <div class="small text-break">Opening hours: @place.Point.OpeningHours</div>
-                                    }
-
-                                    @if (!string.IsNullOrWhiteSpace(place.Point.Website))
-                                    {
-                                        <a href="@place.Point.Website" target="_blank" rel="noopener">
-                                            Website<span class="visually-hidden"> for @place.Point.Name (opens in a new tab)</span>
-                                        </a>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    }
-                }
-            </div>
-        }
-
-        @* ================================================================
-           BUTTONS
-           ================================================================ *@
-        <div class="d-flex flex-wrap gap-2 mb-4">
-            <a class="btn btn-outline-secondary" asp-action="Index">Back to My devices</a>
-            <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@saved.Id">Delete</a>
-        </div>
-
     </div>
+
+    @* ---------- 2. One card per saved route, best first ---------- *@
+    @for (var i = 0; i < Model.Routes.Count; i++)
+    {
+        var route = Model.Routes[i];
+
+        <section class="wizard-card results-route" aria-labelledby="route-@i">
+
+            @* Only the first card gets the label, as on the results page. *@
+            @if (i == 0)
+            {
+                <p class="results-best">Best option</p>
+            }
+
+            <h2 id="route-@i">@route.Route.ToDisplayName()</h2>
+
+            @* The reason exactly as it was saved. *@
+            <p>@route.Reason</p>
+
+            @if (Model.LocationFound)
+            {
+                if (route.Places.Count == 0)
+                {
+                    <p class="results-note mb-0">We don't know of a suitable place near you yet.</p>
+                }
+                else
+                {
+                    <h3 class="results-places-heading">Nearest places</h3>
+
+                    <ul class="results-places">
+                        @foreach (var place in route.Places)
+                        {
+                            <li class="results-place">
+
+                                @* Name left, distance right; they wrap at 360 px. *@
+                                <div class="results-place-top">
+                                    <strong class="text-break">@place.Point.Name</strong>
+                                    <span class="results-distance">@place.DistanceKm.ToString("0.0") km</span>
+                                </div>
+
+                                <div class="text-break">@place.Point.Address, @place.Point.Postcode</div>
+
+                                <div class="results-type">@place.Point.PointType.ToDisplayName()</div>
+
+                                @* Optional extras from the manager's drop-off point form. *@
+                                @if (!string.IsNullOrWhiteSpace(place.Point.OpeningHours))
+                                {
+                                    <div class="saved-extra text-break">Opening hours: @place.Point.OpeningHours</div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(place.Point.Website))
+                                {
+                                    <a class="saved-extra d-inline-block" href="@place.Point.Website" target="_blank" rel="noopener">
+                                        Website<span class="visually-hidden"> for @place.Point.Name (opens in a new tab)</span>
+                                    </a>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+        </section>
+    }
+
+    @* ---------- 3. Buttons ---------- *@
+    <div class="wizard-card results-route">
+        <div class="manager-actions">
+            <a class="button-secondary" asp-action="Index">Back to My devices</a>
+            <a class="button-danger" asp-action="Delete" asp-route-id="@saved.Id">Delete this result</a>
+        </div>
+    </div>
+
 </div>

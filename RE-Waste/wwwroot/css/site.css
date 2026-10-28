@@ -844,3 +844,53 @@ h1 {
     font-size: .875rem;
     color: #595f65;
 }
+
+/* ==========================================================================
+   MY DEVICES (U4–U6)
+   Same look as the results page: white wizard cards on the blue page,
+   stacked with .results-route. Layout only: every colour comes from the
+   sections above. Buttons, back link and toolbar reuse MANAGER AREA.
+   ========================================================================== */
+
+/* The list of saved results: no bullets; the cards space themselves. */
+.saved-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* "Saved on 28 Oct 2026 · EH1" under the phone name: quiet, like the wizard hint. */
+.saved-meta {
+    color: #595f65;
+    margin-bottom: .75rem;
+}
+
+/* Phone details as label/value pairs. Two columns even at 360 px:
+   labels take only the width they need, and values wrap. */
+.saved-details {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: .5rem 1.5rem;
+    margin: 0;
+}
+
+    .saved-details dt {
+        font-weight: 600;
+        color: #595f65;
+    }
+
+    .saved-details dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+/* Space above a button row inside a card (Delete page). */
+.saved-actions {
+    margin-top: 1.25rem;
+}
+
+/* Opening hours and website under a place: a little smaller. */
+.saved-extra {
+    font-size: .875rem;
+    margin-top: .25rem;
+}
