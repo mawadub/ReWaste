@@ -2,22 +2,35 @@
     ViewData["Title"] = "No Questions Available";
 }
 
-<div class="container py-4">
-    <div class="card bg-white shadow-sm mx-auto"
-         style="max-width: 650px;">
-        <div class="card-body p-4 text-center">
-            <h2>No questions available</h2>
+@* ====================================================================
+   NO QUESTIONS
+   Shown when a manager has switched off every question. Same card as
+   the wizard, with the mascot (styles: "WIZARD" in site.css).
+   ==================================================================== *@
+<div class="wizard">
 
-            <p>
-                There are no active questions right now.
-                Please try again later.
-            </p>
+    <div class="wizard-card text-center">
 
-            <a asp-controller="Wizard"
-               asp-action="Restart"
-               class="btn btn-primary">
-                Restart
-            </a>
-        </div>
+        @* Decorative, so the alt text is empty. *@
+        <img class="wizard-mascot" src="~/Images/mascot.png" alt="" />
+
+        <h1>No questions available</h1>
+
+        <p class="wizard-hint">
+            There are no active questions right now.
+            Please try again later.
+        </p>
+
+        @* Restart only accepts POST, so it has to be a form, not a link. *@
+        <form asp-controller="Wizard"
+              asp-action="Restart"
+              method="post"
+              class="wizard-restart-form">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="wizard-restart">Start again</button>
+        </form>
+
     </div>
 </div>
