@@ -213,6 +213,7 @@ h1 {
     --rw-radius: 12px;
 }
 
+
 /* ---------- Footer ---------- */
 .footer {
     background-color: var(--rw-maroon);
@@ -220,14 +221,38 @@ h1 {
 }
 
 /* Account pages: the side menu and floating labels */
-.nav-pills .nav-link {
-    color: var(--rw-lavender);
+.account-nav .nav-link {
+    color: var(--rw-dark-green); /* 11.9:1 on the light card */
+    font-weight: 600;
 }
 
-    .nav-pills .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: #fff;
+    .account-nav .nav-link:hover {
+        background-color: rgba(0, 59, 53, 0.08);
     }
+
+    .account-nav .nav-link.active {
+        background-color: var(--rw-dark-green);
+        color: var(--rw-lavender); /* 9.2:1, same pairing as .button */
+    }
+
+.account-nav-col {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .account-nav-col {
+        border-bottom: 0;
+        border-right: 1px solid #dee2e6;
+        padding-bottom: 0;
+    }
+}
+
+
+.account-card {
+    background-color: #f8f9fa;
+    border-radius: var(--rw-radius);
+}
 /* The active item keeps Bootstrap's blue background and white text. */
 .form-floating > label {
     color: #495057; /* dark grey, readable on the white inputs */

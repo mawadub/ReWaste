@@ -428,3 +428,4 @@ FodyWeavers.xsd
 #*.lscache
 
 .docs
+.vscode
