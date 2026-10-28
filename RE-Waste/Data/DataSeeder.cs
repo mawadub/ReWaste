@@ -12,6 +12,28 @@ namespace RE_Waste.Data
         // This method seeds the database with initial data for questions, recommendation rules, and drop-off points. It checks if each table is empty before adding data to avoid duplicates.
         public static async Task SeedAsync(ApplicationDbContext context)
         {
+            // Phone models come from a CSV so a data person can edit them without touching C#.
+            if (!await context.PhoneModels.AnyAsync())
+            {
+                var path = Path.Combine(AppContext.BaseDirectory, "Data", "Seed", "phone-models.csv");
+
+                var models = File.ReadLines(path)
+                    .Skip(1) // header row
+                    .Where(line => !string.IsNullOrWhiteSpace(line))
+                    .Select(line => line.Split(','))
+                    .Select(p => new PhoneModel
+                    {
+                        Brand = p[0].Trim(),
+                        Name = p[1].Trim(),
+                        ReleaseYear = int.TryParse(p[2], out var year) ? year : null
+                    })
+                    .DistinctBy(m => (m.Brand, m.Name))
+                    .ToList();
+
+                context.PhoneModels.AddRange(models);
+                await context.SaveChangesAsync();
+            }
+
             if (!await context.Questions.AnyAsync())
             {
                 //1. Seed questions

@@ -12,24 +12,59 @@
     var isLast = (bool)ViewBag.IsLast;
     var currentAnswer = ViewBag.CurrentAnswer?.ToString() ?? "";
 
-    // W5: the server's error message, if the last answer was refused.
+    // W5: the server's error message, if the last answer was refused,
+    // and the name of the box it belongs to ("answer" unless the Model step says otherwise).
     var error = ViewBag.ErrorMessage as string;
-    var invalidClass = error != null ? "is-invalid" : "";
+    var errorField = ViewBag.ErrorField as string ?? "answer";
 
+    // Bootstrap and screen-reader attributes for the box with the error.
     // A null value makes Razor leave the attribute out completely.
-    string? describedBy = error != null ? "answerError" : null;
-    string? ariaInvalid = error != null ? "true" : null;
+    Func<string, string> invalidFor = field => error != null && errorField == field ? "is-invalid" : "";
+    Func<string, string?> describedFor = field => error != null && errorField == field ? "answerError" : null;
+    Func<string, string?> ariaInvalidFor = field => error != null && errorField == field ? "true" : null;
+
+    var invalidClass = invalidFor("answer");
+    var describedBy = describedFor("answer");
+    var ariaInvalid = ariaInvalidFor("answer");
+
+    // Model step: listed brand gets a searchable list, "Other" gets brand and model boxes.
+    var brandListed = ViewBag.BrandListed as bool? ?? true;
+    var modelOptions = ViewBag.ModelOptions as List<string> ?? new List<string>();
+    var otherBrand = ViewBag.OtherBrand as string ?? "";
+    var otherModel = ViewBag.OtherModel as string ?? "";
+    var otherModelChosen = currentAnswer == PhoneModel.Other;
+
+    // Age step: an estimate from the release year, only for a model from the list.
+    var estimatedAge = ViewBag.EstimatedAge as int?;
+    var releaseYear = ViewBag.ReleaseYear as int?;
+    var phoneName = ViewBag.PhoneName as string ?? "";
+
+    // Open the number box straight away when there is no estimate, the user already
+    // gave a different age, or their age was refused.
+    var showOwnAge = estimatedAge == null
+        || error != null
+        || (currentAnswer != "" && currentAnswer != estimatedAge.ToString());
 
     // Store hints by DeviceField so question wording can change safely.
     var hints = new Dictionary<DeviceField, string>
     {
         { DeviceField.Brand, "Choose the brand of your phone." },
-        { DeviceField.Model, "Enter the model name, for example iPhone 11." },
+        { DeviceField.Model, "Start typing to search, or choose Other if yours isn't listed." },
         { DeviceField.AgeInYears, "Enter the phone's age in whole years." },
         { DeviceField.Condition, "Choose the option that best describes your phone." },
         { DeviceField.HasPersonalData, "Tell us whether personal data is still on the phone." },
         { DeviceField.HasBatteryDamage, "Tell us whether the battery is damaged." }
     };
+
+    if (!brandListed)
+    {
+        hints[DeviceField.Model] = "Your brand isn't in our list, so please type the brand and model.";
+    }
+
+    if (estimatedAge != null)
+    {
+        hints[DeviceField.AgeInYears] = "We worked this out from the year the model came out. If you got your phone later, enter your own.";
+    }
 }
 
 <div class="container py-4">
@@ -91,37 +126,131 @@
 
                 @* ====================================================
                    MODEL
-                   Limit the model name to 100 characters.
+                   Searchable drop-down of models for the chosen brand,
+                   with a box for a model that isn't listed. When the
+                   brand was "Other", the user types brand and model.
                    ==================================================== *@
                 else if (Model.DeviceField == DeviceField.Model)
                 {
-                    <input class="form-control @invalidClass"
-                           type="text"
-                           name="answer"
-                           maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
-                           placeholder="iPhone 11"
-                           value="@currentAnswer"
-                           aria-describedby="@describedBy"
-                           aria-invalid="@ariaInvalid"
-                           required />
+                    @if (brandListed)
+                    {
+                        <select id="modelSelect"
+                                class="form-select @invalidClass"
+                                name="answer"
+                                aria-describedby="@describedBy"
+                                aria-invalid="@ariaInvalid"
+                                required>
+                            <option value="">Search or select a model</option>
+
+                            @foreach (var m in modelOptions)
+                            {
+                                <option value="@m" selected="@(currentAnswer == m)">@m</option>
+                            }
+                        </select>
+
+                        @* Shown only when "Other / not listed" is chosen. A hidden box is
+                           disabled, so the browser doesn't check it and doesn't send it. *@
+                        <div id="otherModelBox" class="mt-3" hidden="@(!otherModelChosen)">
+                            <label for="otherModel" class="form-label">Type your phone's model</label>
+                            <input id="otherModel"
+                                   class="form-control @(invalidFor("otherModel"))"
+                                   type="text"
+                                   name="otherModel"
+                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
+                                   placeholder="For example Galaxy S7"
+                                   value="@otherModel"
+                                   aria-describedby="@(describedFor("otherModel"))"
+                                   aria-invalid="@(ariaInvalidFor("otherModel"))"
+                                   disabled="@(!otherModelChosen)"
+                                   required />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label for="otherBrand" class="form-label">Brand</label>
+                            <input id="otherBrand"
+                                   class="form-control @(invalidFor("otherBrand"))"
+                                   type="text"
+                                   name="otherBrand"
+                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Brand)"
+                                   placeholder="For example Fairphone"
+                                   value="@otherBrand"
+                                   aria-describedby="@(describedFor("otherBrand"))"
+                                   aria-invalid="@(ariaInvalidFor("otherBrand"))"
+                                   required />
+                        </div>
+
+                        <div>
+                            <label for="otherModel" class="form-label">Model</label>
+                            <input id="otherModel"
+                                   class="form-control @(invalidFor("otherModel"))"
+                                   type="text"
+                                   name="otherModel"
+                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
+                                   placeholder="For example Fairphone 4"
+                                   value="@otherModel"
+                                   aria-describedby="@(describedFor("otherModel"))"
+                                   aria-invalid="@(ariaInvalidFor("otherModel"))"
+                                   required />
+                        </div>
+                    }
                 }
 
                 @* ====================================================
                    AGE
-                   Allow a whole number between 0 and 30.
+                   For a model from the list, show the estimate from its
+                   release year with Agree / Enter yours. Otherwise, or
+                   after Enter yours, a whole number between 0 and 30.
                    ==================================================== *@
                 else if (Model.DeviceField == DeviceField.AgeInYears)
                 {
-                    <input class="form-control @invalidClass"
-                           type="number"
-                           name="answer"
-                           min="@AnswerValidator.MinNumber"
-                           max="@AnswerValidator.MaxNumber"
-                           step="1"
-                           value="@currentAnswer"
-                           aria-describedby="@describedBy"
-                           aria-invalid="@ariaInvalid"
-                           required />
+                    @if (estimatedAge != null)
+                    {
+                        <div class="border rounded p-3 mb-3">
+                            <p class="mb-0">
+                                The <strong>@phoneName</strong> came out in @releaseYear,
+                                so your phone is about
+                                <strong>@estimatedAge @(estimatedAge == 1 ? "year" : "years") old</strong>.
+                            </p>
+
+                            @* Removed by "Enter yours", so Enter in the number box
+                               submits the typed age, not this estimate. *@
+                            @if (!showOwnAge)
+                            {
+                                <div id="ageEstimateButtons" class="d-flex flex-wrap gap-2 mt-3">
+                                    <button type="submit"
+                                            name="answer"
+                                            value="@estimatedAge"
+                                            class="btn btn-primary">
+                                        Agree
+                                    </button>
+
+                                    <button type="button"
+                                            id="enterOwnAge"
+                                            class="btn btn-outline-secondary">
+                                        Enter yours
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div id="ownAge" hidden="@(!showOwnAge)">
+                        <input id="ageInput"
+                               class="form-control @invalidClass"
+                               type="number"
+                               name="answer"
+                               min="@AnswerValidator.MinNumber"
+                               max="@AnswerValidator.MaxNumber"
+                               step="1"
+                               value="@currentAnswer"
+                               aria-label="Age in years"
+                               aria-describedby="@describedBy"
+                               aria-invalid="@ariaInvalid"
+                               disabled="@(!showOwnAge)"
+                               required />
+                    </div>
                 }
 
                 @* ====================================================
@@ -193,7 +322,8 @@
                 @* ====================================================
                    NAVIGATION BUTTONS
                    Show Back when available and change Next to Finish
-                   on the final question.
+                   on the final question. Next is hidden while the age
+                   estimate offers Agree / Enter yours instead.
                    ==================================================== *@
                 <div class="d-flex justify-content-between mt-4">
 
@@ -210,7 +340,10 @@
                     </div>
 
                     @* Submit the answer and continue the wizard. *@
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit"
+                            id="nextButton"
+                            class="btn btn-primary"
+                            hidden="@(Model.DeviceField == DeviceField.AgeInYears && !showOwnAge)">
                         @(isLast ? "Finish" : "Next")
                     </button>
                 </div>
@@ -236,3 +369,54 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        // MODEL: searchable list, plus the extra box when "Other / not listed" is chosen.
+        var modelSelect = document.getElementById("modelSelect");
+        var otherModelBox = document.getElementById("otherModelBox");
+        var otherModelInput = document.getElementById("otherModel");
+        var otherModelValue = @Json.Serialize(PhoneModel.Other);
+
+        function toggleOtherModel(value) {
+            if (typeof value !== "string") {
+                value = modelSelect.value;
+            }
+
+            var show = value === otherModelValue;
+            otherModelBox.hidden = !show;
+            otherModelInput.disabled = !show; // a hidden box is not checked or sent
+
+            if (show) {
+                otherModelInput.focus();
+            }
+        }
+
+        if (modelSelect) {
+            if (window.TomSelect) {
+                new TomSelect(modelSelect, { create: false, onChange: toggleOtherModel });
+            } else {
+                modelSelect.addEventListener("change", toggleOtherModel);
+            }
+        }
+
+        // AGE: "Enter yours" swaps the estimate buttons for the number box and Next.
+        var enterOwnAge = document.getElementById("enterOwnAge");
+
+        if (enterOwnAge) {
+            enterOwnAge.addEventListener("click", function () {
+                var ageInput = document.getElementById("ageInput");
+
+                document.getElementById("ageEstimateButtons").remove();
+                document.getElementById("ownAge").hidden = false;
+                document.getElementById("nextButton").hidden = false;
+
+                ageInput.disabled = false;
+                ageInput.value = "";
+                ageInput.focus();
+            });
+        }
+    </script>
+}

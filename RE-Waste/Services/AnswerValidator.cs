@@ -12,6 +12,8 @@ namespace RE_Waste.Services
         public const string RequiredMessage = "Please answer this question.";
         public const string NumberMessage = "Please enter a whole number between 0 and 30.";
         public const string ChoiceMessage = "Please choose one of the options.";
+        public const string TypeBrandMessage = "Please type your phone's brand.";
+        public const string TypeModelMessage = "Please type your phone's model.";
 
         // Number limits, also used by Step.cshtml so the browser and server checks always match
         public const int MinNumber = 0;
@@ -35,10 +37,7 @@ namespace RE_Waste.Services
 
                 // 3. Text: Brand up to 50 characters, Model up to 100
                 case AnswerType.Text:
-                    var max = MaxLength(question.DeviceField);
-                    if (value.Length > max)
-                        return $"That answer is too long (maximum {max} characters).";
-                    break;
+                    return ValidateText(value, MaxLength(question.DeviceField));
 
                 // 4. Choice: must equal the Value of one of the question's active options
                 case AnswerType.Choice:
@@ -46,6 +45,21 @@ namespace RE_Waste.Services
                         return ChoiceMessage;
                     break;
             }
+
+            return null;
+        }
+
+        // Checks a typed-in value: it is required and must fit in max characters.
+        // Also used for the brand and model boxes shown when the user picks "Other".
+        public static string? ValidateText(string? answer, int max, string requiredMessage = RequiredMessage)
+        {
+            var value = (answer ?? string.Empty).Trim();
+
+            if (value.Length == 0)
+                return requiredMessage;
+
+            if (value.Length > max)
+                return $"That answer is too long (maximum {max} characters).";
 
             return null;
         }
