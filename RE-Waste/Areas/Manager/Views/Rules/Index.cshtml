@@ -1,89 +1,126 @@
 ﻿@model IEnumerable<RE_Waste.Models.RecommendationRule>
+@using RE_Waste.Extensions
 @using RE_Waste.Models
 @using RE_Waste.Models.Enums
 
 @{
     ViewData["Title"] = "Recommendation Rules";
+
+    // "Any", "4–7", "8 or older" or "up to 3", from the rule's age range.
+    Func<int?, int?, string> ageText = (min, max) =>
+        min == null && max == null ? "Any"
+        : min != null && max != null ? $"{min}–{max}"
+        : min != null ? $"{min} or older"
+        : $"up to {max}";
+
+    // "Any", "Yes" or "No" for the optional yes/no conditions.
+    Func<bool?, string> yesNoAny = value =>
+        value == null ? "Any" : value.Value ? "Yes" : "No";
 }
 
-<h2>Recommendation Rules</h2>
+@* ====================================================================
+   RECOMMENDATION RULES (G3)
+   The list sits in a white panel. Styles: "MANAGER AREA" in site.css.
+   ==================================================================== *@
+<div class="manager">
 
-<p>
-    <a asp-area="Manager" asp-controller="Rules"
-       asp-action="Create" class="btn btn-primary">
-        Add New Rule
+    <a class="manager-back"
+       asp-area="Manager"
+       asp-controller="Manager"
+       asp-action="Index">
+        Back to dashboard
     </a>
-</p>
 
-<div class="table-responsive">
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Priority</th>
-                <th>Name</th>
-                <th>Route</th>
-                <th>Applies When</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var rule in Model)
-            {
-                <tr>
-                    <td>@rule.Priority</td>
-                    <td>@rule.Name</td>
-                    <td>@rule.Route</td>
-                    <td>
-                        @(rule.Condition?.ToString() ?? "Any condition"),
-                        age @(rule.MinAgeInYears?.ToString() ?? "Any")
-                        to @(rule.MaxAgeInYears?.ToString() ?? "Any")
-                        <div>
-                            Personal data:
-                            @(rule.HasPersonalData == null ? "Any" :
-                                                    rule.HasPersonalData.Value ? "Yes" : "No")
-                                                                                          </div>
-                                                                                          <div>
-                                                                                              Battery damage:
-                            @(rule.HasBatteryDamage == null ? "Any" :
-                                                    rule.HasBatteryDamage.Value ? "Yes" : "No")
-                    </div>
-                </td>
-                <td>
-                    @if (rule.IsActive)
-                        {
-                            <span class="badge bg-success">Active</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Inactive</span>
-                        }
-                    </td>
-                    <td>
-                        <a asp-area="Manager"
-                           asp-controller="Rules"
-                           asp-action="Edit"
-                           asp-route-id="@rule.Id"
-                           class="btn btn-sm btn-primary">
-                            Edit
-                        </a>
+    <h1>Recommendation rules</h1>
 
-                        <form asp-area="Manager"
-                              asp-controller="Rules"
-                              asp-action="ToggleActive"
-                              asp-route-id="@rule.Id"
-                              method="post"
-                              class="d-inline">
-                            @Html.AntiForgeryToken()
+    <p class="manager-intro">
+        Higher priority wins. A damaged battery always recommends Recycle.
+    </p>
 
-                            <button type="submit"
-                                    class="btn btn-sm btn-warning">
-                                @(rule.IsActive ? "Deactivate" : "Activate")
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="manager-toolbar">
+        <a asp-area="Manager"
+           asp-controller="Rules"
+           asp-action="Create"
+           class="button">
+            Add new rule
+        </a>
+    </div>
+
+    <div class="manager-panel">
+
+        @* Scrolls sideways inside the panel on narrow screens, not the whole page. *@
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0 manager-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Route</th>
+                        <th scope="col">Applies when</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rule in Model)
+                    {
+                        <tr class="@(rule.IsActive ? "" : "is-inactive")">
+                            <td>@rule.Priority</td>
+                            <td class="fw-semibold">@rule.Name</td>
+                            <td>@rule.Route.ToDisplayName()</td>
+
+                            @* Every condition the rule checks; "Any" means it isn't checked. *@
+                            <td>
+                                <ul class="list-unstyled mb-0 small">
+                                    <li>Condition: @(rule.Condition?.ToDisplayName() ?? "Any")</li>
+                                    <li>Age: @ageText(rule.MinAgeInYears, rule.MaxAgeInYears)</li>
+                                    <li>Personal data: @yesNoAny(rule.HasPersonalData)</li>
+                                    <li>Battery damage: @yesNoAny(rule.HasBatteryDamage)</li>
+                                </ul>
+                            </td>
+
+                            <td>
+                                @if (rule.IsActive)
+                                {
+                                    <span class="badge rw-badge-active">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rw-badge-inactive">Inactive</span>
+                                }
+                            </td>
+
+                            @* Edit, then switch the rule on or off. *@
+                            <td>
+                                <div class="manager-actions">
+                                    <a asp-area="Manager"
+                                       asp-controller="Rules"
+                                       asp-action="Edit"
+                                       asp-route-id="@rule.Id"
+                                       class="button-secondary button-small">
+                                        Edit<span class="visually-hidden"> @rule.Name</span>
+                                    </a>
+
+                                    <form asp-area="Manager"
+                                          asp-controller="Rules"
+                                          asp-action="ToggleActive"
+                                          asp-route-id="@rule.Id"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="@(rule.IsActive ? "button-danger" : "button") button-small">
+                                            @(rule.IsActive ? "Deactivate" : "Activate")<span class="visually-hidden"> @rule.Name</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 </div>

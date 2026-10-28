@@ -6,70 +6,92 @@
     ViewData["Title"] = "Create Answer Option";
 }
 
-<h1>Create Answer Option</h1>
+@* ====================================================================
+   CREATE ANSWER OPTION (G4)
+   One-column form in a white panel. Styles: "MANAGER AREA" in site.css.
+   ==================================================================== *@
+<div class="manager">
 
-<p>
-    <strong>Question:</strong> @ViewBag.QuestionText
-</p>
-
-<hr />
-
-<form asp-area="Manager"
-      asp-controller="Questions"
-      asp-action="CreateOption"
-      asp-route-questionId="@Model.QuestionId"
-      method="post">
-
-    @Html.AntiForgeryToken()
-
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-    <div class="mb-3">
-        <label asp-for="Text" class="form-label">Option text</label>
-        <input asp-for="Text"
-               class="form-control"
-               maxlength="100"
-               required />
-        <span asp-validation-for="Text" class="text-danger"></span>
-        <div class="form-text">
-            The text displayed to the customer, e.g. Yes.
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Value" class="form-label">Stored value</label>
-        <input asp-for="Value"
-               class="form-control"
-               maxlength="50"
-               required />
-        <span asp-validation-for="Value" class="text-danger"></span>
-        <div class="form-text">
-            The value saved when this option is selected, e.g. yes.
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DisplayOrder" class="form-label">Display order</label>
-        <input asp-for="DisplayOrder"
-               class="form-control"
-               type="number"
-               min="1"
-               required />
-        <span asp-validation-for="DisplayOrder" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-        Create Option
-    </button>
-
-    <a asp-area="Manager"
+    <a class="manager-back"
+       asp-area="Manager"
        asp-controller="Questions"
        asp-action="Edit"
-       asp-route-id="@Model.QuestionId"
-       class="btn btn-secondary">
-        Cancel
+       asp-route-id="@Model.QuestionId">
+        Back to the question
     </a>
-</form>
+
+    <h1>Create answer option</h1>
+
+    <p class="manager-intro">
+        <strong>Question:</strong> @ViewBag.QuestionText
+    </p>
+
+    <div class="manager-panel manager-panel-narrow">
+
+        <form asp-area="Manager"
+              asp-controller="Questions"
+              asp-action="CreateOption"
+              asp-route-questionId="@Model.QuestionId"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Text" class="form-label">Option text</label>
+                <input asp-for="Text"
+                       class="form-control"
+                       maxlength="100"
+                       aria-describedby="textHelp"
+                       required />
+                <span asp-validation-for="Text" class="text-danger"></span>
+                <div id="textHelp" class="form-text">
+                    The text displayed to the customer, e.g. Yes.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Value" class="form-label">Stored value</label>
+                <input asp-for="Value"
+                       class="form-control"
+                       maxlength="50"
+                       aria-describedby="valueHelp"
+                       required />
+                <span asp-validation-for="Value" class="text-danger"></span>
+                <div id="valueHelp" class="form-text">
+                    The value saved when this option is selected, e.g. yes.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DisplayOrder" class="form-label">Display order</label>
+                <input asp-for="DisplayOrder"
+                       class="form-control"
+                       type="number"
+                       min="1"
+                       required />
+                <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+            </div>
+
+            @* Save first; Cancel goes back to the question without saving. *@
+            <div class="manager-form-actions">
+                <button type="submit" class="button">
+                    Create option
+                </button>
+
+                <a asp-area="Manager"
+                   asp-controller="Questions"
+                   asp-action="Edit"
+                   asp-route-id="@Model.QuestionId"
+                   class="button-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -1,0 +1,111 @@
+@model RE_Waste.Models.DropOffPointModel
+@using RE_Waste.Extensions
+
+@{
+    ViewData["Title"] = "Add Drop-Off Point";
+}
+
+@* ====================================================================
+   ADD DROP-OFF POINT (G2)
+   One-column form in a white panel, the same as Edit. The controller
+   looks up latitude and longitude from the postcode (R3) and always
+   saves a new point as active, so there's no Active checkbox here.
+   Styles: "MANAGER AREA" in site.css.
+   ==================================================================== *@
+<div class="manager">
+
+    <a class="manager-back"
+       asp-area="Manager"
+       asp-controller="DropOffPoints"
+       asp-action="Index">
+        Back to drop-off points
+    </a>
+
+    <h1>Add drop-off point</h1>
+
+    <div class="manager-panel manager-panel-narrow">
+
+        <form asp-area="Manager"
+              asp-controller="DropOffPoints"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Postcode" class="form-label"></label>
+                <input asp-for="Postcode"
+                       class="form-control"
+                       maxlength="8"
+                       autocomplete="off"
+                       aria-describedby="postcodeHelp" />
+                <span asp-validation-for="Postcode" class="text-danger"></span>
+                <div id="postcodeHelp" class="form-text">
+                    We use the postcode to put the point on the map.
+                </div>
+            </div>
+
+            @* A drop-down, so the type can't be mistyped. It starts empty and is
+               required, so a new point never gets a type by accident. *@
+            <div class="mb-3">
+                <label asp-for="PointType" class="form-label">Type</label>
+                <select asp-for="PointType"
+                        asp-items="DisplayNameSelectLists.PointTypes()"
+                        class="form-select"
+                        required>
+                    <option value="">Choose a type</option>
+                </select>
+                <span asp-validation-for="PointType" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="OpeningHours" class="form-label">Opening hours (optional)</label>
+                <input asp-for="OpeningHours" class="form-control" />
+                <span asp-validation-for="OpeningHours" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Website" class="form-label">Website (optional)</label>
+                <input asp-for="Website" class="form-control" />
+                <span asp-validation-for="Website" class="text-danger"></span>
+            </div>
+
+            @* Save first; Cancel goes back to the list without saving. *@
+            <div class="manager-form-actions">
+                <button type="submit" class="button">
+                    Add drop-off point
+                </button>
+
+                <a asp-area="Manager"
+                   asp-controller="DropOffPoints"
+                   asp-action="Index"
+                   class="button-secondary">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

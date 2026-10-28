@@ -82,6 +82,33 @@ button:hover {
         color: var(--rw-lavender);
     }
 
+/* Danger button: white with maroon text and border (10.9 : 1), for actions
+   that take something away, e.g. Deactivate. Hover fills it maroon. */
+.button-danger {
+    display: inline-block;
+    background-color: #fff;
+    color: var(--rw-maroon);
+    border: 2px solid var(--rw-maroon);
+    padding: .5rem 1.5rem;
+    border-radius: var(--rw-radius);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .15s, color .15s;
+}
+
+    .button-danger:hover {
+        background-color: var(--rw-maroon);
+        color: var(--rw-lavender);
+    }
+
+/* Smaller size for buttons inside table rows. Add next to .button,
+   .button-secondary or .button-danger (it comes after them, so it wins). */
+.button-small {
+    padding: .3rem .9rem;
+    font-size: .9rem;
+}
+
 /*This underlines the headings of pages.*/
 h1 {
     display: inline-block;
@@ -231,32 +258,17 @@ h1 {
     color: #495057; /* dark grey, readable on the white inputs */
 }
 
-/*Buttons for Drop-Off Points Manager View*/
-/*Can probably be reused elsewhere later*/
-
-.btn-rw-edit {
-    background-color: var(--rw-dark-green) !important;
-    color: var(--rw-lavender);
-}
-
-.btn-rw-activate {
-    background-color: var(--rw-green) !important;
-    color: var(--rw-lavender);
-}
-
-.btn-rw-deactivate {
-    background-color: var(--rw-maroon) !important;
-    color: var(--rw-lavender);
-}
-/* Status badges */
+/* Status badges (manager tables). Same two light tints as the wizard:
+   Active = pale green with dark green text (10.4 : 1),
+   Inactive = pale grey with dark grey text (5.7 : 1). */
 .rw-badge-active {
-    background-color: var(--rw-green) !important;
-    color: var(--rw-lavender) !important;
+    background-color: #d9efe9 !important;
+    color: var(--rw-dark-green) !important;
 }
 
 .rw-badge-inactive {
-    background-color: var(--rw-maroon) !important;
-    color: var(--rw-lavender) !important;
+    background-color: #e9ecef !important;
+    color: #595f65 !important;
 }
 
 /* ==========================================================================
@@ -264,6 +276,8 @@ h1 {
    A white "question card" with a green top edge on the blue page, with big
    easy targets. Used by every page under Views/Wizard. Only two new colours:
    the pale grey track (#e9ecef) and the pale green "chosen" tint (#d9efe9).
+   The field, label, focus and table rules also list .manager-panel, so the
+   manager area (MANAGER AREA section below) shares them.
    ========================================================================== */
 
 /* One centred column. Nearly full width on phones (the layout's container
@@ -367,7 +381,9 @@ h1 {
    16 px or more so iPhones don't zoom in. The Tom Select wrapper also has
    .form-select, so the model search box matches; its drop-down list doesn't. */
 .wizard-card .form-control,
-.wizard-card .form-select:not(.ts-dropdown) {
+.wizard-card .form-select:not(.ts-dropdown),
+.manager-panel .form-control,
+.manager-panel .form-select {
     min-height: 48px;
     border: 2px solid #8a8f94;
     border-radius: 8px;
@@ -378,7 +394,9 @@ h1 {
     /* Focused: dark green border; the outline below shows focus, not a glow. */
     .wizard-card .form-control:focus,
     .wizard-card .form-select:focus,
-    .wizard-card .ts-wrapper.focus {
+    .wizard-card .ts-wrapper.focus,
+    .manager-panel .form-control:focus,
+    .manager-panel .form-select:focus {
         border-color: var(--rw-dark-green);
         box-shadow: none;
     }
@@ -389,8 +407,9 @@ h1 {
     font-size: 1.15rem;
 }
 
-/* Labels for the extra boxes (typed brand or model). */
-.wizard-card .form-label {
+/* Labels for the extra boxes (typed brand or model) and manager forms. */
+.wizard-card .form-label,
+.manager-panel .form-label {
     font-weight: 600;
 }
 
@@ -554,8 +573,9 @@ h1 {
 
 /* ---------- Focus ---------- */
 
-/* Inside the card: 3 px dark green outline, 2 px offset. */
-.wizard-card :focus-visible {
+/* Inside the card or a manager panel: 3 px dark green outline, 2 px offset. */
+.wizard-card :focus-visible,
+.manager-panel :focus-visible {
     outline: 3px solid var(--rw-dark-green);
     outline-offset: 2px;
 }
@@ -572,7 +592,8 @@ h1 {
 
 /* ---------- Review table (finish page) ---------- */
 
-.wizard-card .table {
+.wizard-card .table,
+.manager-panel .table {
     color: #212529;
 }
 
@@ -580,3 +601,164 @@ h1 {
     color: var(--rw-dark-green);
     font-weight: 600;
 }
+
+/* ==========================================================================
+   MANAGER AREA
+   Same look as the wizard: the page heading and intro sit on the blue page,
+   and tables and forms sit in white panels with a green top edge and dark
+   text. Fields, labels, focus and tables come from the WIZARD section above.
+   ========================================================================== */
+
+.manager {
+    padding-top: 1rem;
+}
+
+/* "Back to dashboard" link above the heading: lavender on blue. A block of its
+   own width, so it sits on its own line (the site's h1 is inline-block). */
+.manager-back {
+    display: block;
+    width: fit-content;
+    margin-bottom: .75rem;
+    color: var(--rw-lavender);
+    text-decoration: underline;
+}
+
+    .manager-back:hover {
+        color: #fff;
+    }
+
+/* Intro under the heading: a readable line length. */
+.manager-intro {
+    max-width: 45rem;
+}
+
+/* Page actions above the panel, e.g. "Add new rule". */
+.manager-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin: 1rem 0;
+}
+
+/* ---------- Panels ---------- */
+
+/* The light surface for tables and forms; same as the wizard card. */
+.manager-panel {
+    background-color: #fff;
+    color: #212529;
+    border-top: 6px solid var(--rw-green);
+    border-radius: var(--rw-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+    padding: 20px;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 576px) {
+    .manager-panel {
+        padding: 32px;
+    }
+}
+
+/* Form pages: one readable column instead of the full page width. */
+.manager-panel-narrow {
+    max-width: 44rem;
+}
+
+/* Headings inside a panel: dark green, no underline (the green edge does that). */
+.manager-panel h2 {
+    display: block;
+    border: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--rw-dark-green);
+}
+
+/* Small grey help text under a field (6.5 : 1). */
+.manager-panel .form-text {
+    color: #595f65;
+}
+
+/* Checkbox (e.g. Active): a little bigger, dark green when ticked. */
+.manager-panel .form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: .15rem;
+    border: 2px solid #8a8f94;
+}
+
+    .manager-panel .form-check-input:checked {
+        background-color: var(--rw-dark-green);
+        border-color: var(--rw-dark-green);
+    }
+
+.manager-panel .form-check-label {
+    font-weight: 600;
+    margin-left: .25rem;
+}
+
+/* Validation messages: dark red and bold (6.5 : 1), with a red field border. */
+.manager-panel .text-danger {
+    color: #b02a37 !important;
+    font-weight: 700;
+}
+
+.manager-panel .input-validation-error {
+    border-color: #b02a37;
+}
+
+/* Save / Cancel row under a form. */
+.manager-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.5rem;
+}
+
+/* ---------- Tables ---------- */
+
+/* Dark green headings; a 2 px line under the header row. */
+.manager-table th {
+    color: var(--rw-dark-green);
+    white-space: nowrap;
+    border-bottom-width: 2px;
+}
+
+/* Inactive rows: dark grey text, still readable (6.5 : 1). */
+.manager-table tr.is-inactive td {
+    color: #595f65;
+}
+
+/* Edit / Deactivate / Move buttons in a row: side by side, wrapping if needed. */
+.manager-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+    .manager-actions form {
+        margin: 0;
+    }
+
+/* ---------- Dashboard ---------- */
+
+/* One card per section: one column on phones, side by side when there's room. */
+.manager-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+/* A panel that lays out its text and keeps the button at the bottom. */
+.manager-card {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+}
+
+    .manager-card p {
+        flex-grow: 1;
+    }
+
+    .manager-card .button {
+        align-self: flex-start;
+    }
