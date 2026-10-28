@@ -1,0 +1,38 @@
+@using RE_Waste.Extensions
+@model RE_Waste.Models.SavedResponse
+
+@{
+    ViewData["Title"] = "Delete saved result";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+        @* ================================================================
+           CONFIRM DELETE (U6)
+           Deleting only happens through the POST form below.
+           ================================================================ *@
+        <div class="card bg-white shadow-sm p-4 text-dark" data-bs-theme="light">
+            <h1 class="h4 mb-3 text-break">Delete your saved result for @Model.Brand @Model.Model?</h1>
+
+            <p class="mb-1">Saved on @Model.CreatedAt.ToString("dd MMM yyyy")</p>
+            <p class="mb-3">Top recommendation: <strong>@Model.Route1.ToDisplayName()</strong></p>
+            <p class="mb-4">This can't be undone.</p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <form asp-action="DeleteConfirmed"
+                      asp-route-id="@Model.Id"
+                      method="post"
+                      class="m-0">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" class="btn btn-danger">Yes, delete</button>
+                </form>
+
+                <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+            </div>
+        </div>
+
+    </div>
+</div>

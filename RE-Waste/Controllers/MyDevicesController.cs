@@ -82,6 +82,42 @@ namespace RE_Waste.Controllers
             });
         }
 
+        // U6: asks the user to confirm before deleting one of their saved results. Never deletes anything itself.
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            // Owner check: the row must belong to the logged-in user, otherwise it "doesn't exist"
+            var saved = await _context.SavedResponses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
+
+            if (saved == null)
+                return NotFound();
+
+            return View(saved);
+        }
+
+        // U6: deletes the saved result after "Yes, delete". Only ever through POST.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Same owner check as Delete, so another user's id can't be deleted by posting it directly
+            var saved = await _context.SavedResponses
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
+
+            if (saved == null)
+                return NotFound();
+
+            _context.SavedResponses.Remove(saved);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Saved result deleted.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
