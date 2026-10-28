@@ -1,0 +1,125 @@
+@using RE_Waste.Extensions
+@model RE_Waste.ViewModels.SavedResponseDetailsViewModel
+
+@{
+    ViewData["Title"] = "Saved result";
+    var saved = Model.Saved;
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+        <h1 class="h3 mb-3 text-break">@saved.Brand @saved.Model</h1>
+
+        @* ================================================================
+           PHONE DETAILS
+           What the user told the wizard, in plain words.
+           ================================================================ *@
+        <div class="card shadow-sm p-3 mb-3 text-dark" data-bs-theme="light">
+            <h2 class="h5 mb-3">Phone details</h2>
+
+            <dl class="row mb-0">
+                <dt class="col-6 col-sm-4">Brand</dt>
+                <dd class="col-6 col-sm-8">@saved.Brand</dd>
+
+                <dt class="col-6 col-sm-4">Model</dt>
+                <dd class="col-6 col-sm-8 text-break">@saved.Model</dd>
+
+                <dt class="col-6 col-sm-4">Age</dt>
+                <dd class="col-6 col-sm-8">@saved.AgeInYears @(saved.AgeInYears == 1 ? "year" : "years")</dd>
+
+                <dt class="col-6 col-sm-4">Condition</dt>
+                <dd class="col-6 col-sm-8">@saved.Condition.ToDisplayName()</dd>
+
+                <dt class="col-6 col-sm-4">Personal data</dt>
+                <dd class="col-6 col-sm-8">@(saved.HasPersonalData ? "Yes" : "No")</dd>
+
+                <dt class="col-6 col-sm-4">Battery damage</dt>
+                <dd class="col-6 col-sm-8">@(saved.HasBatteryDamage ? "Yes" : "No")</dd>
+
+                <dt class="col-6 col-sm-4">Saved on</dt>
+                <dd class="col-6 col-sm-8">@saved.CreatedAt.ToString("dd MMM yyyy")</dd>
+
+                <dt class="col-6 col-sm-4">Postcode area</dt>
+                <dd class="col-6 col-sm-8 mb-0">@saved.PostcodeDistrict</dd>
+            </dl>
+        </div>
+
+        @* ================================================================
+           LOCATION NOTE
+           Saved results keep only the district, so distances are approximate.
+           ================================================================ *@
+        @if (Model.LocationFound)
+        {
+            <p class="text-muted small">Distances are measured from the middle of your postcode area.</p>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="status">
+                We could not look up places near @saved.PostcodeDistrict right now.
+            </div>
+        }
+
+        @* ================================================================
+           ROUTES
+           One card per saved route: name, reason and nearby places.
+           ================================================================ *@
+        @for (var i = 0; i < Model.Routes.Count; i++)
+        {
+            var route = Model.Routes[i];
+
+            <div class="card shadow-sm p-3 mb-3 text-dark" data-bs-theme="light">
+                <p class="text-muted small mb-1">@(i == 0 ? "Top recommendation" : "Option " + (i + 1))</p>
+                <h2 class="h5 mb-2">@route.Route.ToDisplayName()</h2>
+                <p>@route.Reason</p>
+
+                @if (Model.LocationFound)
+                {
+                    <h3 class="h6">Nearby places</h3>
+
+                    @if (route.Places.Count == 0)
+                    {
+                        <p class="mb-0">No places found for this route yet.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var place in route.Places)
+                            {
+                                <li class="border-top pt-2 mt-2">
+                                    <strong>@place.Point.Name</strong>
+                                    <div class="text-muted small">@place.DistanceKm.ToString("0.0") km away</div>
+                                    <div class="text-break">@place.Point.Address, @place.Point.Postcode</div>
+
+                                    @if (!string.IsNullOrWhiteSpace(place.Point.OpeningHours))
+                                    {
+                                        <div class="small text-break">Opening hours: @place.Point.OpeningHours</div>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(place.Point.Website))
+                                    {
+                                        <a href="@place.Point.Website" target="_blank" rel="noopener">
+                                            Website<span class="visually-hidden"> for @place.Point.Name (opens in a new tab)</span>
+                                        </a>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                }
+            </div>
+        }
+
+        @* ================================================================
+           BUTTONS
+           ================================================================ *@
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <a class="btn btn-outline-secondary" asp-action="Index">Back to My devices</a>
+
+            @* U6: turn this on once U6 has merged (check its action name first)
+            <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@saved.Id">Delete</a>
+            *@
+        </div>
+
+    </div>
+</div>

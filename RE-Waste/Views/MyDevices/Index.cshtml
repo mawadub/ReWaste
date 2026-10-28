@@ -26,7 +26,8 @@
                     <h2 class="h5 mb-1">@item.Brand @item.Model</h2>
                     <p class="mb-1">Saved on @item.CreatedAt.ToString("dd MMM yyyy")</p>
                     <p class="mb-0">Top recommendation: <strong>@item.Route1.ToDisplayName()</strong></p>
-                    @* View (U5) and Delete (U6) buttons go here once those cards are merged *@
+                    <a class="btn btn-outline-primary btn-sm mt-2" asp-action="Details" asp-route-id="@item.Id">View</a>
+                    @* Delete (U6) button goes here once that card is merged *@
                 </div>
             }
         }
