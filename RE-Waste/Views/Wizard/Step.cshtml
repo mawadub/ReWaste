@@ -2,6 +2,7 @@
 
 @using RE_Waste.Models.Enums
 @using RE_Waste.Models
+@using RE_Waste.Services
 
 @{
     ViewData["Title"] = "Wizard";
@@ -10,6 +11,14 @@
     var totalSteps = (int)ViewBag.TotalSteps;
     var isLast = (bool)ViewBag.IsLast;
     var currentAnswer = ViewBag.CurrentAnswer?.ToString() ?? "";
+
+    // W5: the server's error message, if the last answer was refused.
+    var error = ViewBag.ErrorMessage as string;
+    var invalidClass = error != null ? "is-invalid" : "";
+
+    // A null value makes Razor leave the attribute out completely.
+    string? describedBy = error != null ? "answerError" : null;
+    string? ariaInvalid = error != null ? "true" : null;
 
     // Store hints by DeviceField so question wording can change safely.
     var hints = new Dictionary<DeviceField, string>
@@ -58,13 +67,15 @@
                 @Html.AntiForgeryToken()
 
                 @* ====================================================
-                 BRAND
-                 Show a drop-down when the current field is Brand.
-                 ==================================================== *@
+                   BRAND
+                   Show a drop-down when the current field is Brand.
+                   ==================================================== *@
                 @if (Model.DeviceField == DeviceField.Brand)
                 {
-                    <select class="form-select"
+                    <select class="form-select @invalidClass"
                             name="answer"
+                            aria-describedby="@describedBy"
+                            aria-invalid="@ariaInvalid"
                             required>
                         <option value="">Select a brand</option>
 
@@ -79,51 +90,57 @@
                 }
 
                 @* ====================================================
-                MODEL
-                Limit the model name to 100 characters.
-                ==================================================== *@
+                   MODEL
+                   Limit the model name to 100 characters.
+                   ==================================================== *@
                 else if (Model.DeviceField == DeviceField.Model)
                 {
-                    <input class="form-control"
+                    <input class="form-control @invalidClass"
                            type="text"
                            name="answer"
-                           maxlength="100"
+                           maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
                            placeholder="iPhone 11"
                            value="@currentAnswer"
+                           aria-describedby="@describedBy"
+                           aria-invalid="@ariaInvalid"
                            required />
                 }
 
                 @* ====================================================
-                AGE
-                Allow a whole number between 0 and 30.
-                ==================================================== *@
+                   AGE
+                   Allow a whole number between 0 and 30.
+                   ==================================================== *@
                 else if (Model.DeviceField == DeviceField.AgeInYears)
                 {
-                    <input class="form-control"
+                    <input class="form-control @invalidClass"
                            type="number"
                            name="answer"
-                           min="0"
-                           max="30"
+                           min="@AnswerValidator.MinNumber"
+                           max="@AnswerValidator.MaxNumber"
                            step="1"
                            value="@currentAnswer"
+                           aria-describedby="@describedBy"
+                           aria-invalid="@ariaInvalid"
                            required />
                 }
 
                 @* ====================================================
-                OTHER CHOICE QUESTIONS
-                Keep the existing radio-button behaviour.
-                ==================================================== *@
+                   OTHER CHOICE QUESTIONS
+                   Keep the existing radio-button behaviour.
+                   ==================================================== *@
                 else if (Model.AnswerType == AnswerType.Choice)
                 {
                     @foreach (var option in Model.Options)
                     {
                         <div class="form-check mb-3">
-                            <input class="form-check-input"
+                            <input class="form-check-input @invalidClass"
                                    type="radio"
                                    name="answer"
                                    id="option_@option.Id"
                                    value="@option.Value"
                                    checked="@(currentAnswer == option.Value)"
+                                   aria-describedby="@describedBy"
+                                   aria-invalid="@ariaInvalid"
                                    required />
 
                             <label class="form-check-label"
@@ -137,22 +154,40 @@
                 @* Keep the generic number input for other number questions. *@
                 else if (Model.AnswerType == AnswerType.Number)
                 {
-                    <input class="form-control"
+                    <input class="form-control @invalidClass"
                            type="number"
                            name="answer"
-                           min="0"
+                           min="@AnswerValidator.MinNumber"
+                           max="@AnswerValidator.MaxNumber"
+                           step="1"
                            value="@currentAnswer"
+                           aria-describedby="@describedBy"
+                           aria-invalid="@ariaInvalid"
                            required />
                 }
 
                 @* Keep the generic text input for other text questions. *@
                 else if (Model.AnswerType == AnswerType.Text)
                 {
-                    <input class="form-control"
+                    <input class="form-control @invalidClass"
                            type="text"
                            name="answer"
+                           maxlength="@AnswerValidator.MaxLength(Model.DeviceField)"
                            value="@currentAnswer"
+                           aria-describedby="@describedBy"
+                           aria-invalid="@ariaInvalid"
                            required />
+                }
+
+                @* ====================================================
+                   ERROR MESSAGE (W5)
+                   Shown when the server refused the answer.
+                   ==================================================== *@
+                @if (error != null)
+                {
+                    <div id="answerError" class="invalid-feedback d-block" role="alert">
+                        @error
+                    </div>
                 }
 
                 @* ====================================================
