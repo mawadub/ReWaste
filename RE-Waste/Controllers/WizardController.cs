@@ -7,24 +7,14 @@ using RE_Waste.Models.Enums;
 using RE_Waste.Services;
 using RE_Waste.ViewModels;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization; // V1: [Authorize] on Save
+using System.Security.Claims;             // V1: ClaimTypes.NameIdentifier (the logged-in user's id)
+
 
 namespace RE_Waste.Controllers
 {
     public class WizardController : Controller
     {
-        // ====================================================================
-        // HARD-CODED STEPS
-        // Until W2 is ready, we hard-code the order of questions here.
-        // ====================================================================
-        private static readonly DeviceField[] Steps =
-        {
-            DeviceField.Brand,
-            DeviceField.Model,
-            DeviceField.AgeInYears,
-            DeviceField.Condition,
-            DeviceField.HasPersonalData,
-            DeviceField.HasBatteryDamage
-        };
 
         // ====================================================================
         // ACTION: START
@@ -538,7 +528,7 @@ namespace RE_Waste.Controllers
             return RedirectToAction(nameof(Results));
         }
 
-        
+
         // ====================================================================
         // ACTION: RESULTS (R6)
         // The real results page: each route with its reason and the nearest
@@ -587,6 +577,95 @@ namespace RE_Waste.Controllers
 
             return View("Results", model);
         }
+
+        
+        // ====================================================================
+        // ACTION: SAVE (V1)
+        // Stores the result shown on the Results page in SavedResponses, so
+        // the user can find it again in My devices (U4/U5) and delete it (U6).
+        // Logged-in users only. The form sends nothing except the anti-forgery
+        // token: the result comes from the session and the user id from the
+        // login cookie, so nobody can save to someone else's account.
+        // ====================================================================
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Save()
+        {
+            var result = HttpContext.Session.GetResultState(); // The result R6 stored.
+
+            // Nothing to save (the session expired or the user restarted): start again.
+            // Routes is never empty in practice (the engine falls back to Recycle),
+            // but Route1 is required, so check anyway.
+            if (result == null || result.Routes.Count == 0)
+                return RedirectToAction(nameof(Start));
+
+            // The id of the logged-in user, from their login cookie, never from the form.
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // [Authorize] means this can't happen, but never save a row with no owner.
+            if (string.IsNullOrEmpty(userId))
+                return Challenge(); // Sends the user to the login page.
+
+            var routes = result.Routes; // Best first, up to three.
+
+            var saved = new SavedResponse
+            {
+                // a. A copy of the phone, as the engine saw it.
+                Brand = result.Device.Brand,
+                Model = result.Device.Model,
+                AgeInYears = result.Device.AgeInYears,
+                Condition = result.Device.Condition,
+                HasPersonalData = result.Device.HasPersonalData,
+                HasBatteryDamage = result.Device.HasBatteryDamage,
+
+                // b. Privacy: only the district (e.g. "EH1"), never the full postcode.
+                PostcodeDistrict = ToPostcodeDistrict(result.Postcode),
+
+                // c. The routes and reasons, word for word. Route 1 always exists;
+                //    2 and 3 stay null when the engine returned fewer routes.
+                Route1 = routes[0].Route,
+                Reason1 = routes[0].Reason,
+                Route2 = routes.Count > 1 ? routes[1].Route : (RouteType?)null,
+                Reason2 = routes.Count > 1 ? routes[1].Reason : null,
+                Route3 = routes.Count > 2 ? routes[2].Route : (RouteType?)null,
+                Reason3 = routes.Count > 2 ? routes[2].Reason : null,
+
+                // d. When and by whom.
+                CreatedAt = DateTime.UtcNow, // UTC in the database; the page can show local time.
+                UserId = userId
+            };
+
+            _context.SavedResponses.Add(saved);  // Queue the new row...
+            await _context.SaveChangesAsync();   // ...and write it to the database.
+
+            // My devices (U6) already shows TempData["Message"] as a green alert.
+            TempData["Message"] = "Result saved.";
+
+            return RedirectToAction("Index", "MyDevices");
+        }
+
+        // ====================================================================
+        // HELPER: POSTCODE DISTRICT (V1)
+        // "EH1 2NG" -> "EH1", "eh12ng" -> "EH1", "EC1A 1BB" -> "EC1A".
+        // A full UK postcode always ends with a 3-character inward code
+        // (e.g. "2NG"), and the district is everything before it. Cutting
+        // that off works whether or not the user typed the space. The result
+        // is never more than 4 characters, the column's limit.
+        // ====================================================================
+        private static string ToPostcodeDistrict(string postcode)
+        {
+            // Capitals, no spaces: "eh1 2ng" -> "EH12NG".
+            var compact = (postcode ?? string.Empty).Replace(" ", "").ToUpperInvariant();
+
+            // Long enough to be a full postcode: drop the last 3 characters.
+            // Shorter means it's already just a district (e.g. "EH1"), so keep it.
+            var district = compact.Length > 4 ? compact[..^3] : compact;
+
+            // Never more than 4 characters, so the full postcode can't slip through.
+            return district.Length > 4 ? district[..4] : district;
+        }
+
 
 
 

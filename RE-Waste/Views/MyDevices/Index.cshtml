@@ -5,41 +5,77 @@
     ViewData["Title"] = "My devices";
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-lg-8">
-        <h1 class="h3 mb-3">My devices</h1>
+@* ====================================================================
+   MY DEVICES (U4, styled to match the wizard and results pages)
+   Heading on the blue page, then one white card per saved result.
+   Styles: "WIZARD", "MANAGER AREA", "RESULTS (R6)" and "MY DEVICES"
+   in site.css.
+   ==================================================================== *@
+<div class="wizard">
 
-        @* U6: confirmation after a delete, e.g. "Saved result deleted." *@
-        @if (TempData["Message"] is string message)
-        {
-            <div class="alert alert-success" role="status">@message</div>
-        }
+    <h1>My devices</h1>
 
-        @if (Model.Count == 0)
-        {
-            <div class="card shadow-sm p-4 text-dark" data-bs-theme="light">
-                <p class="mb-3">You have not saved anything yet.</p>
-                <div>
-                    <a class="btn btn-primary" asp-controller="Wizard" asp-action="Start">Check a phone</a>
-                </div>
-            </div>
-        }
-        else
-        {
-            foreach (var item in Model)
+    <p class="manager-intro">
+        The results you've saved. Open one to see nearby places again, or delete it.
+    </p>
+
+    @* V1's "Result saved." or U6's "Saved result deleted." *@
+    @if (TempData["Message"] is string message)
+    {
+        <div class="alert alert-success" role="status">@message</div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        @* ---------- Nothing saved yet ---------- *@
+        <div class="wizard-card results-route">
+
+            @* Decorative, so the alt text is empty. *@
+            <img class="wizard-mascot" src="~/Images/mascot.png" alt="" />
+
+            <h2>Nothing saved yet</h2>
+
+            <p class="wizard-hint">
+                Check a phone, then press "Save this result" to keep it here.
+            </p>
+
+            <a class="button" asp-controller="Wizard" asp-action="Start">Check a phone</a>
+        </div>
+    }
+    else
+    {
+        @* Main action above the list, on the blue page (like "Add new rule" for managers). *@
+        <div class="manager-toolbar">
+            <a class="button" asp-controller="Wizard" asp-action="Start">Check another phone</a>
+        </div>
+
+        @* ---------- One card per saved result ---------- *@
+        <ul class="saved-list">
+            @foreach (var item in Model)
             {
-                <div class="card shadow-sm p-3 mb-3 text-dark" data-bs-theme="light">
-                    <h2 class="h5 mb-1">@item.Brand @item.Model</h2>
-                    <p class="mb-1">Saved on @item.CreatedAt.ToString("dd MMM yyyy")</p>
-                    <p class="mb-0">Top recommendation: <strong>@item.Route1.ToDisplayName()</strong></p>
-                    <div class="d-flex flex-wrap gap-2 mt-2">
-                        <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@item.Id">View</a>
-                        <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">
+                <li class="wizard-card results-route">
+
+                    <h2 class="text-break">@item.Brand @item.Model</h2>
+
+                    @* Date and district only; the full postcode is never stored (V1). *@
+                    <p class="saved-meta">
+                        Saved on @item.CreatedAt.ToString("dd MMM yyyy") · @item.PostcodeDistrict
+                    </p>
+
+                    @* Same pale-green label as "Best option" on the results page. *@
+                    <p>Top recommendation: <span class="results-best mb-0">@item.Route1.ToDisplayName()</span></p>
+
+                    @* The hidden text tells screen readers which phone each button is for. *@
+                    <div class="manager-actions">
+                        <a class="button button-small" asp-action="Details" asp-route-id="@item.Id">
+                            View<span class="visually-hidden"> @item.Brand @item.Model</span>
+                        </a>
+                        <a class="button-danger button-small" asp-action="Delete" asp-route-id="@item.Id">
                             Delete<span class="visually-hidden"> @item.Brand @item.Model</span>
                         </a>
                     </div>
-                </div>
+                </li>
             }
-        }
-    </div>
+        </ul>
+    }
 </div>
