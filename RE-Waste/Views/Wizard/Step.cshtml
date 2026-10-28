@@ -21,6 +21,10 @@
     // read out by screen readers. A null value makes Razor leave the attribute out.
     Func<string, string> invalidFor = field => error != null && errorField == field ? "is-invalid" : "";
     Func<string, string> describedFor = field => error != null && errorField == field ? "answerHint answerError" : "answerHint";
+    // Bootstrap and screen-reader attributes for the box with the error.
+    // A null value makes Razor leave the attribute out completely.
+    Func<string, string> invalidFor = field => error != null && errorField == field ? "is-invalid" : "";
+    Func<string, string?> describedFor = field => error != null && errorField == field ? "answerError" : null;
     Func<string, string?> ariaInvalidFor = field => error != null && errorField == field ? "true" : null;
 
     var invalidClass = invalidFor("answer");
@@ -148,6 +152,14 @@
                             class="form-select @invalidClass"
                             name="answer"
                             aria-labelledby="questionText"
+                @* ====================================================
+                   BRAND
+                   Show a drop-down when the current field is Brand.
+                   ==================================================== *@
+                @if (Model.DeviceField == DeviceField.Brand)
+                {
+                    <select class="form-select @invalidClass"
+                            name="answer"
                             aria-describedby="@describedBy"
                             aria-invalid="@ariaInvalid"
                             required>
@@ -205,6 +217,77 @@
                                aria-invalid="@(ariaInvalidFor("otherModel"))"
                                required />
                     </div>
+                @* ====================================================
+                   MODEL
+                   Searchable drop-down of models for the chosen brand,
+                   with a box for a model that isn't listed. When the
+                   brand was "Other", the user types brand and model.
+                   ==================================================== *@
+                else if (Model.DeviceField == DeviceField.Model)
+                {
+                    @if (brandListed)
+                    {
+                        <select id="modelSelect"
+                                class="form-select @invalidClass"
+                                name="answer"
+                                aria-describedby="@describedBy"
+                                aria-invalid="@ariaInvalid"
+                                required>
+                            <option value="">Search or select a model</option>
+
+                            @foreach (var m in modelOptions)
+                            {
+                                <option value="@m" selected="@(currentAnswer == m)">@m</option>
+                            }
+                        </select>
+
+                        @* Shown only when "Other / not listed" is chosen. A hidden box is
+                           disabled, so the browser doesn't check it and doesn't send it. *@
+                        <div id="otherModelBox" class="mt-3" hidden="@(!otherModelChosen)">
+                            <label for="otherModel" class="form-label">Type your phone's model</label>
+                            <input id="otherModel"
+                                   class="form-control @(invalidFor("otherModel"))"
+                                   type="text"
+                                   name="otherModel"
+                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
+                                   placeholder="For example Galaxy S7"
+                                   value="@otherModel"
+                                   aria-describedby="@(describedFor("otherModel"))"
+                                   aria-invalid="@(ariaInvalidFor("otherModel"))"
+                                   disabled="@(!otherModelChosen)"
+                                   required />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label for="otherBrand" class="form-label">Brand</label>
+                            <input id="otherBrand"
+                                   class="form-control @(invalidFor("otherBrand"))"
+                                   type="text"
+                                   name="otherBrand"
+                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Brand)"
+                                   placeholder="For example Fairphone"
+                                   value="@otherBrand"
+                                   aria-describedby="@(describedFor("otherBrand"))"
+                                   aria-invalid="@(ariaInvalidFor("otherBrand"))"
+                                   required />
+                        </div>
+
+                        <div>
+                            <label for="otherModel" class="form-label">Model</label>
+                            <input id="otherModel"
+                                   class="form-control @(invalidFor("otherModel"))"
+                                   type="text"
+                                   name="otherModel"
+                                   maxlength="@AnswerValidator.MaxLength(DeviceField.Model)"
+                                   placeholder="For example Fairphone 4"
+                                   value="@otherModel"
+                                   aria-describedby="@(describedFor("otherModel"))"
+                                   aria-invalid="@(ariaInvalidFor("otherModel"))"
+                                   required />
+                        </div>
+                    }
                 }
             }
 
@@ -281,11 +364,79 @@
                     {
                         <label class="wizard-tile" for="option_@option.Id">
                             <input class="@invalidClass"
+                @* ====================================================
+                   AGE
+                   For a model from the list, show the estimate from its
+                   release year with Agree / Enter yours. Otherwise, or
+                   after Enter yours, a whole number between 0 and 30.
+                   ==================================================== *@
+                else if (Model.DeviceField == DeviceField.AgeInYears)
+                {
+                    @if (estimatedAge != null)
+                    {
+                        <div class="border rounded p-3 mb-3">
+                            <p class="mb-0">
+                                The <strong>@phoneName</strong> came out in @releaseYear,
+                                so your phone is about
+                                <strong>@estimatedAge @(estimatedAge == 1 ? "year" : "years") old</strong>.
+                            </p>
+
+                            @* Removed by "Enter yours", so Enter in the number box
+                               submits the typed age, not this estimate. *@
+                            @if (!showOwnAge)
+                            {
+                                <div id="ageEstimateButtons" class="d-flex flex-wrap gap-2 mt-3">
+                                    <button type="submit"
+                                            name="answer"
+                                            value="@estimatedAge"
+                                            class="btn btn-primary">
+                                        Agree
+                                    </button>
+
+                                    <button type="button"
+                                            id="enterOwnAge"
+                                            class="btn btn-outline-secondary">
+                                        Enter yours
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div id="ownAge" hidden="@(!showOwnAge)">
+                        <input id="ageInput"
+                               class="form-control @invalidClass"
+                               type="number"
+                               name="answer"
+                               min="@AnswerValidator.MinNumber"
+                               max="@AnswerValidator.MaxNumber"
+                               step="1"
+                               value="@currentAnswer"
+                               aria-label="Age in years"
+                               aria-describedby="@describedBy"
+                               aria-invalid="@ariaInvalid"
+                               disabled="@(!showOwnAge)"
+                               required />
+                    </div>
+                }
+
+                @* ====================================================
+                   OTHER CHOICE QUESTIONS
+                   Keep the existing radio-button behaviour.
+                   ==================================================== *@
+                else if (Model.AnswerType == AnswerType.Choice)
+                {
+                    @foreach (var option in Model.Options)
+                    {
+                        <div class="form-check mb-3">
+                            <input class="form-check-input @invalidClass"
                                    type="radio"
                                    name="answer"
                                    id="option_@option.Id"
                                    value="@option.Value"
                                    checked="@(currentAnswer == option.Value)"
+                                   aria-describedby="@describedBy"
+                                   aria-invalid="@ariaInvalid"
                                    required />
                             <span>@option.Text</span>
                         </label>
@@ -308,6 +459,54 @@
                        aria-invalid="@ariaInvalid"
                        required />
             }
+                }
+
+                @* Keep the generic number input for other number questions. *@
+                else if (Model.AnswerType == AnswerType.Number)
+                {
+                    <input class="form-control @invalidClass"
+                           type="number"
+                           name="answer"
+                           min="@AnswerValidator.MinNumber"
+                           max="@AnswerValidator.MaxNumber"
+                           step="1"
+                           value="@currentAnswer"
+                           aria-describedby="@describedBy"
+                           aria-invalid="@ariaInvalid"
+                           required />
+                }
+
+                @* Keep the generic text input for other text questions. *@
+                else if (Model.AnswerType == AnswerType.Text)
+                {
+                    <input class="form-control @invalidClass"
+                           type="text"
+                           name="answer"
+                           maxlength="@AnswerValidator.MaxLength(Model.DeviceField)"
+                           value="@currentAnswer"
+                           aria-describedby="@describedBy"
+                           aria-invalid="@ariaInvalid"
+                           required />
+                }
+
+                @* ====================================================
+                   ERROR MESSAGE (W5)
+                   Shown when the server refused the answer.
+                   ==================================================== *@
+                @if (error != null)
+                {
+                    <div id="answerError" class="invalid-feedback d-block" role="alert">
+                        @error
+                    </div>
+                }
+
+                @* ====================================================
+                   NAVIGATION BUTTONS
+                   Show Back when available and change Next to Finish
+                   on the final question. Next is hidden while the age
+                   estimate offers Agree / Enter yours instead.
+                   ==================================================== *@
+                <div class="d-flex justify-content-between mt-4">
 
             @* Keep the generic text input for other text questions. *@
             else if (Model.AnswerType == AnswerType.Text)
@@ -331,6 +530,13 @@
             {
                 <div id="answerError" class="invalid-feedback d-block" role="alert">
                     @error
+                    @* Submit the answer and continue the wizard. *@
+                    <button type="submit"
+                            id="nextButton"
+                            class="btn btn-primary"
+                            hidden="@(Model.DeviceField == DeviceField.AgeInYears && !showOwnAge)">
+                        @(isLast ? "Finish" : "Next")
+                    </button>
                 </div>
             }
 
