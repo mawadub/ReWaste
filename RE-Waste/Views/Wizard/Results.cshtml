@@ -1,0 +1,135 @@
+@using RE_Waste.Extensions
+@model RE_Waste.ViewModels.ResultsViewModel
+
+@{
+    ViewData["Title"] = "Your recommendation";
+}
+
+@* ====================================================================
+   RESULTS PAGE (R6)
+   Replaces W7's temporary page. A stack of white wizard cards:
+     1. a heading card (with a note if we couldn't use the postcode),
+     2. one card per route, best first: name, reason, up to 3 places,
+     3. a last card with the buttons (and V1's Save spot).
+   Styles: "WIZARD" and "RESULTS (R6)" in site.css.
+   ==================================================================== *@
+<div class="wizard">
+
+    @* ---------- 1. Heading card ---------- *@
+    <div class="wizard-card">
+
+        @* Decorative, so the alt text is empty. *@
+        <img class="wizard-mascot" src="~/Images/mascot.png" alt="" />
+
+        <h1>Your recommendation</h1>
+
+        @if (Model.HasLocation)
+        {
+            <p class="wizard-hint">
+                Here are the best options for your phone, best first, with places near @Model.Postcode.
+            </p>
+        }
+        else
+        {
+            <p class="wizard-hint">
+                Here are the best options for your phone, best first.
+            </p>
+
+            @* Bad or missing postcode, or postcodes.io is down: routes still show, places don't.
+               role="status" lets screen readers announce the note. *@
+            <p class="results-note mb-0" role="status">
+                We couldn't find places near your postcode right now.
+                You can <a asp-controller="Wizard" asp-action="Postcode">check your postcode</a>
+                and try again.
+            </p>
+        }
+    </div>
+
+    @* ---------- 2. One card per route, best first ---------- *@
+    @for (var i = 0; i < Model.Routes.Count; i++)
+    {
+        var route = Model.Routes[i];
+
+        @* aria-labelledby names each card after its route for screen readers. *@
+        <section class="wizard-card results-route" aria-labelledby="route-@i">
+
+            @* Only the first card gets the "Best option" label. *@
+            @if (i == 0)
+            {
+                <p class="results-best">Best option</p>
+            }
+
+            @* Route name in plain words, e.g. "Resale or trade-in". *@
+            <h2 id="route-@i">@route.Route.ToDisplayName()</h2>
+
+            @* The engine's reason, word for word (never rewritten here). *@
+            <p>@route.Reason</p>
+
+            @* Places only when we know where the user is. Otherwise the note in
+               the heading card already explains why they're missing. *@
+            @if (Model.HasLocation)
+            {
+                if (route.Places.Count == 0)
+                {
+                    <p class="results-note mb-0">We don't know of a suitable place near you yet.</p>
+                }
+                else
+                {
+                    <h3 class="results-places-heading">Nearest places</h3>
+
+                    <ul class="results-places">
+                        @foreach (var place in route.Places)
+                        {
+                            <li class="results-place">
+
+                                @* Name on the left, distance on the right; they wrap at 360 px.
+                                   Distance is in km with one decimal place, e.g. "3.2 km". *@
+                                <div class="results-place-top">
+                                    <strong class="text-break">@place.Point.Name</strong>
+                                    <span class="results-distance">@place.DistanceKm.ToString("0.0") km</span>
+                                </div>
+
+                                @* text-break so a long address wraps instead of scrolling sideways. *@
+                                <div class="text-break">@place.Point.Address, @place.Point.Postcode</div>
+
+                                @* The type in plain words, e.g. "Recycling centre". *@
+                                <div class="results-type">@place.Point.PointType.ToDisplayName()</div>
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+        </section>
+    }
+
+    @* ---------- 3. Buttons ---------- *@
+    <div class="wizard-card results-route">
+
+        @* ============================================================
+           V1 SPOT: the "Save this result" button goes here.
+           It will post to a Save action that reads the ResultState
+           from the session (HttpContext.Session.GetResultState()).
+           ============================================================ *@
+
+        <div class="wizard-buttons wizard-actions">
+            @* Back to the review page; the answers are still in the session. *@
+            <a class="button-secondary"
+               asp-controller="Wizard"
+               asp-action="Complete">
+                Back to my answers
+            </a>
+        </div>
+
+        @* The existing Restart action: wipes the answers, and Start wipes the result. *@
+        <form asp-controller="Wizard"
+              asp-action="Restart"
+              method="post"
+              class="wizard-restart-form">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="wizard-restart">Start again</button>
+        </form>
+    </div>
+
+</div>
