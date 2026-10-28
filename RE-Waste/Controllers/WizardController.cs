@@ -34,6 +34,7 @@ namespace RE_Waste.Controllers
         public IActionResult Start()
         {
             HttpContext.Session.ClearWizardState(); // Wipe old progress
+            HttpContext.Session.ClearResultState(); // R6: forget the last result too
             HttpContext.Session.SetWizardState(new WizardState()); // Create blank state
             return RedirectToAction(nameof(Step)); // Send user to the first question
         }
@@ -45,15 +46,18 @@ namespace RE_Waste.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IPostcodeService _postcodes;
         private readonly IRecommendationService _recommendations;
+        private readonly IDropOffService _dropOffs;
 
         public WizardController(
             ApplicationDbContext context,
             IPostcodeService postcodes,
-            IRecommendationService recommendations)
+            IRecommendationService recommendations,
+            IDropOffService dropOffs)
         {
             _context = context;                   // Save the database context.
             _postcodes = postcodes;               // Save the postcode lookup service.
             _recommendations = recommendations;   // Save the recommendation engine (W7).
+            _dropOffs = dropOffs;                 // Save the drop-off point service.   
         }
 
         // ====================================================================
@@ -495,11 +499,12 @@ namespace RE_Waste.Controllers
         }
 
         // ====================================================================
-        // ACTION: RECOMMEND (W7)
-        // The review page's "Get my recommendation" button posts here.
-        // Builds a Device from the answers and asks the engine for routes.
-        // Nothing is saved (that is V1–V3), and the postcode stays in the
-        // session because the real results page (R6) needs it.
+        // ACTION: RECOMMEND (W7, changed in R6)
+        // Builds a Device from the answers, asks the engine for routes and
+        // stores the result in the session. It then redirects to Results
+        // instead of showing a page (Post/Redirect/Get), so refreshing the
+        // results never asks to send the form again.
+        // Nothing is saved to the database here; that is V1.
         // ====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -519,8 +524,71 @@ namespace RE_Waste.Controllers
             // Up to three different routes, best first.
             var recommendations = await _recommendations.RecommendAsync(device);
 
-            return View("Result", recommendations); // Temporary page until R6.
+            // R6: keep everything the results page (and V1's Save) needs.
+            var result = new ResultState
+            {
+                Device = device,
+                Routes = recommendations.ToList(), // A plain list, so it stores as JSON cleanly.
+                Postcode = state.Postcode
+            };
+
+            HttpContext.Session.SetResultState(result);
+
+            // The browser ends up on a GET page, so a refresh is harmless.
+            return RedirectToAction(nameof(Results));
         }
+
+        
+        // ====================================================================
+        // ACTION: RESULTS (R6)
+        // The real results page: each route with its reason and the nearest
+        // places for it. Everything comes from the ResultState that
+        // Recommend stored, so the page can be refreshed or revisited.
+        // ====================================================================
+        [HttpGet]
+        public async Task<IActionResult> Results()
+        {
+            var result = HttpContext.Session.GetResultState(); // Get the stored result.
+
+            // No result (the user restarted, the session expired, or they typed the URL): start again.
+            if (result == null)
+                return RedirectToAction(nameof(Start));
+
+            // a. Turn the postcode into a map location.
+            //    LookupAsync returns null (it never throws) when the postcode is
+            //    unknown or postcodes.io can't be reached.
+            GeoLocation? location = null;
+
+            if (!string.IsNullOrWhiteSpace(result.Postcode))
+                location = await _postcodes.LookupAsync(result.Postcode);
+
+            var model = new ResultsViewModel
+            {
+                Postcode = result.Postcode,
+                HasLocation = location != null // False: the page shows a note instead of places.
+            };
+
+            // b. One search per route (not per place), up to three places each.
+            //    The searches run one after another on purpose: they share one
+            //    DbContext, which can only run one query at a time.
+            foreach (var recommendation in result.Routes)
+            {
+                IReadOnlyList<NearbyDropOffPoint> places = location == null
+                    ? new List<NearbyDropOffPoint>() // No location: show the route without places.
+                    : await _dropOffs.FindNearestAsync(recommendation.Route, location, 3);
+
+                model.Routes.Add(new ResultsRoute
+                {
+                    Route = recommendation.Route,
+                    Reason = recommendation.Reason, // Kept word for word from the engine.
+                    Places = places
+                });
+            }
+
+            return View("Results", model);
+        }
+
+
 
         // ====================================================================
         // ACTION: GOTO (Change link on the review page, W6)

@@ -762,3 +762,85 @@ h1 {
     .manager-card .button {
         align-self: flex-start;
     }
+
+/* ==========================================================================
+   RESULTS (R6)
+   The results page is a stack of wizard cards: a heading card, one card
+   per route (best first) and a last card with the buttons. No new colours:
+   it reuses the wizard's pale green (#d9efe9), the grey track (#e9ecef)
+   and the hint grey (#595f65).
+   ========================================================================== */
+
+/* Space between the stacked cards. */
+.results-route {
+    margin-top: 1rem;
+}
+
+/* "Best option" label on the first route card. Same pale green and dark
+   green pairing as the Active badge (10.4 : 1). */
+.results-best {
+    display: inline-block;
+    margin-bottom: .5rem;
+    padding: .15rem .6rem;
+    border-radius: 999px;
+    background-color: #d9efe9;
+    color: var(--rw-dark-green);
+    font-size: .875rem;
+    font-weight: 600;
+}
+
+/* Route name: one step smaller than the card's h1 (1.5rem). */
+.results-route h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--rw-dark-green);
+}
+
+/* Note shown instead of places (bad or missing postcode, or nothing nearby). */
+.results-note {
+    padding: .75rem 1rem;
+    border-left: 4px solid var(--rw-green);
+    border-radius: 4px;
+    background-color: #e9ecef;
+}
+
+/* Small "Nearest places" heading above the list. */
+.results-places-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1rem 0 .25rem;
+}
+
+/* The places list: no bullets, a thin line above each place. */
+.results-places {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.results-place {
+    padding: .75rem 0;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Name left, distance right. flex-wrap lets the distance drop under a
+   long name at 360 px instead of squashing it. */
+.results-place-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .25rem 1rem;
+}
+
+/* The distance never breaks across lines ("3.2 km" stays together). */
+.results-distance {
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--rw-dark-green);
+}
+
+/* Place type under the address, quieter like the wizard hint (6.4 : 1). */
+.results-type {
+    font-size: .875rem;
+    color: #595f65;
+}
