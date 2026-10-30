@@ -135,6 +135,52 @@
                     <button type="submit" class="button">Save this result</button>
                 </form>
             }
+            @* ============================================================
+               V2: LOG IN TO SAVE
+               Logged-out visitors can't save yet, but their result is
+               already in the session (R6). We send them to Identity's
+               Login page with returnUrl=/Wizard/Results, so after login
+               they come straight back here, the page reloads, the session
+               result is still there, and the V1 Save button above shows
+               instead of this block (because IsAuthenticated is now true).
+
+               We do NOT save automatically after login. A POST
+               can't be replayed across the login redirects, and a visible
+               button makes the choice clear to the user. If the session
+               has expired by the time they return, Results already
+               redirects to Start (that behaviour exists since R6).
+               ============================================================ *@
+            else
+            {
+                @* wizard-next pushes the block to the right on wide screens,
+                   matching where the Save button sits for logged-in users. *@
+                <div class="wizard-next results-login">
+                    @* asp-page targets the Identity area's Login Razor Page.
+                       asp-route-returnUrl adds ?returnUrl=/Wizard/Results so
+                       Login (U1) knows where to send the user afterwards.
+                       Url.Action builds "/Wizard/Results" from the route table
+                       instead of a hard-coded string. *@
+                    <a class="button"
+                       asp-area="Identity"
+                       asp-page="/Account/Login"
+                       asp-route-returnUrl="@Url.Action("Results", "Wizard")">
+                        Log in to save
+                    </a>
+
+                    @* Second line: the same returnUrl, so a brand-new user
+                       also lands back on this page after Register (U1's
+                       Register page forwards returnUrl in its form and on
+                       its "Log in" link, already checked in Part 3). *@
+                    <p class="results-register-hint mb-0">
+                        No account yet?
+                        <a asp-area="Identity"
+                           asp-page="/Account/Register"
+                           asp-route-returnUrl="@Url.Action("Results", "Wizard")">
+                            Register
+                        </a>
+                    </p>
+                </div>
+            }
         </div>
 
         @* The existing Restart action: wipes the answers, and Start wipes the result. *@
