@@ -845,6 +845,22 @@ h1 {
     color: #595f65;
 }
 
+/* ---------- V2: Log in to save (logged-out visitors) ---------- */
+
+/* The link block sits where the Save button would be. The button link is
+   full width on phones via .wizard-buttons .button; the hint wraps under it. */
+.results-login {
+    text-align: center;
+}
+
+/* Small grey second line under the Log in button. mb-0 (Bootstrap) keeps
+   the card's bottom padding even. */
+.results-register-hint {
+    margin-top: .5rem;
+    font-size: .95rem;
+    color: #495057; /* 7.5 : 1 on white, readable at small sizes. */
+}
+
 /* ==========================================================================
    MY DEVICES (U4–U6)
    Same look as the results page: white wizard cards on the blue page,
