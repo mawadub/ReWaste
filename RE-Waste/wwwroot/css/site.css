@@ -763,6 +763,37 @@ h1 {
         align-self: flex-start;
     }
 
+/* G5: four small count cards. Two columns on phones, four when there's room. */
+.manager-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.manager-stat {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    padding: 16px;
+    text-decoration: none;
+}
+
+/* Only the linked cards react to the mouse; saved results is not a link. */
+a.manager-stat:hover .manager-stat-label {
+    text-decoration: underline;
+}
+
+.manager-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--rw-dark-green);
+}
+
+.manager-stat-label {
+    color: #212529;
+}
+
 /* ==========================================================================
    RESULTS (R6)
    The results page is a stack of wizard cards: a heading card, one card
