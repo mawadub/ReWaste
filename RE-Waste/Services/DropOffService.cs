@@ -57,7 +57,7 @@ namespace RE_Waste.Services
 
         // Haversine formula: the straight-line distance in km between two points on the surface.
         // Kept in its own method so it can be unit tested in Week 7.
-        private static double DistanceKm(double lat1, double lon1, double lat2, double lon2)
+        public static double DistanceKm(double lat1, double lon1, double lat2, double lon2)
         {
             var dLat = ToRadians(lat2 - lat1);
             var dLon = ToRadians(lon2 - lon1);
