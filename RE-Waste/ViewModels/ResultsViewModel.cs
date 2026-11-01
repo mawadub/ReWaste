@@ -16,6 +16,9 @@ namespace RE_Waste.ViewModels
 
         // The user's postcode, shown in the intro text, e.g. "near EH1 2NG".
         public string Postcode { get; set; } = string.Empty;
+
+        // true when this result has already been saved (the page then shows "Saved")
+        public bool Saved { get; set; }
     }
 
     // One route card: the route, the engine's reason and the nearest places.

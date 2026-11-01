@@ -123,12 +123,21 @@
                class="wizard-next" pushes it to the right, like the main
                button on the review page.
                ============================================================ *@
-            @if (User.Identity?.IsAuthenticated == true)
+            @if (Model.Saved)
+            {
+                @* V3: saved already, so show a disabled button and a link to the list. *@
+                <div class="wizard-next">
+                    <button type="button" class="button" disabled>Saved</button>
+                    <a class="button-secondary" asp-controller="MyDevices" asp-action="Index">View in My devices</a>
+                </div>
+            }
+            else if (User.Identity?.IsAuthenticated == true)
             {
                 <form asp-controller="Wizard"
                       asp-action="Save"
                       method="post"
-                      class="wizard-next">
+                      class="wizard-next"
+                      onsubmit="this.querySelector('button').disabled = true;">
 
                     @Html.AntiForgeryToken()
 
@@ -136,6 +145,14 @@
                 </form>
             }
         </div>
+
+
+        @if (Model.Saved == false && User.Identity?.IsAuthenticated == true)
+        {
+            <p class="wizard-hint mt-3 mb-0">
+                We save your phone details, your answers and the first part of your postcode. You can delete a result at any time.
+            </p>
+        }
 
         @* The existing Restart action: wipes the answers, and Start wipes the result. *@
         <form asp-controller="Wizard"
