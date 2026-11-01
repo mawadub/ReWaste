@@ -1,4 +1,5 @@
-﻿@{
+﻿@model RE_Waste.ViewModels.ManagerDashboardViewModel
+@{
     ViewData["Title"] = "Manager Dashboard";
 }
 
@@ -13,6 +14,41 @@
     <p class="manager-intro">
         Welcome to the RE-Waste manager area. Choose what you'd like to manage.
     </p>
+
+    @* G5: the counts. Each card links to its management page, except saved results:
+       managers only see the total, never the saved results or who owns them. *@
+    <div class="manager-stats mt-3">
+
+        <a asp-area="Manager"
+           asp-controller="Questions"
+           asp-action="Index"
+           class="manager-panel manager-stat">
+            <span class="manager-stat-number">@Model.ActiveQuestions</span>
+            <span class="manager-stat-label">Active questions</span>
+        </a>
+
+        <a asp-area="Manager"
+           asp-controller="Rules"
+           asp-action="Index"
+           class="manager-panel manager-stat">
+            <span class="manager-stat-number">@Model.ActiveRules</span>
+            <span class="manager-stat-label">Active rules</span>
+        </a>
+
+        <a asp-area="Manager"
+           asp-controller="DropOffPoints"
+           asp-action="Index"
+           class="manager-panel manager-stat">
+            <span class="manager-stat-number">@Model.DropOffPoints</span>
+            <span class="manager-stat-label">Drop-off points</span>
+        </a>
+
+        <div class="manager-panel manager-stat">
+            <span class="manager-stat-number">@Model.SavedResults</span>
+            <span class="manager-stat-label">Saved results</span>
+        </div>
+
+    </div>
 
     @* One column on phones, side by side when there's room. *@
     <div class="manager-grid mt-3">
