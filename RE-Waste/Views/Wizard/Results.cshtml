@@ -1,8 +1,26 @@
 @using RE_Waste.Extensions
+@using System.Text.Json
 @model RE_Waste.ViewModels.ResultsViewModel
 
 @{
     ViewData["Title"] = "Your recommendation";
+
+    // Collect all recommended locations from every route for the map.
+    var mapPoints = Model.Routes
+        .SelectMany(route => route.Places.Select(place => new
+        {
+            // The coordinates tell Leaflet where to place the marker.
+            Latitude = place.Point.Latitude,
+            Longitude = place.Point.Longitude,
+
+            // Information displayed when the marker is clicked.
+            Name = place.Point.Name,
+            Address = place.Point.Address,
+            Postcode = place.Point.Postcode,
+            Route = route.Route.ToDisplayName(),
+            DistanceKm = place.DistanceKm
+        }))
+        .ToList();
 }
 
 @* ====================================================================
@@ -44,6 +62,30 @@
             </p>
         }
     </div>
+
+    @* ============================================================
+       MAP
+       Displays all recommended drop-off locations.
+       Each marker shows the location details when clicked.
+       ============================================================ *@
+
+    @if (Model.HasLocation && mapPoints.Count > 0)
+    {
+        <div class="wizard-card">
+
+            <h2>Nearby drop-off locations</h2>
+
+            <p class="wizard-hint">
+                Select a marker to see more information about a location.
+            </p>
+
+            @* Leaflet will display the interactive map inside this div. *@
+            <div id="recommendationMap"
+                 style="height: 350px; width: 100%; border-radius: 10px;">
+            </div>
+
+        </div>
+    }
 
     @* ---------- 2. One card per route, best first ---------- *@
     @for (var i = 0; i < Model.Routes.Count; i++)
@@ -150,3 +192,75 @@
     </div>
 
 </div>
+
+@section Scripts {
+
+    <script>
+
+        // Receive the recommended locations from the Razor view.
+        const locations = @Html.Raw(JsonSerializer.Serialize(mapPoints));
+
+        // Only create the map if there are locations to display.
+        if (locations.length > 0) {
+
+            // Create the map inside the recommendationMap div.
+            const map = L.map('recommendationMap');
+
+            // Add OpenStreetMap tiles to provide the map background.
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Store markers so the map can zoom to include all locations.
+            const markers = [];
+
+            // Loop through every recommended location.
+            locations.forEach(location => {
+
+                // Place a marker using the location's coordinates.
+                const marker = L.marker([
+                    location.Latitude,
+                    location.Longitude
+                ]).addTo(map);
+
+                // Create popup content safely.
+                const popup = document.createElement('div');
+
+                const name = document.createElement('strong');
+                name.textContent = location.Name;
+
+                const address = document.createElement('p');
+                address.textContent =
+                    location.Address + ', ' + location.Postcode;
+
+                const route = document.createElement('p');
+                route.textContent = 'Recommended for: ' + location.Route;
+
+                const distance = document.createElement('p');
+                distance.textContent =
+                    'Distance: ' + location.DistanceKm.toFixed(1) + ' km';
+
+                // Add the information to the popup.
+                popup.appendChild(name);
+                popup.appendChild(address);
+                popup.appendChild(route);
+                popup.appendChild(distance);
+
+                // Show the popup when the marker is clicked.
+                marker.bindPopup(popup);
+
+                // Remember this marker for the zoom calculation.
+                markers.push(marker);
+            });
+
+            // Automatically zoom the map to show every marker.
+            const markerGroup = L.featureGroup(markers);
+
+            map.fitBounds(markerGroup.getBounds(), {
+                padding: [30, 30],
+                maxZoom: 14
+            });
+        }
+
+    </script>
+}
