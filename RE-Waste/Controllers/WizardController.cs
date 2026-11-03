@@ -555,7 +555,8 @@ namespace RE_Waste.Controllers
             var model = new ResultsViewModel
             {
                 Postcode = result.Postcode,
-                HasLocation = location != null // False: the page shows a note instead of places.
+                HasLocation = location != null, // False: the page shows a note instead of places.
+                Saved = result.Saved
             };
 
             // b. One search per route (not per place), up to three places each.
@@ -600,6 +601,9 @@ namespace RE_Waste.Controllers
             if (result == null || result.Routes.Count == 0)
                 return RedirectToAction(nameof(Start));
 
+            if (result.Saved)
+                return RedirectToAction("Index", "MyDevices");
+
             // The id of the logged-in user, from their login cookie, never from the form.
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -638,6 +642,10 @@ namespace RE_Waste.Controllers
 
             _context.SavedResponses.Add(saved);  // Queue the new row...
             await _context.SaveChangesAsync();   // ...and write it to the database.
+
+            // remember it, so a second press (or the back button) cannot save again
+            result.Saved = true;
+            HttpContext.Session.SetResultState(result);
 
             // My devices (U6) already shows TempData["Message"] as a green alert.
             TempData["Message"] = "Result saved.";

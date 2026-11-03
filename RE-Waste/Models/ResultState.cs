@@ -21,5 +21,8 @@ namespace RE_Waste.Models
         // The postcode the user typed on the postcode step (W4).
         // Used by the Results page to find the nearest places.
         public string Postcode { get; set; } = string.Empty;
+
+        // true once this result has been saved, so it cannot be saved twice.
+        public bool Saved { get; set; }
     }
 }
