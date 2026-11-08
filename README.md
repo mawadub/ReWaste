@@ -57,7 +57,15 @@ You will need the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 5. When the build finishes, open the `localhost` address shown in the terminal.
 
 ### Manager account
-Its details are in `RE-Waste/appsettings.Development.json`.
+Log in with `manager@rewaste.local` and the password `Manager123!`. These are in `RE-Waste/appsettings.Development.json`. Change them before any real deployment.
+
+
+## First run
+- The first run takes a little longer. The app creates the database and fills it with the starter questions, rules and drop-off points automatically, so there is nothing to set up by hand.
+- If you have run the project before, delete the old `aspnet-RE_Waste-…` database first (in Visual Studio: **View → SQL Server Object Explorer**, then right-click the database and choose **Delete**). Otherwise the app reuses the old data.
+- The new database may not appear in SQL Server Object Explorer until you right-click *Databases* and choose *Refresh*.
+- If Visual Studio asks you to trust the HTTPS certificate, click *Yes*.
+- The postcode lookup and the drop-off places need an internet connection.
 
 ## Project Structure
 
