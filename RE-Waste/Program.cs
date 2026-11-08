@@ -79,7 +79,14 @@ namespace RE_Waste
                 app.UseHsts();
             }
 
-            
+            //Adding code to redirect users should they lose or no longer possess anti forgery token
+            app.UseStatusCodePages(async context =>
+            {
+                if (context.HttpContext.Response.StatusCode == 400)
+                {
+                    context.HttpContext.Response.Redirect("/Home/index");
+                }
+            });
 
 
             app.UseHttpsRedirection();
