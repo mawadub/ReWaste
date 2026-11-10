@@ -5,23 +5,41 @@
 <div class="text-center">
     <h1 class="display-4">Contact Re-Waste</h1>
     <p>
-        Re-Waste is created to help people
-        make better decisions about their old electronic devices.
+        If you have any questions about Re-Waste
+        or need help using the website, you can
+        contact us at:
+    </p>
+
+    <p>
+        <a href="mailto:rewaste.contact@gmail.com">
+            rewaste.contact@gmail.com
+        </a>
     </p>
 
     <div id ="contact">
-    <form id ="contactForm">
+        @if (TempData["Success"] != null)
+        {
+            <p class="text-success">@TempData["Success"]</p>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+            <p class="text-danger">@ViewBag.Error</p>
+        }
+
+      <form id="contactForm" asp-controller="Home" asp-action="Contact" method="post">
+          @Html.AntiForgeryToken()
         <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name"><br><br>
+        <input type="text" id="name" name="name" maxlength="100" required><br><br>
 
         <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email"><br><br>
+        <input type="email" id="email" name="email" maxlength="254" required><br><br>
 
         <label for="message">Message:</label><br>
-        <textarea id="message" name="message" rows="4" cols="30"></textarea>
+        <textarea id="message" name="message" rows="4" cols="30" maxlength="2000" required></textarea>
         <br> <br>
 
-        <button class ="button">Submit</button>
+            <button type="submit" class="button">Submit</button>
     </form>
 
     <div id ="contactDiv">
