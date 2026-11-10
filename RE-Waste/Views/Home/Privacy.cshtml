@@ -1,6 +1,53 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Privacy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="wizard">
+    <div class="wizard-card">
+        <h1>Privacy</h1>
+        <p class="wizard-hint">
+            Re-Waste is a student project. This page says what we keep and what we do not.
+        </p>
+
+        <h2 class="h5 mt-4">When you use the wizard</h2>
+        <p>
+            You do not need an account to get a recommendation. Your answers are held only for your visit.
+            Nothing is stored in our database unless you log in and press <strong>Save this result</strong>.
+        </p>
+
+        <h2 class="h5 mt-4">What we keep when you save a result</h2>
+        <ul>
+            <li>The phone's brand and model</li>
+            <li>Its age in years and its condition</li>
+            <li>Whether it holds personal data</li>
+            <li>Whether its battery is damaged</li>
+            <li>The first part of your postcode, for example EH1</li>
+            <li>The recommended routes (up to three) and the reason for each</li>
+            <li>The date and time you saved it, linked to your account</li>
+        </ul>
+
+        <h2 class="h5 mt-4">What we do not keep</h2>
+        <ul>
+            <li>Your full postcode. Only the first part is saved.</li>
+            <li>Any other answers. If a question is not in the list above, it is not saved.</li>
+        </ul>
+
+        <h2 class="h5 mt-4">Your account</h2>
+        <p>
+            Your account holds your name, your email address and, if you add one, your phone number.
+            Your password is stored in scrambled form, never as plain text.
+        </p>
+
+        <h2 class="h5 mt-4">Who can see your saved results</h2>
+        <p>
+            Only you, when you are logged in. Nobody else who logs in can open or delete them.
+            The site manager can see how many results have been saved, but not who saved them or what they say.
+        </p>
+
+        <h2 class="h5 mt-4">Deleting your data</h2>
+        <ul>
+            <li><strong>One result:</strong> open <a asp-controller="MyDevices" asp-action="Index">My devices</a> and choose Delete.</li>
+            <li><strong>Everything:</strong> click your name at the top, choose Personal data, then Delete. This removes your account and all your saved results.</li>
+        </ul>
+    </div>
+</div>
