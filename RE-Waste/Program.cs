@@ -74,12 +74,17 @@ namespace RE_Waste
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // Shows a friendly error page if something unexpected goes wrong.
                 app.UseHsts();
             }
 
-            
+            // Handles unexpected errors in both Development and Production.
+            app.UseExceptionHandler("/Home/Error");
+
+            // Handles missing pages (404) and other HTTP status codes.
+            app.UseStatusCodePagesWithReExecute("/Home/StatusCode", "?code={0}");
+
+
 
 
             app.UseHttpsRedirection();
