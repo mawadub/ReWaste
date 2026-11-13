@@ -35,64 +35,89 @@ namespace RE_Waste.Models
             //list of recomendations
             List<RouteRecommendation> list = new List<RouteRecommendation>();
 
-            //throw new NotImplementedException();
-            if (device.HasBatteryDamage) //condition for if the device has a broken battery
+            // ----------------------------------------------------------------
+            // ABSOLUTE RULE CHECK
+            // Damaged battery always recommends Recycle. This stays hardcoded
+            // as a safety-critical override, but absolute rules from the DB
+            // will also be prioritized below.
+            // ----------------------------------------------------------------
+            if (device.HasBatteryDamage)
             {
-
-                //route recommendation for recyling
                 RouteRecommendation recycleRec = new RouteRecommendation()
                 {
                     Route = Enums.RouteType.Recycle,
                     Reason = "Since your device contains a damaged battery we suggest you recycle your device at the nearest recylcing point."
                 };
-                list.Add(recycleRec); // add to list
-
-
-                return list; // return list
+                list.Add(recycleRec);
+                return list;
             }
 
-            List<RecommendationRule> ActiveRules = await _context.RecommendationRules.Where(r => r.IsActive == true).ToListAsync(); //loads all of the Active Rules (ToListAsync frees the web server while the database answers)
-            List<RecommendationRule> ValidRules = new List<RecommendationRule>(); //empty list to be filled with any valid rules
+            // Load all active rules from the database.
+            List<RecommendationRule> activeRules = await _context.RecommendationRules
+                .Where(r => r.IsActive)
+                .ToListAsync();
 
-            foreach (RecommendationRule rule in ActiveRules)
+            // Score every rule. Key = rule, Value = MatchScore (null means "contradicted").
+            var scoredRules = activeRules
+                .Select(rule => new { Rule = rule, Score = rule.MatchScore(device) })
+                .Where(x => x.Score.HasValue)  // drop contradicted rules
+                .ToList();
+
+            // ----------------------------------------------------------------
+            // ABSOLUTE RULES from DB: if any IsAbsolute rule matched (score >= 0),
+            // return only those, ordered by specificity (score), then priority.
+            // ----------------------------------------------------------------
+            var absoluteMatches = scoredRules
+                .Where(x => x.Rule.IsAbsolute)
+                .OrderByDescending(x => x.Score)
+                .ThenByDescending(x => x.Rule.Priority)
+                .ToList();
+
+            if (absoluteMatches.Count > 0)
             {
-                if (rule.Matches(device)) //check if user device meets the conditions of this rule
-                {
-                    ValidRules.Add(rule); //since rule applies to this device we add it to valid rule list
-                }
+                return absoluteMatches
+                    .GroupBy(x => x.Rule.Route)
+                    .Select(g => g.First())
+                    .Take(3)
+                    .Select(x => new RouteRecommendation
+                    {
+                        Route = x.Rule.Route,
+                        Reason = x.Rule.Reason
+                    })
+                    .ToList();
             }
 
-            if (ValidRules.Count == 0) //if no rules matched and validrules is empty we go down this route
+            // ----------------------------------------------------------------
+            // NORMAL RANKING: order by score (closest match first),
+            // then by Priority as tie-breaker for equally-matched rules.
+            // ----------------------------------------------------------------
+            if (scoredRules.Count == 0)
             {
-                RouteRecommendation recycleRec = new RouteRecommendation() //create a generic route that says recycle and gives generic reason
+                // No rules matched at all — fallback.
+                RouteRecommendation recycleRec = new RouteRecommendation()
                 {
                     Route = Enums.RouteType.Recycle,
                     Reason = "Since our system does not have much information on your device we suggest you recycle your device at the nearest recylcing point."
                 };
-
                 list.Add(recycleRec);
-
-                return list; // return list
-
+                return list;
             }
 
-            //get top priority recomendations:
+            var recommendations = scoredRules
+                .OrderByDescending(x => x.Score)            // closest match first
+                .ThenByDescending(x => x.Rule.Priority)     // tie-break by priority
+                .GroupBy(x => x.Rule.Route)                  // one per route
+                .Select(g => g.First())                      // best rule per route
+                .Take(3)                                     // at most 3 routes
+                .Select(x => new RouteRecommendation
+                {
+                    Route = x.Rule.Route,
+                    Reason = x.Rule.Reason
+                })
+                .ToList();
 
-            var recommendations = ValidRules.OrderByDescending(rule => rule.Priority) //orders the rules by highest priority
-                                        .GroupBy(rule => rule.Route) // groups  the rules by their assosiated route
-                                        .Select(group => group.First()) // groups each type of route with the highest priority version
-                                        .Take(3)// takes at most 3
-                                        .Select(rule => new RouteRecommendation
-                                        {
-                                            Route = rule.Route,
-                                            Reason = rule.Reason
-                                        }) //turns them into route recomendations
-                                        .ToList(); //turns them into lists
+            return recommendations;
 
-            //now we have recomendations we can return them.
-            //W7 fix: this used to return the empty "list", so every phone without a damaged battery got no routes.
-
-            return recommendations; // up to 3 different routes, best first
         }
     }
 }

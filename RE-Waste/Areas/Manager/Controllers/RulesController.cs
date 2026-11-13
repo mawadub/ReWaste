@@ -55,7 +55,8 @@ namespace RE_Waste.Areas.Manager.Controllers
                 MaxAgeInYears = model.MaxAgeInYears,
                 HasPersonalData = model.HasPersonalData,
                 HasBatteryDamage = model.HasBatteryDamage,
-                IsActive = true
+                IsActive = true,
+                IsAbsolute = model.IsAbsolute
             };
 
             _context.RecommendationRules.Add(rule);
@@ -86,7 +87,8 @@ namespace RE_Waste.Areas.Manager.Controllers
                 MaxAgeInYears = rule.MaxAgeInYears,
                 HasPersonalData = rule.HasPersonalData,
                 HasBatteryDamage = rule.HasBatteryDamage,
-                IsActive = rule.IsActive
+                IsActive = rule.IsActive,
+                IsAbsolute = rule.IsAbsolute
             };
 
             return View(model);
@@ -119,6 +121,7 @@ namespace RE_Waste.Areas.Manager.Controllers
             rule.HasPersonalData = model.HasPersonalData;
             rule.HasBatteryDamage = model.HasBatteryDamage;
             rule.IsActive = model.IsActive;
+            rule.IsAbsolute = model.IsAbsolute;
 
             await _context.SaveChangesAsync();
 

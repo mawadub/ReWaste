@@ -32,6 +32,8 @@ namespace RE_Waste.ViewModels
 
         public bool IsActive { get; set; } = true;
 
+        public bool IsAbsolute { get; set; } = false;
+
         public IEnumerable<ValidationResult> Validate(
             ValidationContext validationContext)
         {

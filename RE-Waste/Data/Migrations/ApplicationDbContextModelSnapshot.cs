@@ -390,6 +390,9 @@ namespace RE_Waste.Data.Migrations
                     b.Property<bool?>("HasPersonalData")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsAbsolute")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 

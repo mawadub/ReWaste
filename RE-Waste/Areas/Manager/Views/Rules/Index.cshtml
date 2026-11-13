@@ -34,7 +34,9 @@
     <h1>Recommendation rules</h1>
 
     <p class="manager-intro">
-        Higher priority wins. A damaged battery always recommends Recycle.
+        Rules are ranked by how closely they match the device.
+        More specific rules win. Priority breaks ties.
+        Absolute rules always win. A damaged battery always recommends Recycle.
     </p>
 
     <div class="manager-toolbar">
@@ -88,6 +90,20 @@
                                 {
                                     <span class="badge rw-badge-inactive">Inactive</span>
                                 }
+                            </td>
+
+                            <td>
+                                @* Badge for absolute rules so managers can spot them at a glance *@
+                                @if (rule.IsAbsolute)
+                                {
+                                    <span class="badge bg-warning text-dark mb-1">Absolute</span>
+                                }
+                                <ul class="list-unstyled mb-0 small">
+                                    <li>Condition: @(rule.Condition?.ToDisplayName() ?? "Any")</li>
+                                    <li>Age: @ageText(rule.MinAgeInYears, rule.MaxAgeInYears)</li>
+                                    <li>Personal data: @yesNoAny(rule.HasPersonalData)</li>
+                                    <li>Battery damage: @yesNoAny(rule.HasBatteryDamage)</li>
+                                </ul>
                             </td>
 
                             @* Edit, then switch the rule on or off. *@

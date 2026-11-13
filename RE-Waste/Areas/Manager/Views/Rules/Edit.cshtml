@@ -128,6 +128,13 @@
                 </label>
             </div>
 
+            <div class="form-check mb-3">
+                <input asp-for="IsAbsolute" class="form-check-input" />
+                <label asp-for="IsAbsolute" class="form-check-label">
+                    Absolute rule (always wins when matched)
+                </label>
+            </div>
+
             @* Save first; Cancel goes back to the list without saving. *@
             <div class="manager-form-actions">
                 <button type="submit" class="button">Save changes</button>

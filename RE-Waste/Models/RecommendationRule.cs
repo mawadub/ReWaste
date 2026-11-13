@@ -34,16 +34,58 @@ namespace RE_Waste.Models
         // Allow managers to deactivate rules without deleting them.
         public bool IsActive { get; set; } = true;
 
-        //this method checks if a given device matches the criteria of this rule. It returns true if the rule is active and all non-null criteria match the device's properties.
-        public bool Matches(Device device)
+        // If true, this rule always wins when its non-null criteria match,
+        // regardless of similarity score. E.g. damaged battery → Recycle.
+        public bool IsAbsolute { get; set; } = false;
+
+        // Returns NULL if any non-null criterion contradicts the device (rule can't apply).
+        // Otherwise returns how many non-null criteria match (0 = catch-all, higher = more specific).
+        // "Contradicts" means the field is set on the rule AND differs from the device.
+        public int? MatchScore(Device device)
         {
-            // Check if the rule is active and all non-null criteria match the device's properties
-            return IsActive
-            && (Condition == null || Condition == device.Condition)
-            && (MinAgeInYears == null || device.AgeInYears >= MinAgeInYears)
-            && (MaxAgeInYears == null || device.AgeInYears <= MaxAgeInYears)
-            && (HasPersonalData == null || HasPersonalData == device.HasPersonalData)
-            && (HasBatteryDamage == null || HasBatteryDamage == device.HasBatteryDamage);
+            if (!IsActive)
+                return null; // Inactive rules never match.
+
+            int score = 0;
+
+            // Each block below: if the rule checks this field (non-null),
+            // return null on mismatch, otherwise bump the score.
+
+            if (Condition.HasValue)
+            {
+                if (Condition.Value != device.Condition) return null;
+                score++;
+            }
+
+            if (MinAgeInYears.HasValue)
+            {
+                if (device.AgeInYears < MinAgeInYears.Value) return null;
+                score++;
+            }
+
+            if (MaxAgeInYears.HasValue)
+            {
+                if (device.AgeInYears > MaxAgeInYears.Value) return null;
+                score++;
+            }
+
+            if (HasPersonalData.HasValue)
+            {
+                if (HasPersonalData.Value != device.HasPersonalData) return null;
+                score++;
+            }
+
+            if (HasBatteryDamage.HasValue)
+            {
+                if (HasBatteryDamage.Value != device.HasBatteryDamage) return null;
+                score++;
+            }
+
+            // All non-null fields matched (or rule has no fields = catch-all).
+            return score;
         }
+
+        // Keep Matches() for backward compatibility / external callers.
+        public bool Matches(Device device) => MatchScore(device).HasValue;
     }
 }
