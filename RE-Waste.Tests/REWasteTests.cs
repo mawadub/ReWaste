@@ -506,6 +506,7 @@ namespace RE_Waste.Tests
 
             Assert.Single(result);
             Assert.Equal(RouteType.Recycle, result[0].Route);
+            Assert.Contains("does not have much information", result[0].Reason);
 
         }
 
