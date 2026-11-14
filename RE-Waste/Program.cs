@@ -84,7 +84,14 @@ namespace RE_Waste
             // Handles missing pages (404) and other HTTP status codes.
             app.UseStatusCodePagesWithReExecute("/Home/StatusCode", "?code={0}");
 
-
+            // Sends users back to the home page if they lose or no longer have their anti-forgery token (400).
+            app.UseStatusCodePages(async context =>
+            {
+                if (context.HttpContext.Response.StatusCode == 400)
+                {
+                    context.HttpContext.Response.Redirect("/Home/Index");
+                }
+            });
 
 
             app.UseHttpsRedirection();
