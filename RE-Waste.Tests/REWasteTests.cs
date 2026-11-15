@@ -569,4 +569,66 @@ namespace RE_Waste.Tests
 
         }
     }
+
+    // Tests for requirement 7: one top recommendation plus at most two alternatives, none repeating the top route.
+    public class AlternativesTests
+    {
+        // Builds a service whose database holds six active rules that match ANY device (all criteria null).
+        // There are 4 routes, and Donate and Repair each appear twice, so there are more rules than routes.
+        private static async Task<RecommendationService> BuildServiceAsync()
+        {
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase("Alternatives_" + Guid.NewGuid()).Options; // unique name so tests never share data
+            var context = new ApplicationDbContext(options);
+
+            context.RecommendationRules.AddRange(
+                new RecommendationRule { Name = "Donate high", Route = RouteType.Donate, Reason = "Donate (priority 10)", Priority = 10 },
+                new RecommendationRule { Name = "Donate low", Route = RouteType.Donate, Reason = "Donate (priority 9)", Priority = 9 },
+                new RecommendationRule { Name = "Resale", Route = RouteType.ResaleOrTradeIn, Reason = "Resale (priority 8)", Priority = 8 },
+                new RecommendationRule { Name = "Repair high", Route = RouteType.Repair, Reason = "Repair (priority 7)", Priority = 7 },
+                new RecommendationRule { Name = "Recycle", Route = RouteType.Recycle, Reason = "Recycle (priority 6)", Priority = 6 },
+                new RecommendationRule { Name = "Repair low", Route = RouteType.Repair, Reason = "Repair (priority 5)", Priority = 5 });
+            await context.SaveChangesAsync();
+
+            return new RecommendationService(context);
+        }
+
+        private static Device AnyDevice() => new Device
+        {
+            Brand = "Apple",
+            Model = "iPhone",
+            AgeInYears = 2,
+            Condition = Condition.Working,
+            HasPersonalData = true,
+            HasBatteryDamage = false
+        };
+
+        // Six rules match, but the result must be one top recommendation plus at most two alternatives (3 in total).
+        [Fact]
+        public async Task ManyMatchingRules_ReturnsTopPlusAtMostTwoAlternatives()
+        {
+            var service = await BuildServiceAsync();
+
+            var result = await service.RecommendAsync(AnyDevice());
+
+            Assert.Equal(3, result.Count);                          // 1 top + 2 alternatives
+            Assert.Equal(RouteType.Donate, result[0].Route);        // top = highest priority rule
+            Assert.Equal("Donate (priority 10)", result[0].Reason); // the priority 10 rule won, not the priority 9 one
+            Assert.True(result.Skip(1).Count() <= 2);               // never more than two alternatives
+        }
+
+        // No alternative may be the same route as the top recommendation (or as each other).
+        [Fact]
+        public async Task Alternatives_NeverRepeatTheTopRecommendationsRoute()
+        {
+            var service = await BuildServiceAsync();
+
+            var result = await service.RecommendAsync(AnyDevice());
+            var top = result[0];
+            var alternatives = result.Skip(1).ToList();
+
+            Assert.All(alternatives, alt => Assert.NotEqual(top.Route, alt.Route)); // none duplicates the top route
+            Assert.Equal(result.Count, result.Select(r => r.Route).Distinct().Count()); // and no route appears twice at all
+        }
+    }
 }
