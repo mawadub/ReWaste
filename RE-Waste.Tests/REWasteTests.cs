@@ -437,6 +437,49 @@ namespace RE_Waste.Tests
     //This class will contain all of the test methods for testing the the recommendation service and to see if it provides dififerent routes up to 3 with a reason each.
     public class RecomendationServiceTests
     {
+        // Creates a separate in-memory database for each test
+        private ApplicationDbContext GetDatabase()
+        {
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            return new ApplicationDbContext(options);
+        }
+
+        // Creates a standard test device
+        private Device GetTestDevice(int age = 2)
+        {
+            return new Device
+            {
+                Brand = "Apple",
+                Model = "iPhone",
+                AgeInYears = age,
+                Condition = Condition.Working,
+                HasPersonalData = true,
+                HasBatteryDamage = false
+            };
+        }
+
+        // Creates a standard recommendation rule
+        private RecommendationRule GetTestRule(
+            string name,
+            string reason,
+            int priority = 1,
+            bool isActive = true)
+        {
+            return new RecommendationRule
+            {
+                Name = name,
+                Reason = reason,
+                Priority = priority,
+                IsActive = isActive,
+                Route = RouteType.Donate,
+                MinAgeInYears = 2,
+                MaxAgeInYears = 5
+            };
+        }
+
         // Test that devices with battery damage only receive a recycle recommendation
         [Fact]
         public async Task BatteryDamaged_ReturnsOnlyRecycle()
@@ -542,6 +585,120 @@ namespace RE_Waste.Tests
             Assert.NotEmpty(result);
 
             Assert.False(string.IsNullOrWhiteSpace(result[0].Reason));
+        }
+
+
+        // TEST 1: Minimum age boundary
+        [Fact]
+        public async Task MinimumAgeBoundary_ReturnsMatchingRule()
+        {
+            using var context = GetDatabase();
+
+            context.RecommendationRules.Add(
+                GetTestRule("Minimum age rule", "Minimum age matched"));
+
+            await context.SaveChangesAsync();
+
+            var service = new RecommendationService(context);
+
+            var result = await service.RecommendAsync(GetTestDevice(2));
+
+            // Age 2 should match because it is the minimum age
+            Assert.Contains(result, r => r.Reason == "Minimum age matched");
+        }
+
+        // TEST 2: Maximum age boundary
+        [Fact]
+        public async Task MaximumAgeBoundary_ReturnsMatchingRule()
+        {
+            using var context = GetDatabase();
+
+            context.RecommendationRules.Add(
+                GetTestRule("Maximum age rule", "Maximum age matched"));
+
+            await context.SaveChangesAsync();
+
+            var service = new RecommendationService(context);
+
+            var result = await service.RecommendAsync(GetTestDevice(5));
+
+            // Age 5 should match because it is the maximum age
+            Assert.Contains(result, r => r.Reason == "Maximum age matched");
+        }
+
+        // TEST 3: Higher priority rule wins
+        [Fact]
+        public async Task HigherPriorityRuleWins()
+        {
+            using var context = GetDatabase();
+
+            context.RecommendationRules.AddRange(
+                GetTestRule("Low priority rule", "Low priority", 1),
+                GetTestRule("High priority rule", "High priority", 10)
+            );
+
+            await context.SaveChangesAsync();
+
+            var service = new RecommendationService(context);
+
+            var result = await service.RecommendAsync(GetTestDevice());
+
+            // The higher priority rule should win
+            Assert.Contains(result, r => r.Reason == "High priority");
+
+            // The lower priority rule should not be returned
+            Assert.DoesNotContain(result, r => r.Reason == "Low priority");
+        }
+
+        // TEST 4: Inactive rules are ignored
+        [Fact]
+        public async Task InactiveRulesAreIgnored()
+        {
+            using var context = GetDatabase();
+
+            context.RecommendationRules.Add(
+                GetTestRule("Inactive rule", "Inactive recommendation", 10, false)
+            );
+
+            await context.SaveChangesAsync();
+
+            var service = new RecommendationService(context);
+
+            var result = await service.RecommendAsync(GetTestDevice());
+
+            // Inactive recommendation should not appear
+            Assert.DoesNotContain(result, r => r.Reason == "Inactive recommendation");
+
+            // With no active matching rules, the service should recycle
+            Assert.Contains(result, r => r.Route == RouteType.Recycle);
+        }
+
+        // TEST 5: Ties between rules
+        [Fact]
+        public async Task TiedRules_ReturnOneRecommendationPerRoute()
+        {
+            using var context = GetDatabase();
+
+            context.RecommendationRules.AddRange(
+                GetTestRule("First tied rule", "First tied recommendation", 5),
+                GetTestRule("Second tied rule", "Second tied recommendation", 5)
+            );
+
+            await context.SaveChangesAsync();
+
+            var service = new RecommendationService(context);
+
+            var result = await service.RecommendAsync(GetTestDevice());
+
+            // Both rules have the same route, so only one recommendation is returned
+            Assert.Single(result);
+
+            // Either rule can win because they have equal priority
+            Assert.Contains(result[0].Reason, new[]
+            {
+        "First tied recommendation",
+        "Second tied recommendation"
+    });
         }
 
 
