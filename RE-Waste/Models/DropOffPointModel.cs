@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using RE_Waste.Models.Enums;
-using System.ComponentModel.DataAnnotations;
-using RE_Waste.Models.Enums;
 
 namespace RE_Waste.Models
 {
