@@ -1,5 +1,7 @@
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RE_Waste.Areas.Manager.Controllers;
 using RE_Waste.Data;
 using RE_Waste.Extensions;
 using RE_Waste.Models;
@@ -702,6 +704,171 @@ namespace RE_Waste.Tests
         }
 
 
+    }
+
+    public class QuestionsControllerTests
+    {
+        // Creates a separate in-memory database for each test.
+        private ApplicationDbContext GetDatabase()
+        {
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            return new ApplicationDbContext(options);
+        }
+
+        // TEST 1: Correct answer type is accepted.
+        [Fact]
+        public async Task CorrectAnswerType_AllowsQuestionCreation()
+        {
+            using var context = GetDatabase();
+
+            var controller = new QuestionsController(context);
+
+            var question = new Question
+            {
+                Text = "What is your phone brand?",
+                DeviceField = DeviceField.Brand,
+                AnswerType = AnswerType.Text
+            };
+
+            var result = await controller.Create(question);
+
+            // Question should be saved successfully.
+            Assert.IsType<RedirectToActionResult>(result);
+            Assert.Single(context.Questions);
+        }
+
+        // TEST 2: Incorrect answer type is rejected.
+        [Fact]
+        public async Task IncorrectAnswerType_RejectsQuestionCreation()
+        {
+            using var context = GetDatabase();
+
+            var controller = new QuestionsController(context);
+
+            var question = new Question
+            {
+                Text = "What is your phone brand?",
+                DeviceField = DeviceField.Brand,
+                AnswerType = AnswerType.Number
+            };
+
+            var result = await controller.Create(question);
+
+            // Question should not be saved.
+            Assert.IsType<ViewResult>(result);
+            Assert.Empty(context.Questions);
+
+            // ModelState should contain an answer type error.
+            Assert.True(controller.ModelState.ContainsKey(
+                nameof(Question.AnswerType)));
+        }
+
+        // TEST 3: Two active questions cannot use the same device field.
+        [Fact]
+        public async Task DuplicateActiveQuestion_IsRejected()
+        {
+            using var context = GetDatabase();
+
+            context.Questions.Add(new Question
+            {
+                Text = "First brand question",
+                DeviceField = DeviceField.Brand,
+                AnswerType = AnswerType.Text,
+                IsActive = true
+            });
+
+            await context.SaveChangesAsync();
+
+            var controller = new QuestionsController(context);
+
+            var question = new Question
+            {
+                Text = "Second brand question",
+                DeviceField = DeviceField.Brand,
+                AnswerType = AnswerType.Text
+            };
+
+            var result = await controller.Create(question);
+
+            // Duplicate question should be rejected.
+            Assert.IsType<ViewResult>(result);
+
+            Assert.Single(context.Questions);
+
+            Assert.True(controller.ModelState.ContainsKey(
+                nameof(Question.DeviceField)));
+        }
+
+        // TEST 4: An inactive question does not prevent another
+        // question from using the same device field.
+        [Fact]
+        public async Task InactiveQuestion_AllowsNewActiveQuestion()
+        {
+            using var context = GetDatabase();
+
+            context.Questions.Add(new Question
+            {
+                Text = "Old brand question",
+                DeviceField = DeviceField.Brand,
+                AnswerType = AnswerType.Text,
+                IsActive = false
+            });
+
+            await context.SaveChangesAsync();
+
+            var controller = new QuestionsController(context);
+
+            var question = new Question
+            {
+                Text = "New brand question",
+                DeviceField = DeviceField.Brand,
+                AnswerType = AnswerType.Text
+            };
+
+            var result = await controller.Create(question);
+
+            // New question should be accepted.
+            Assert.IsType<RedirectToActionResult>(result);
+
+            Assert.Equal(2, context.Questions.Count());
+
+            Assert.Equal(1, context.Questions.Count(q => q.IsActive));
+        }
+
+        // TEST 5: Different device fields can have active questions.
+        [Fact]
+        public async Task DifferentDeviceFields_AllowActiveQuestions()
+        {
+            using var context = GetDatabase();
+
+            context.Questions.Add(new Question
+            {
+                Text = "What is your phone brand?",
+                DeviceField = DeviceField.Brand,
+                AnswerType = AnswerType.Text,
+                IsActive = true
+            });
+
+            await context.SaveChangesAsync();
+
+            var controller = new QuestionsController(context);
+
+            var question = new Question
+            {
+                Text = "What is your phone model?",
+                DeviceField = DeviceField.Model,
+                AnswerType = AnswerType.Text
+            };
+
+            var result = await controller.Create(question);
+
+            // Both questions should be accepted.
+            Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal(2, context.Questions.Count());
+        }
     }
 
 
