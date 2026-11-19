@@ -706,7 +706,7 @@ namespace RE_Waste.Tests
 
     }
 
-    public class QuestionsControllerTests
+    public class ManagerQuestionsTests
     {
         // Creates a separate in-memory database for each test.
         private ApplicationDbContext GetDatabase()
