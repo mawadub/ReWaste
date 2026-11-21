@@ -70,10 +70,17 @@ public static class Web
     {
         await client.GetAsync("/Wizard/Start");   // resets/creates the wizard state in the session
 
-        foreach (var answer in new[] { brand, model, age, condition, personalData, batteryDamage })
+        var answers = new[] { brand, model, age, condition, personalData, batteryDamage };
+        for (var i = 0; i < answers.Length; i++)
         {
-            var next = await AnswerAsync(client, answer);
-            Assert.Equal(HttpStatusCode.Redirect, next.StatusCode);
+            var next = await AnswerAsync(client, answers[i]);
+            var body = await Web.TextAsync(next);
+            Assert.True(next.StatusCode == HttpStatusCode.Redirect,
+                $"Answer {i + 1} ('{answers[i]}') was not accepted. Status {(int)next.StatusCode}. Page started: {body.Substring(0, Math.Min(body.Length, 400))}");
+
+            var expected = i < answers.Length - 1 ? "/Wizard/Step" : "/Wizard/Postcode";
+            Assert.True(Web.RedirectPath(next) == expected,
+                $"After answer {i + 1} ('{answers[i]}') the app redirected to {Web.RedirectPath(next)} but I expected {expected}.");
         }
 
         var postcodeResponse = await PostFormAsync(client, "/Wizard/Postcode", "/Wizard/Postcode",
