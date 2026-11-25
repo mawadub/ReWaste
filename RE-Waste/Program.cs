@@ -62,7 +62,15 @@ namespace RE_Waste
             using (var scope = app.Services.CreateScope())
             {
                 //creates or updates the database from the migrations and does nothing if it’s already up to date
-                await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                if (db.Database.IsRelational())
+                {
+                    await db.Database.MigrateAsync();      // real app: SQL Server, from the migrations
+                }
+                else
+                {
+                    await db.Database.EnsureCreatedAsync(); // for tests: the in-memory database has no migrations
+                }
                 await IdentitySeeder.SeedAsync(scope.ServiceProvider);
                 await DataSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<ApplicationDbContext>());
             }
