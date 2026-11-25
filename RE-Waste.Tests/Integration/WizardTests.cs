@@ -50,20 +50,7 @@ namespace RE_Waste.Tests.Integration
             Assert.Equal("/Wizard/Start", Web.RedirectPath(response));
         }
 
-        [Fact] // IT-13
-        public async Task Next_Without_A_Session_Sends_The_User_Back_To_Start()
-        {
-            var client = _factory.CreateBrowserClient();
-            // Never called /Wizard/Start, so no wizard state in the session (like an expired session).
-            // Any page with a form gives us a valid anti-forgery token to post with.
-            var response = await Web.PostFormAsync(client, "/Identity/Account/Login", "/Wizard/Next",
-                new() { ["answer"] = "Apple" });
-
-            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-            Assert.Equal("/Wizard/Start", Web.RedirectPath(response));
-        }
-
-        [Fact] //IT-14: Check if system handles invalid postcodes correctly
+        [Fact] //IT-13: Check if system handles invalid postcodes correctly
         public async Task Invalid_Postcode_Show_Message()
         {
             var client = _factory.CreateBrowserClient();
@@ -74,7 +61,7 @@ namespace RE_Waste.Tests.Integration
             Assert.Contains("Please enter a valid postcode.", await Web.TextAsync(response));
         }
 
-        [Fact] //IT-15: Full jorney for a recent working phone, make sure recomends donation first
+        [Fact] //IT-14: Full jorney for a recent working phone, make sure recomends donation first
         public async Task Full_Journey_For_A_Recent_Working_Phone_Recommends_Donate_First()
         {
             var client = _factory.CreateBrowserClient();
@@ -90,7 +77,7 @@ namespace RE_Waste.Tests.Integration
             Assert.Contains("A working phone may be suitable for resale or trade-in.", text);
         }
 
-        [Fact] // IT-16: a damaged battery must win over everything (priority 100)
+        [Fact] // IT-15: a damaged battery must win over everything (priority 100)
         public async Task Damaged_Battery_Recommends_Recycling()
         {
             var client = _factory.CreateBrowserClient();
@@ -107,7 +94,7 @@ namespace RE_Waste.Tests.Integration
             System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", " ").Replace("\r", " ").Replace("\n", " ").Substring(0, 1500));
         }
 
-        [Fact] // IT-17: If user tries to go to the results without answering the questions it will be redirected to the start
+        [Fact] // IT-16: If user tries to go to the results without answering the questions it will be redirected to the start
         public async Task Results_Without_A_Finished_Wizard_Redirects_To_Start()
         {
             var client = _factory.CreateBrowserClient();

@@ -76,7 +76,7 @@ namespace RE_Waste.Tests.Integration
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        [Fact] //IT-05: Refestered user can sign in and access device page
+        [Fact] //IT-05: Regestered user can sign in and access device page
         public async Task Seeded_User_can_Sign_in()
         {
             var user = await _factory.CreateTestUserAsync();
